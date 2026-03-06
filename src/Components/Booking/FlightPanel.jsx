@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./FlightPanel.css";
+import "./flightPanel.css";
 
 export default function FlightPanel() {
   const [tripType, setTripType] = useState("oneway");
