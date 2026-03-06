@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaExchangeAlt, FaTrain } from "react-icons/fa";
-import "./trainpanel.css";
+import "./TrainPanel.css";
 
 export default function TrainPanel() {
   const [from, setFrom] = useState("Mumbai");
