@@ -1,0 +1,230 @@
+.visa-search-wrapper {
+  width: 100%;
+  padding: 50px 20px 90px;
+  background: #f5f7fb;
+  text-align: center;
+  position: relative;
+}
+
+.visa-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1c5db6;
+  margin-bottom: 30px;
+}
+
+/* Search container */
+.visa-search-box {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  background: white;
+  border-radius: 40px;
+  max-width: 1100px;
+  margin: auto;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  overflow: visible;
+}
+
+/* Each column */
+.search-item {
+  padding: 22px 30px;
+  text-align: center;
+  border-right: 1px solid #eee;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 130px;
+}
+
+.search-item:last-child {
+  border-right: none;
+}
+
+.search-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #777;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.field-value,
+.date-input {
+  font-size: 20px;
+  font-weight: 600;
+  color: #555;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.date-input {
+  border: none;
+  text-align: center;
+  outline: none;
+}
+
+/* Dropdown */
+.country-dropdown {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: 420px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+.country-search {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  outline: none;
+}
+
+.country-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.country-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.country-item:hover {
+  background: #f8f9ff;
+}
+
+.country-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.country-left img {
+  width: 22px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.country-item p {
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+}
+
+.visa-tag {
+  background: #e8edff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #0d496e;
+}
+
+/* Search button fix */
+.visa-search-btn {
+  margin-top: -30px;
+  background: linear-gradient(135deg,#0d496e,#1b6a98);
+  color: white;
+  border: none;
+  outline: none;
+  padding: 16px 55px;
+  font-size: 20px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  position: relative;
+  z-index: 100;
+}
+
+/* remove unwanted line */
+.visa-search-btn::after {
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .visa-search-box {
+    grid-template-columns: 1fr;
+    border-radius: 20px;
+  }
+
+  .search-item {
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  .country-dropdown {
+    width: 100%;
+  }
+
+  .visa-search-btn {
+    margin-top: 20px;
+  }
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker {
+  z-index: 9999 !important;
+}
+
+
+
+
+
+
+.country-dropdown.animated {
+  animation: dropdownFade 0.25s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.visa-info {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.visa-info img {
+  width: 40px;
+  border-radius: 4px;
+}
+
+.visa-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.visa-check-btn {
+  background: #2c5cff;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+}

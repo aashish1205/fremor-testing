@@ -1,0 +1,145 @@
+/* Floating container */
+
+.services-wrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px; /* FIXED: remove negative overlap */
+  z-index: 30;
+}
+
+/* Tabs container */
+
+.tabs {
+  display: flex;
+  gap: 18px;
+  background: white;
+  padding: 18px 22px;
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  backdrop-filter: blur(12px);
+  animation: tabFloat 0.5s ease;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Hide scrollbar */
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs {
+  scrollbar-width: none;
+}
+
+/* Individual tab */
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  min-width: 90px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Icon */
+
+.tab .icon {
+  font-size: 22px;
+  transition: 0.3s;
+}
+
+/* Label */
+
+.tab span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* Hover */
+
+.tab:hover {
+  background: #f3f8fb;
+  transform: translateY(-4px);
+}
+
+.tab:hover .icon {
+  transform: scale(1.2);
+}
+
+/* Active tab */
+
+.tab.active {
+  background: linear-gradient(135deg,#0d496e,#1b6a98);
+  color: white;
+  box-shadow: 0 10px 30px rgba(13,73,110,0.35);
+}
+
+.tab.active span {
+  color: white;
+}
+
+.tab.active .icon {
+  transform: scale(1.2);
+}
+
+/* Animation */
+
+@keyframes tabFloat {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+  .services-wrapper {
+    margin-bottom: 10px;
+  }
+
+  .tabs {
+    padding: 14px;
+    gap: 12px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .services-wrapper {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 10px;
+  }
+
+  .tabs {
+    border-radius: 18px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .tab {
+    min-width: 80px;
+    padding: 10px;
+  }
+
+  .tab span {
+    font-size: 11px;
+  }
+}
