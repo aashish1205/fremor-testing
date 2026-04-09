@@ -31,6 +31,7 @@ import Blog from './Blog'
 import BlogDetails from './BlogDetails'
 import Contact from './Contact'
 import Visa from './Visa'
+import VisaDetail from './VisaDetail'
 import Cruise from './Cruise'
 function RouterPage() {
   return (
@@ -68,6 +69,7 @@ function RouterPage() {
           <Route path="/blog/:id" element={<BlogDetails />}></Route>
           <Route path="/contact" element={<Contact />}></Route> 
           <Route path="/visa" element={<Visa />}></Route> 
+          <Route path="/visa/detail" element={<VisaDetail />}></Route>
           <Route path="/cruise" element={<Cruise />}></Route> 
         </Routes>
       </Router>

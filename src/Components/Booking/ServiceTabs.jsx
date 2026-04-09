@@ -1,10 +1,7 @@
 import {
   FaPlane,
-  FaHotel,
   FaTrain,
-  FaBus,
-  FaTaxi,
-  FaUmbrellaBeach
+  FaSuitcaseRolling
 } from "react-icons/fa";
 
 import "./ServiceTabs.css";
@@ -12,31 +9,22 @@ import "./ServiceTabs.css";
 const tabs = [
   { id: "flights", label: "Flights", icon: <FaPlane /> },
   { id: "trains", label: "Trains", icon: <FaTrain /> },
-  { id: "buses", label: "Buses", icon: <FaBus /> },
-  { id: "cabs", label: "Cabs", icon: <FaTaxi /> },
-  { id: "hotels", label: "Hotels", icon: <FaHotel /> },
-  { id: "villas", label: "Villas", icon: <FaUmbrellaBeach /> },
-  { id: "packages", label: "Packages", icon: <FaUmbrellaBeach /> },
-  
-  
-  
+  { id: "packages", label: "Holiday Packages", icon: <FaSuitcaseRolling /> },
 ];
 
 export default function ServiceTabs({ service, setService }) {
   return (
-    <div className="services-wrapper">
-      <div className="tabs">
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            className={`tab ${service === tab.id ? "active" : ""}`}
-            onClick={() => setService(tab.id)}
-          >
-            <div className="icon">{tab.icon}</div>
-            <span>{tab.label}</span>
-          </div>
-        ))}
-      </div>
+    <div className="mmt-tabs-wrapper">
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          className={`mmt-tab ${service === tab.id ? "active" : ""}`}
+          onClick={() => setService(tab.id)}
+        >
+          <span className="mmt-tab-icon">{tab.icon}</span>
+          <span className="mmt-tab-label">{tab.label}</span>
+        </div>
+      ))}
     </div>
   );
 }

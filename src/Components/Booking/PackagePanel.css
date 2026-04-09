@@ -1,0 +1,326 @@
+/* ===== PACKAGE PANEL - MakeMyTrip Clone ===== */
+/* Reuses shared .mmt-* and .dd-* classes from flightPanel.css */
+
+.pkg-panel {
+  animation: panelFadeIn 0.3s ease both;
+}
+
+/* Sub-tabs */
+.pkg-subtabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 28px;
+  border-bottom: 1px solid #e8e8e8;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+}
+
+.pkg-subtabs::-webkit-scrollbar { display: none; }
+
+.pkg-subtab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4a4a;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s ease;
+}
+
+.pkg-subtab-icon { font-size: 14px; display: flex; }
+.pkg-subtab:hover { color: #0d496e; }
+.pkg-subtab.active { color: #0d496e; border-bottom-color: #0d496e; }
+
+/* Field sizes */
+.pkg-from { flex: 1.5 !important; }
+.pkg-to { flex: 2 !important; }
+.pkg-rooms { flex: 1.5 !important; }
+.pkg-filters { flex: 1 !important; }
+
+.pkg-city-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  width: 100%;
+  padding: 0;
+}
+
+/* Dest dropdown */
+.dd-dest {
+  width: 400px;
+  padding: 8px 0;
+}
+
+.dd-pill-active {
+  background: #0d496e !important;
+  color: #fff !important;
+  border-color: #0d496e !important;
+}
+
+/* Filter placeholder */
+.pkg-filter-placeholder {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9b9b;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* Rooms popup */
+.dd-rooms-popup {
+  width: 300px;
+  padding: 20px 24px;
+}
+
+.pkg-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pkg-counter-row:last-of-type {
+  border-bottom: none;
+}
+
+.pkg-counter-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+.pkg-counter {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pkg-counter-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 18px;
+  font-weight: 600;
+  color: #4a4a4a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.pkg-counter-btn:hover {
+  background: #0d496e;
+  color: #fff;
+}
+
+.pkg-counter-val {
+  width: 40px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Label right */
+.pkg-label-right {
+  position: absolute;
+  right: 28px;
+  font-size: 12px;
+  color: #9b9b9b;
+}
+
+/* ======================================================
+   FILTERS POPUP
+   ====================================================== */
+
+.pkg-selected-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pkg-f-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.pkg-f-count {
+  background: #0d496e;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.dd-filters-popup {
+  width: 380px;
+  padding: 0;
+}
+
+.pkg-filter-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.pkg-filter-section.border-0 {
+  border-bottom: none;
+}
+
+.pkg-filter-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+.pkg-filter-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9b9b9b;
+}
+
+/* Pseudo Slider */
+.pkg-slider-track {
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  position: relative;
+  margin: 10px 8px 20px;
+}
+
+.pkg-slider-fill {
+  position: absolute;
+  left: 20%;
+  right: 30%;
+  height: 100%;
+  background: #008cff; /* matching MMT blue */
+}
+
+.pkg-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border: 2px solid #008cff;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.pkg-slider-thumb.left { left: 20%; margin-left: -8px; }
+.pkg-slider-thumb.right { right: 30%; margin-right: -8px; }
+
+/* Filter Pills */
+.pkg-flight-pills,
+.pkg-budget-pills-scroll {
+  display: flex;
+  gap: 10px;
+}
+
+.pkg-budget-pills-row {
+  margin-top: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+.pkg-budget-pills-row::-webkit-scrollbar { display: none; }
+
+.pkg-f-pill {
+  padding: 8px 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4a4a;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.pkg-f-num {
+  color: #9b9b9b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pkg-f-pill:hover {
+  border-color: #008cff;
+}
+
+.pkg-f-pill.active {
+  border-color: #008cff;
+  background: #eaf5ff;
+  color: #008cff;
+}
+
+.pkg-f-pill.active .pkg-f-num {
+  color: #008cff;
+}
+
+/* Apply */
+.pkg-filter-apply-wrap {
+  padding: 16px 24px;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: center;
+}
+
+.pkg-filter-apply {
+  background: #008cff;
+  width: 100%;
+  border-radius: 6px;
+  padding: 12px;
+}
+.pkg-filter-apply:hover {
+  background: #007bed;
+  box-shadow: none;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pkg-subtabs { padding: 0 12px; }
+  .pkg-subtab { padding: 10px 12px; font-size: 12px; }
+  .dd-dest { width: 100%; }
+  .dd-rooms-popup { width: 280px; }
+  .dd-filters-popup { width: 340px; }
+}
+
+@media (max-width: 600px) {
+  .dd-dest,
+  .dd-rooms-popup,
+  .dd-filters-popup {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    max-height: 70vh;
+    border-radius: 16px 16px 0 0;
+    z-index: 9999;
+    overflow-y: auto;
+  }
+}

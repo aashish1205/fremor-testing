@@ -31,11 +31,16 @@
   text-align: center;
   border-right: 1px solid #eee;
   position: relative;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 130px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-item:hover {
+  background: #f8faff;
 }
 
 .search-item:last-child {
@@ -43,27 +48,43 @@
 }
 
 .search-item label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
   display: block;
   margin-bottom: 6px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
 .field-value,
 .date-input {
   font-size: 20px;
   font-weight: 600;
-  color: #555;
+  color: #333;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
-.date-input {
-  border: none;
-  text-align: center;
-  outline: none;
+
+.field-value.has-date {
+  color: #0d496e;
+}
+
+.selected-country-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.selected-flag {
+  width: 24px;
+  height: 16px;
+  border-radius: 2px;
+  object-fit: cover;
 }
 
 /* Dropdown */
@@ -84,6 +105,7 @@
   border: none;
   border-bottom: 1px solid #eee;
   outline: none;
+  font-size: 15px;
 }
 
 .country-list {
@@ -97,6 +119,7 @@
   padding: 14px;
   cursor: pointer;
   border-bottom: 1px solid #f1f1f1;
+  transition: background 0.15s;
 }
 
 .country-item:hover {
@@ -129,7 +152,7 @@
   color: #0d496e;
 }
 
-/* Search button fix */
+/* Search button */
 .visa-search-btn {
   margin-top: -30px;
   background: linear-gradient(135deg,#0d496e,#1b6a98);
@@ -144,14 +167,314 @@
   box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   position: relative;
   z-index: 100;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* remove unwanted line */
+.visa-search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
 .visa-search-btn::after {
   display: none;
 }
 
-/* Responsive */
+.visa-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* ============================================================
+   DUAL MONTH CALENDAR
+   ============================================================ */
+
+.cal-overlay {
+  position: absolute;
+  top: 230px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 760px;
+}
+
+.cal-popup {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+  animation: calSlideIn 0.25s ease;
+}
+
+@keyframes calSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Calendar Header */
+.cal-header {
+  padding: 20px 28px 14px;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.cal-header-labels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.cal-header-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #999;
+  cursor: pointer;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.cal-header-label.active {
+  color: #0d496e;
+  border-bottom-color: #0d496e;
+}
+
+.cal-header-sep {
+  color: #ccc;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.cal-duration-info {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #e6f7ee, #f0faf4);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #0b8043;
+  font-weight: 500;
+  border-left: 3px solid #0b8043;
+}
+
+/* Calendar Months Container */
+.cal-months {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 20px 24px;
+}
+
+.cal-month {
+  padding: 0 10px;
+}
+
+.cal-month:first-child {
+  border-right: 1px solid #eef1f5;
+  padding-right: 20px;
+}
+
+.cal-month:last-child {
+  padding-left: 20px;
+}
+
+/* Month Header */
+.cal-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.cal-month-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a2b49;
+  letter-spacing: 0.3px;
+}
+
+.cal-nav-btn {
+  background: none;
+  border: 1px solid #dde2ea;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  color: #0d496e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.cal-nav-btn:hover {
+  background: #0d496e;
+  color: white;
+  border-color: #0d496e;
+}
+
+/* Calendar Table */
+.cal-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.cal-table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a94a6;
+  padding: 8px 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Calendar Day Cells */
+.cal-day {
+  text-align: center;
+  padding: 0;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.cal-day span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  transition: all 0.15s;
+}
+
+.cal-day:hover span {
+  background: #e8f0fe;
+  color: #0d496e;
+}
+
+/* Disabled days */
+.cal-day-disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.cal-day-disabled span {
+  color: #ccd3dd;
+}
+
+/* Previous / Next month days */
+.cal-day-other {
+  cursor: default;
+  pointer-events: none;
+  color: #ccd3dd;
+}
+
+.cal-day-other span {
+  color: #ccd3dd;
+}
+
+/* Selected start/end */
+.cal-day-selected span {
+  background: #0d496e !important;
+  color: white !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(13, 73, 110, 0.3);
+}
+
+/* Start day - range bg on right half */
+.cal-day-start {
+  background: linear-gradient(to left, #e3edf7 50%, transparent 50%);
+}
+
+/* End day - range bg on left half */
+.cal-day-end {
+  background: linear-gradient(to right, #e3edf7 50%, transparent 50%);
+}
+
+/* If start and end are the same day */
+.cal-day-start.cal-day-end {
+  background: transparent;
+}
+
+/* In-range days */
+.cal-day-range {
+  background: #e3edf7;
+}
+
+.cal-day-range span {
+  color: #0d496e;
+  font-weight: 600;
+}
+
+/* Calendar Footer */
+.cal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-top: 1px solid #eef1f5;
+  background: #fafbfc;
+}
+
+.cal-selected-range {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.cal-apply-btn {
+  background: linear-gradient(135deg, #0d496e, #1b6a98);
+  color: white;
+  border: none;
+  padding: 10px 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cal-apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 73, 110, 0.3);
+}
+
+/* ============================================================
+   DROPDOWN ANIMATION
+   ============================================================ */
+.country-dropdown.animated {
+  animation: dropdownFade 0.25s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 992px) {
   .visa-search-box {
     grid-template-columns: 1fr;
@@ -170,61 +493,45 @@
   .visa-search-btn {
     margin-top: 20px;
   }
-}
 
-.react-datepicker-popper {
-  z-index: 9999 !important;
-}
-
-.react-datepicker {
-  z-index: 9999 !important;
-}
-
-
-
-
-
-
-.country-dropdown.animated {
-  animation: dropdownFade 0.25s ease;
-}
-
-@keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  .cal-overlay {
+    top: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 95vw;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .cal-months {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .cal-month:first-child {
+    border-right: none;
+    padding-right: 10px;
+    border-bottom: 1px solid #eef1f5;
+    padding-bottom: 20px;
+  }
+
+  .cal-month:last-child {
+    padding-left: 10px;
   }
 }
 
-.visa-info {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-  justify-content: center;
-  align-items: center;
-}
+@media (max-width: 576px) {
+  .cal-header-labels {
+    flex-direction: column;
+    gap: 8px;
+  }
 
-.visa-info img {
-  width: 40px;
-  border-radius: 4px;
-}
+  .cal-header-sep {
+    display: none;
+  }
 
-.visa-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.visa-check-btn {
-  background: #2c5cff;
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 30px;
-  cursor: pointer;
+  .cal-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
 }

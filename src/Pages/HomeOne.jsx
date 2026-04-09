@@ -22,7 +22,6 @@ function HomeOne() {
         <div>
             <HeaderOne />
             <BannerOne />
-            <Booking />
             <BookingSection/>
             <CategoryOne />
             <DestinationOne />

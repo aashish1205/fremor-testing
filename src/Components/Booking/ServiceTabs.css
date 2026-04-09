@@ -1,145 +1,95 @@
-/* Floating container */
+/* ===== MakeMyTrip-style Service Tabs ===== */
 
-.services-wrapper {
+.mmt-tabs-wrapper {
   display: flex;
+  align-items: center;
   justify-content: center;
-  position: relative;
-  margin-bottom: 20px; /* FIXED: remove negative overlap */
-  z-index: 30;
+  gap: 0;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0;
 }
 
-/* Tabs container */
-
-.tabs {
-  display: flex;
-  gap: 18px;
-  background: white;
-  padding: 18px 22px;
-  border-radius: 22px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-  backdrop-filter: blur(12px);
-  animation: tabFloat 0.5s ease;
-  overflow-x: auto;
-  max-width: 100%;
-}
-
-/* Hide scrollbar */
-
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.tabs {
-  scrollbar-width: none;
-}
-
-/* Individual tab */
-
-.tab {
+.mmt-tab {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 6px;
-  padding: 12px 18px;
-  border-radius: 16px;
+  padding: 20px 32px 14px;
   cursor: pointer;
-  transition: 0.3s ease;
-  min-width: 90px;
-  flex-shrink: 0;
   position: relative;
+  transition: all 0.25s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
 }
 
-/* Icon */
-
-.tab .icon {
-  font-size: 22px;
-  transition: 0.3s;
+.mmt-tab-icon {
+  font-size: 24px;
+  color: #4a4a4a;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
-/* Label */
-
-.tab span {
+.mmt-tab-label {
   font-size: 13px;
-  font-weight: 600;
-  color: #555;
+  font-weight: 700;
+  color: #4a4a4a;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: color 0.25s ease;
 }
 
 /* Hover */
-
-.tab:hover {
-  background: #f3f8fb;
-  transform: translateY(-4px);
+.mmt-tab:hover .mmt-tab-icon {
+  color: #0d496e;
 }
 
-.tab:hover .icon {
-  transform: scale(1.2);
+.mmt-tab:hover .mmt-tab-label {
+  color: #0d496e;
 }
 
-/* Active tab */
-
-.tab.active {
-  background: linear-gradient(135deg,#0d496e,#1b6a98);
-  color: white;
-  box-shadow: 0 10px 30px rgba(13,73,110,0.35);
+/* Active */
+.mmt-tab.active {
+  border-bottom-color: #0d496e;
 }
 
-.tab.active span {
-  color: white;
+.mmt-tab.active .mmt-tab-icon {
+  color: #0d496e;
 }
 
-.tab.active .icon {
-  transform: scale(1.2);
+.mmt-tab.active .mmt-tab-label {
+  color: #0d496e;
 }
 
-/* Animation */
-
-@keyframes tabFloat {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Tablet */
-
-@media (max-width: 1000px) {
-  .services-wrapper {
-    margin-bottom: 10px;
-  }
-
-  .tabs {
-    padding: 14px;
-    gap: 12px;
-  }
-}
-
-/* Mobile */
-
-@media (max-width: 600px) {
-  .services-wrapper {
-    justify-content: flex-start;
+/* Responsive */
+@media (max-width: 768px) {
+  .mmt-tabs-wrapper {
     overflow-x: auto;
-    padding: 0 10px;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .tabs {
-    border-radius: 18px;
-    padding: 12px;
-    gap: 10px;
+  .mmt-tabs-wrapper::-webkit-scrollbar {
+    display: none;
   }
 
-  .tab {
-    min-width: 80px;
-    padding: 10px;
+  .mmt-tab {
+    padding: 16px 20px 12px;
+    min-width: 90px;
+    flex-shrink: 0;
   }
 
-  .tab span {
+  .mmt-tab-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .mmt-tab-label {
     font-size: 11px;
   }
 }

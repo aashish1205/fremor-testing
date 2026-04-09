@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./VisaPageSections.css";
 
 const mostVisited = [
@@ -68,6 +69,12 @@ const europe = [
 ];
 export default function VisaPageSections() {
   const sliderRef = useRef();
+  const navigate = useNavigate();
+
+  const goToDetail = (name, flag) => {
+    const params = new URLSearchParams({ country: name, flag });
+    navigate(`/visa/detail?${params.toString()}`);
+  };
 
   const scroll = (dir) => {
     const cardWidth = 280;
@@ -93,7 +100,7 @@ export default function VisaPageSections() {
 
         <div className="country-slider" ref={sliderRef}>
           {mostVisited.map((c, i) => (
-            <div className="country-card" key={i}>
+            <div className="country-card" key={i} onClick={() => goToDetail(c.name, c.flag)} style={{ cursor: 'pointer' }}>
               <div className="card-top">
                 <img src={c.flag} alt="" />
                 <span className="visa-type">{c.visa}</span>
@@ -130,16 +137,16 @@ export default function VisaPageSections() {
         <div className="europe-grid">
           {europe.map((c, i) => (
             <div className="europe-card" key={i}>
-  <img src={c.flag} className="europe-flag" />
+              <img src={c.flag} className="europe-flag" />
 
-  <span className="sticker">STICKER VISA</span>
+              <span className="sticker">STICKER VISA</span>
 
-  <div className="europe-info">
-    <h3>{c.name}</h3>
-    <p>Know your appointment date by {c.date}</p>
-    <button>Apply Now ›</button>
-  </div>
-</div>
+              <div className="europe-info">
+                <h3>{c.name}</h3>
+                <p>Know your appointment date by {c.date}</p>
+                <button onClick={(e) => { e.stopPropagation(); goToDetail(c.name, c.flag); }}>Apply Now ›</button>
+              </div>
+            </div>
           ))}
         </div>
       </section>

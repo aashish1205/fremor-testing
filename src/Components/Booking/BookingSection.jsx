@@ -1,10 +1,8 @@
 import { useState } from "react";
 import ServiceTabs from "./ServiceTabs";
 import FlightPanel from "./FlightPanel";
-import HotelPanel from "./HotelPanel";
 import TrainPanel from "./TrainPanel";
-import BusPanel from "./BusPanel";
-import CabPanel from "./CabPanel";
+import PackagePanel from "./PackagePanel";
 import "./booking.css";
 
 export default function Booking() {
@@ -14,14 +12,10 @@ export default function Booking() {
     switch (service) {
       case "flights":
         return <FlightPanel />;
-      case "hotels":
-        return <HotelPanel />;
       case "trains":
         return <TrainPanel />;
-      case "buses":
-        return <BusPanel />;
-      case "cabs":
-        return <CabPanel />;
+      case "packages":
+        return <PackagePanel />;
       default:
         return <FlightPanel />;
     }
@@ -31,7 +25,9 @@ export default function Booking() {
     <div className="booking-page">
       <div className="booking-card">
         <ServiceTabs service={service} setService={setService} />
-        {renderPanel()}
+        <div className="panel-area">
+          {renderPanel()}
+        </div>
       </div>
     </div>
   );
