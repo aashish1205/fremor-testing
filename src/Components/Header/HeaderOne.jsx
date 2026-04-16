@@ -109,7 +109,7 @@ function HeaderOne() {
                                     <div className="header-logo">
                                         <Link to="/">
                                             <img
-                                                src="assets/img/logo/FremorLogo.png"
+                                                src="/assets/img/logo/FremorLogo.png"
                                                 alt="Fremor"
                                             />
                                         </Link>
@@ -121,99 +121,13 @@ function HeaderOne() {
                                     <nav className="main-menu d-none d-xl-inline-block">
                                         <ul>
 
-                                            {/* Home */}
-                                            <li className={`menu-item-has-children mega-menu-wrap ${isParentActive(["/", "/home-tour", "/home-agency", "/home-yacht"]) ? "active" : ""}`}>
+                                            <li>
                                                 <Link className={isActive("/") ? "active" : ""} to="/">
                                                     Home
                                                 </Link>
-
-                                                {/* Mega Menu (unchanged) */}
-                                                <ul className="mega-menu mega-menu-content">
-                                                    <li>
-                                                        <div className="container">
-                                                            <div className="row gy-4">
-
-                                                                {/* Home Travel */}
-                                                                <div className="col-lg-3">
-                                                                    <div className="mega-menu-box">
-                                                                        <div className="mega-menu-img">
-                                                                            <img src="/assets/img/pages/home-travel.jpg" alt="" />
-                                                                            <div className="btn-wrap">
-                                                                                <Link to="/" className="th-btn">
-                                                                                    View Demo
-                                                                                </Link>
-                                                                            </div>
-                                                                        </div>
-                                                                        <h3 className="mega-menu-title">
-                                                                            <Link to="/">
-                                                                                <span>01.</span>Home Travel
-                                                                            </Link>
-                                                                        </h3>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Home Tour */}
-                                                                <div className="col-lg-3">
-                                                                    <div className="mega-menu-box">
-                                                                        <div className="mega-menu-img">
-                                                                            <img src="/assets/img/pages/home-tour.jpg" alt="" />
-                                                                            <div className="btn-wrap">
-                                                                                <Link to="/home-tour" className="th-btn">
-                                                                                    View Demo
-                                                                                </Link>
-                                                                            </div>
-                                                                        </div>
-                                                                        <h3 className="mega-menu-title">
-                                                                            <Link to="/home-tour">
-                                                                                <span>02.</span>Home Tour
-                                                                            </Link>
-                                                                        </h3>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Home Agency */}
-                                                                <div className="col-lg-3">
-                                                                    <div className="mega-menu-box">
-                                                                        <div className="mega-menu-img">
-                                                                            <img src="/assets/img/pages/home-agency.jpg" alt="" />
-                                                                            <div className="btn-wrap">
-                                                                                <Link to="/home-agency" className="th-btn">
-                                                                                    View Demo
-                                                                                </Link>
-                                                                            </div>
-                                                                        </div>
-                                                                        <h3 className="mega-menu-title">
-                                                                            <Link to="/home-agency">
-                                                                                <span>03.</span>Home Agency
-                                                                            </Link>
-                                                                        </h3>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Home Yacht */}
-                                                                <div className="col-lg-3">
-                                                                    <div className="mega-menu-box">
-                                                                        <div className="mega-menu-img">
-                                                                            <img src="/assets/img/pages/home-yacht.jpg" alt="" />
-                                                                            <div className="btn-wrap">
-                                                                                <Link to="/home-yacht" className="th-btn">
-                                                                                    View Demo
-                                                                                </Link>
-                                                                            </div>
-                                                                        </div>
-                                                                        <h3 className="mega-menu-title">
-                                                                            <Link to="/home-yacht">
-                                                                                <span>04.</span>Home Yacht
-                                                                            </Link>
-                                                                        </h3>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </ul>
                                             </li>
+
+                                           
 
                                             {/* About */}
                                             <li>
@@ -223,20 +137,14 @@ function HeaderOne() {
                                             </li>
 
                                             {/* Destination */}
-                                            <li className={`menu-item-has-children ${isParentActive(["/destination"]) ? "active" : ""}`}>
-                                                <Link to="#">Destination</Link>
-                                                <ul className="sub-menu">
-                                                    <li>
-                                                        <Link to="/destination">Destination</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/destination/1">Destination Details</Link>
-                                                    </li>
-                                                </ul>
+                                            <li>
+                                                <Link className={isActive("/destination") ? "active" : ""} to="/destination">
+                                                    Destinations
+                                                </Link>
                                             </li>
 
                                             {/* Service */}
-                                            <li className={`menu-item-has-children ${isParentActive(["/service"]) ? "active" : ""}`}>
+                                            {/*<li className={`menu-item-has-children ${isParentActive(["/service"]) ? "active" : ""}`}>
                                                 <Link to="#">Service</Link>
                                                 <ul className="sub-menu">
                                                     <li>
@@ -246,10 +154,10 @@ function HeaderOne() {
                                                         <Link to="/service/1">Service Details</Link>
                                                     </li>
                                                 </ul>
-                                            </li>
+                                            </li>*/}
 
                                             {/* Activities */}
-                                            <li className={`menu-item-has-children ${isParentActive(["/activities"]) ? "active" : ""}`}>
+                                            {/*<li className={`menu-item-has-children ${isParentActive(["/activities"]) ? "active" : ""}`}>
                                                 <Link to="#">Activities</Link>
                                                 <ul className="sub-menu">
                                                     <li>
@@ -259,11 +167,11 @@ function HeaderOne() {
                                                         <Link to="/activities-details">Activities Details</Link>
                                                     </li>
                                                 </ul>
-                                            </li>
+                                            </li>*/}
 
                                             {/* Blog */}
-                                            <li className={`menu-item-has-children ${isParentActive(["/blog"]) ? "active" : ""}`}>
-                                                <Link to="#">Blog</Link>
+                                            {/*<li className={`menu-item-has-children ${isParentActive(["/blog"]) ? "active" : ""}`}>
+                                                <Link to="#">Blogs</Link>
                                                 <ul className="sub-menu">
                                                     <li>
                                                         <Link to="/blog">Blog</Link>
@@ -272,7 +180,16 @@ function HeaderOne() {
                                                         <Link to="/blog/1">Blog Details</Link>
                                                     </li>
                                                 </ul>
+                                            </li>*/}
+
+
+                                            <li>
+                                                <Link className={isActive("/blog") ? "active" : ""} to="/blog">
+                                                   Blogs
+                                                </Link>
                                             </li>
+
+
 
                                             {/* Cruise */}
                                             <li>

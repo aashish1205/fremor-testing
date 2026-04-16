@@ -1,22 +1,68 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import DestinationCard from './DestinationCard';
-import posts from '../data/data-destination.json';
 import DestinationCardTwo from './DestinationCardTwo';
+import { fetchDestinations, searchDestinations } from '../../services/destinationService';
 
 function DestinationInner() {
     const [activeTab, setActiveTab] = useState('tab-grid');
     const [currentPage, setCurrentPage] = useState(1);
+    const [destinations, setDestinations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const postsPerPage = 9;
 
-    const totalPages = Math.ceil(posts.length / postsPerPage);
+    // Fetch destinations on mount
+    useEffect(() => {
+        loadDestinations();
+    }, []);
+
+    const loadDestinations = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await fetchDestinations();
+            setDestinations(data);
+        } catch (err) {
+            console.error('Error fetching destinations:', err);
+            setError('Failed to load destinations. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle search
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            setError(null);
+            setCurrentPage(1);
+            if (searchQuery.trim() === '') {
+                const data = await fetchDestinations();
+                setDestinations(data);
+            } else {
+                const data = await searchDestinations(searchQuery);
+                setDestinations(data);
+            }
+        } catch (err) {
+            console.error('Search error:', err);
+            setError('Search failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const totalPages = Math.ceil(destinations.length / postsPerPage);
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = destinations.slice(indexOfFirstPost, indexOfLastPost);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
+
     return (
         <section className="space">
             <div className="container">
@@ -24,8 +70,13 @@ function DestinationInner() {
                     <div className="row justify-content-between align-items-center">
                         <div className="col-md-4">
                             <div className="search-form-area">
-                                <form className="search-form">
-                                    <input type="text" placeholder="Search" />
+                                <form className="search-form" onSubmit={handleSearch}>
+                                    <input
+                                        type="text"
+                                        placeholder="Search destinations..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
                                     <button type="submit">
                                         <i className="fa-light fa-magnifying-glass" />
                                     </button>
@@ -85,60 +136,103 @@ function DestinationInner() {
                 </div>
                 <div className="row">
                     <div className="col-xxl-9 col-lg-8">
-                        <div className="tab-content" id="nav-tabContent">
-                            <div className={`tab-pane fade ${activeTab === 'tab-grid' ? 'show active' : ''}`} id="tab-grid" role="tabpanel"
-                            >
-                                <div className="row gy-30">
-                                    {currentPosts.map((data, index) => (
-                                        <div key={index} className="col-xxl-4 col-xl-6">
-                                            <DestinationCard
-                                                destinationID={data.id}
-                                                destinationImage={`${data.image}`}
-                                                destinationTitle={data.title}
-                                                destinationPrice={data.price}
-                                            />
-                                        </div>
-                                    ))}
+                        {/* Loading State */}
+                        {loading && (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="mt-3" style={{ color: '#666' }}>Loading destinations...</p>
+                            </div>
+                        )}
+
+                        {/* Error State */}
+                        {error && !loading && (
+                            <div className="alert alert-danger text-center" role="alert">
+                                <i className="fa-solid fa-triangle-exclamation me-2"></i>
+                                {error}
+                                <button className="btn btn-outline-danger btn-sm ms-3" onClick={loadDestinations}>
+                                    Retry
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Empty State */}
+                        {!loading && !error && destinations.length === 0 && (
+                            <div className="text-center py-5">
+                                <i className="fa-light fa-map-location-dot" style={{ fontSize: '4rem', color: '#ccc' }}></i>
+                                <h4 className="mt-3" style={{ color: '#999' }}>No destinations found</h4>
+                                <p style={{ color: '#aaa' }}>
+                                    {searchQuery ? 'Try a different search term.' : 'Destinations will appear here once added.'}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        {!loading && !error && destinations.length > 0 && (
+                            <div className="tab-content" id="nav-tabContent">
+                                <div className={`tab-pane fade ${activeTab === 'tab-grid' ? 'show active' : ''}`} id="tab-grid" role="tabpanel"
+                                >
+                                    <div className="row gy-30">
+                                        {currentPosts.map((data) => (
+                                            <div key={data.id} className="col-xxl-4 col-xl-6">
+                                                <DestinationCard
+                                                    destinationID={data.id}
+                                                    destinationImage={data.image}
+                                                    destinationTitle={data.title}
+                                                    destinationPrice={`₹${data.price}`}
+                                                    destinationDuration={data.duration}
+                                                    destinationPriceUnit={data.price_unit}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className={`tab-pane fade ${activeTab === 'tab-list' ? 'show active' : ''}`} id="tab-list" role="tabpanel"
+                                >
+                                    <div className="row gy-30">
+                                        {currentPosts.map((data) => (
+                                            <div key={data.id} className="col-12">
+                                                <DestinationCardTwo
+                                                    destinationID={data.id}
+                                                    destinationImage={data.image}
+                                                    destinationTitle={data.title}
+                                                    destinationPrice={`₹${data.price}`}
+                                                    destinationDuration={data.duration}
+                                                    destinationPriceUnit={data.price_unit}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div className={`tab-pane fade ${activeTab === 'tab-list' ? 'show active' : ''}`} id="tab-list" role="tabpanel"
-                            >
-                                <div className="row gy-30">
-                                    {currentPosts.map((data, index) => (
-                                        <div key={index} className="col-12">
-                                            <DestinationCardTwo
-                                                destinationID={data.id}
-                                                destinationImage={`${data.image}`}
-                                                destinationTitle={data.title}
-                                                destinationPrice={data.price}
-                                            />
-                                        </div>
+                        )}
+
+                        {/* Pagination */}
+                        {!loading && !error && totalPages > 1 && (
+                            <div className="th-pagination text-center mt-60 mb-0">
+                                <ul>
+                                    {Array.from({ length: totalPages }, (_, i) => (
+                                        <li key={i}>
+                                            <Link
+                                                className={currentPage === i + 1 ? 'active' : ''}
+                                                to="#"
+                                                onClick={() => handlePageChange(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Link>
+                                        </li>
                                     ))}
-                                </div>
+                                    {currentPage < totalPages && (
+                                        <li>
+                                            <Link className="next-page" to="#" onClick={() => handlePageChange(currentPage + 1)}>
+                                                Next <img src="/assets/img/icon/arrow-right4.svg" alt="" />
+                                            </Link>
+                                        </li>
+                                    )}
+                                </ul>
                             </div>
-                        </div>
-                        <div className="th-pagination text-center mt-60 mb-0">
-                            <ul>
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <li key={i}>
-                                        <Link
-                                            className={currentPage === i + 1 ? 'active' : ''}
-                                            to="#"
-                                            onClick={() => handlePageChange(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Link>
-                                    </li>
-                                ))}
-                                {currentPage < totalPages && (
-                                    <li>
-                                        <Link className="next-page" to="#" onClick={() => handlePageChange(currentPage + 1)}>
-                                            Next <img src="/assets/img/icon/arrow-right4.svg" alt="" />
-                                        </Link>
-                                    </li>
-                                )}
-                            </ul>
-                        </div>
+                        )}
                     </div>
                     <div className="col-xxl-3 col-lg-4">
                         <aside className="sidebar-area style2">

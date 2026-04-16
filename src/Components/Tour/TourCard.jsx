@@ -34,7 +34,7 @@ function TourCard(props) {
                     </Link>
                 </div>
                 <h4 className="tour-box_price">
-                    <span className="currency">{tourPrice ? tourPrice : '$980.00'}</span>/Person
+                    <span className="currency">{tourPrice ? tourPrice : '₹980.00'}</span>/Person
                 </h4>
                 <div className="tour-action">
                     <span>

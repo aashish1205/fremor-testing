@@ -1,12 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { getImageSrc } from '../../services/destinationService';
 
 function DestinationCardTwo(props) {
-    const { destinationID, destinationImage, destinationTitle, destinationPrice } = props;
+    const { destinationID, destinationImage, destinationTitle, destinationPrice, destinationDuration, destinationPriceUnit } = props;
     return (
         <div className="tour-box style-flex th-ani">
             <div className="tour-box_img global-img">
-                <img src={`/assets/img/tour/${destinationImage}`} alt="" />
+                <img src={getImageSrc(destinationImage)} alt={destinationTitle || 'Destination'} />
             </div>
             <div className="tour-content">
                 <h3 className="box-title">
@@ -34,11 +35,11 @@ function DestinationCardTwo(props) {
                     </Link>
                 </div>
                 <h4 className="tour-box_price">
-                    <span className="currency">{destinationPrice ? destinationPrice : '$980.00'}</span>/Person
+                    <span className="currency">{destinationPrice ? destinationPrice : '₹980.00'}</span>/{destinationPriceUnit ? destinationPriceUnit : 'Person'}
                 </h4>
                 <div className="tour-action">
                     <span>
-                        <i className="fa-light fa-clock" />7 Days
+                        <i className="fa-light fa-clock" />{destinationDuration ? destinationDuration : '7 Days'}
                     </span>
                     <Link to="/contact" className="th-btn style4 th-icon">
                         Book Now

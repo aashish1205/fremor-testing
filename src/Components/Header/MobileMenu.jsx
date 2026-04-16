@@ -40,7 +40,7 @@ function MobileMenu({ isOpen, onClose }) {
 
                 <div className="mobile-logo">
                     <Link to="/">
-                        <img src="assets/img/logo/FremorLogoblack.png"  alt="Tourm" style={{ width: "140px", height: "auto", maxWidth: "140px" }}/>
+                        <img src="/assets/img/logo/FremorLogoblack.png"  alt="Tourm" style={{ width: "140px", height: "auto", maxWidth: "140px" }}/>
                     </Link>
                 </div>
 
@@ -66,17 +66,7 @@ function MobileMenu({ isOpen, onClose }) {
                         <li><Link to="/about">About Us</Link></li>
 
                         {/* Destination */}
-                        <li className={`menu-item-has-children th-item-has-children ${activeMenu === 2 ? "th-active" : ""}`}>
-                            <Link to="#" onClick={() => toggleMenu(2)}>Destination</Link>
-                            <ul
-                                ref={(el) => (menuRefs.current[2] = el)}
-                                className="th-submenu"
-                                style={{ height: "0px", overflow: "hidden", transition: "height 0.3s ease-in-out" }}
-                            >
-                                <li><Link to="/destination">Destination</Link></li>
-                                <li><Link to="/destination/1">Destination Details</Link></li>
-                            </ul>
-                        </li>
+                        <li><Link to="/destination">Destinations</Link></li>
 
                         {/* Service */}
                         <li className={`menu-item-has-children th-item-has-children ${activeMenu === 3 ? "th-active" : ""}`}>

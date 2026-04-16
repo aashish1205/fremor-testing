@@ -1,18 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import TourCard from './TourCard';
-import posts from '../data/data-tour.json';
 import TourCardTwo from './TourCardTwo';
+import { fetchTours, searchTours, getTourImageSrc } from '../../services/tourService';
 
 function TourInner() {
     const [activeTab, setActiveTab] = useState('tab-grid');
     const [currentPage, setCurrentPage] = useState(1);
+    const [tours, setTours] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const postsPerPage = 8;
 
-    const totalPages = Math.ceil(posts.length / postsPerPage);
+    useEffect(() => {
+        loadTours();
+    }, []);
+
+    const loadTours = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchTours();
+            setTours(data);
+            setCurrentPage(1);
+        } catch (err) {
+            console.error(err);
+            setError('Failed to load tours');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            const data = await searchTours(searchTerm);
+            setTours(data);
+            setCurrentPage(1);
+        } catch (err) {
+            console.error(err);
+            setError('Search failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const totalPages = Math.ceil(tours.length / postsPerPage);
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = tours.slice(indexOfFirstPost, indexOfLastPost);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -24,8 +61,13 @@ function TourInner() {
                     <div className="row justify-content-between align-items-center">
                         <div className="col-md-4">
                             <div className="search-form-area">
-                                <form className="search-form">
-                                    <input type="text" placeholder="Search" />
+                                <form className="search-form" onSubmit={handleSearch}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search" 
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                     <button type="submit">
                                         <i className="fa-light fa-magnifying-glass" />
                                     </button>
@@ -89,14 +131,18 @@ function TourInner() {
                             <div
                                 className={`tab-pane fade ${activeTab === 'tab-grid' ? 'show active' : ''}`} id="tab-grid" role="tabpanel"
                             >
+                                {loading && <div className="text-center py-5"><h4>Loading tours...</h4></div>}
+                                {error && <div className="text-center py-5 text-danger"><h4>{error}</h4></div>}
+                                {!loading && !error && tours.length === 0 && <div className="text-center py-5"><h4>No tours found.</h4></div>}
+                                
                                 <div className="row gy-24 gx-24">
-                                    {currentPosts.map((data, index) => (
+                                    {!loading && currentPosts.map((data, index) => (
                                         <div key={index} className="col-md-6">
                                             <TourCard
                                                 tourID={data.id}
-                                                tourImage={`${data.image}`}
+                                                tourImage={getTourImageSrc(data.primary_image || data.image)}
                                                 tourTitle={data.title}
-                                                tourPrice={data.price}
+                                                tourPrice={`₹${data.price}`}
                                             />
                                         </div>
                                     ))}
@@ -105,14 +151,18 @@ function TourInner() {
                             <div
                                 className={`tab-pane fade ${activeTab === 'tab-list' ? 'show active' : ''}`} id="tab-list" role="tabpanel"
                             >
+                                {loading && <div className="text-center py-5"><h4>Loading tours...</h4></div>}
+                                {error && <div className="text-center py-5 text-danger"><h4>{error}</h4></div>}
+                                {!loading && !error && tours.length === 0 && <div className="text-center py-5"><h4>No tours found.</h4></div>}
+                                
                                 <div className="row gy-30">
-                                    {currentPosts.map((data, index) => (
+                                    {!loading && currentPosts.map((data, index) => (
                                         <div key={index} className="col-12">
                                             <TourCardTwo
                                                 tourID={data.id}
-                                                tourImage={`${data.image}`}
+                                                tourImage={getTourImageSrc(data.primary_image || data.image)}
                                                 tourTitle={data.title}
-                                                tourPrice={data.price}
+                                                tourPrice={`₹${data.price}`}
                                             />
                                         </div>
                                     ))}

@@ -12,14 +12,19 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@reduxjs/toolkit": "^2.11.2",
+    "@supabase/supabase-js": "^2.103.0",
     "aos": "^2.3.4",
     "axios": "^1.13.2",
+    "cors": "^2.8.6",
     "dayjs": "^1.11.19",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
     "framer-motion": "^12.34.3",
     "jquery": "^3.7.1",
     "jquery-ui-dist": "^1.13.3",
     "masonry-layout": "^4.2.2",
     "matter-js": "^0.20.0",
+    "mongoose": "^9.4.1",
     "react": "^18.2.0",
     "react-burger-menu": "^3.1.0",
     "react-country-flag": "^3.1.0",
@@ -45,5 +50,18 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "vite": "^7.2.4"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aashish1205/fremor-testing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aashish1205/fremor-testing/issues"
+  },
+  "homepage": "https://github.com/aashish1205/fremor-testing#readme"
 }

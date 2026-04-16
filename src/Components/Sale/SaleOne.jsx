@@ -84,7 +84,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now
@@ -137,7 +137,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now
@@ -190,7 +190,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now
@@ -243,7 +243,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now
@@ -296,7 +296,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now
@@ -349,7 +349,7 @@ function SaleOne() {
                                     </div>
                                     <div className="tour-action">
                                         <h4 className="tour-box_price">
-                                            <span className="currency">$980.00</span>/per day
+                                            <span className="currency">₹980.00</span>/per day
                                         </h4>
                                         <Link to="/contact" className="th-btn style4 th-icon">
                                             Book Now

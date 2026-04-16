@@ -8,6 +8,8 @@ import About from './About'
 import LoadTop from '../Components/LoadTop'
 import Destination from './Destination'
 import DestinationDetails from './DestinationDetails'
+import DestinationAdmin from './DestinationAdmin'
+import TourAdmin from './TourAdmin'
 import Service from './Service'
 import ServiceDetails from './ServiceDetails';
 import Activities from './Activities'
@@ -46,6 +48,7 @@ function RouterPage() {
           <Route path="/about" element={<About />}></Route>
           <Route path="/destination" element={<Destination />}></Route>
           <Route path="/destination/:id" element={<DestinationDetails />} />
+          <Route path="/admin/destinations" element={<DestinationAdmin />} />
           <Route path="/service" element={<Service />}></Route>
           <Route path="/service/:id" element={<ServiceDetails />} />
           <Route path="/activities" element={<Activities />}></Route>
@@ -57,7 +60,8 @@ function RouterPage() {
           <Route path="/wishlist" element={<Wishlist />}></Route>
           <Route path="/gallery" element={<Gallery />}></Route>
           <Route path="/tour" element={<Tour />}></Route>
-          <Route path="/tour-details" element={<TourDetails />}></Route>
+          <Route path="/tour-details/:id" element={<TourDetails />} />
+          <Route path="/admin/tours" element={<TourAdmin />} />
           <Route path="/resort" element={<Resort />}></Route>
           <Route path="/resort/:id" element={<ResortDetails />}></Route>
           <Route path="/tour-guide" element={<TourGuide />}></Route>

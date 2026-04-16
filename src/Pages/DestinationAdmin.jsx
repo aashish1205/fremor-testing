@@ -1,22 +1,26 @@
 import React from 'react'
 import HeaderOne from '../Components/Header/HeaderOne'
 import Breadcrumb from '../Components/BreadCrumb/Breadcrumb'
-import TourDetailsMain from '../Components/Tour/TourDetailsMain'
 import FooterFour from '../Components/Footer/FooterFour'
 import ScrollToTop from '../Components/ScrollToTop'
+import DestinationAdminPanel from '../Components/Destination/DestinationAdminPanel'
 
-function TourDetails() {
+function DestinationAdmin() {
     return (
         <>
             <HeaderOne />
             <Breadcrumb
-                title="Package Details"
+                title="Admin - Destinations"
             />
-            <TourDetailsMain />
+            <section className="space">
+                <div className="container">
+                    <DestinationAdminPanel />
+                </div>
+            </section>
             <FooterFour />
             <ScrollToTop />
         </>
     )
 }
 
-export default TourDetails
+export default DestinationAdmin

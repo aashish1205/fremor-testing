@@ -144,7 +144,7 @@ function PopularDestination() {
                                             </Link>
                                         </div>
                                         <h4 className="tour-card_price">
-                                            <span className="currency">${destination.price}.00</span>/Person
+                                            <span className="currency">₹{destination.price}.00</span>/Person
                                         </h4>
                                         <div className="tour-action">
                                             <span>

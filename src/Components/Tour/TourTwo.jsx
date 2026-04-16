@@ -24,7 +24,7 @@ const TourItem = ({ image, title, link, rating, price, duration, bookLink }) => 
                 </Link>
             </div>
             <h4 className="tour-box_price">
-                <span className="currency">${price}</span>/Person
+                <span className="currency">₹{price}</span>/Person
             </h4>
             <div className="tour-action">
                 <span>

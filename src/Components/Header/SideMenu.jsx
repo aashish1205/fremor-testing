@@ -19,7 +19,7 @@ function SideMenu({ isOpen, onClose }) {
                         <div className="th-widget-about">
                             <div className="about-logo">
                                 <Link to="/">
-                                    <img src="assets\img\logo\FremorLogo-white.png" alt="Tourm" />
+                                    <img src="/assets/img/logo/FremorLogo-white.png" alt="Tourm" />
                                 </Link>
                             </div>
                             <p className="about-text">
@@ -48,7 +48,7 @@ function SideMenu({ isOpen, onClose }) {
                             <div className="recent-post">
                                 <div className="media-img">
                                     <Link to="/blog/1">
-                                        <img src="assets/img/blog/recent-post-1-1.jpg" alt="Blog Image" />
+                                        <img src="/assets/img/blog/recent-post-1-1.jpg" alt="Blog Image" />
                                     </Link>
                                 </div>
                                 <div className="media-body">
@@ -68,7 +68,7 @@ function SideMenu({ isOpen, onClose }) {
                             <div className="recent-post">
                                 <div className="media-img">
                                     <Link to="/blog/1">
-                                        <img src="assets/img/blog/recent-post-1-2.jpg" alt="Blog Image" />
+                                        <img src="/assets/img/blog/recent-post-1-2.jpg" alt="Blog Image" />
                                     </Link>
                                 </div>
                                 <div className="media-body">
@@ -92,7 +92,7 @@ function SideMenu({ isOpen, onClose }) {
                         <div className="th-widget-contact">
                             <div className="info-box_text">
                                 <div className="icon">
-                                    <img src="assets/img/icon/phone.svg" alt="img" />
+                                    <img src="/assets/img/icon/phone.svg" alt="img" />
                                 </div>
                                 <div className="details">
                                     <p>
@@ -109,7 +109,7 @@ function SideMenu({ isOpen, onClose }) {
                             </div>
                             <div className="info-box_text">
                                 <div className="icon">
-                                    <img src="assets/img/icon/envelope.svg" alt="img" />
+                                    <img src="/assets/img/icon/envelope.svg" alt="img" />
                                 </div>
                                 <div className="details">
                                     <p>
@@ -126,7 +126,7 @@ function SideMenu({ isOpen, onClose }) {
                             </div>
                             <div className="info-box_text">
                                 <div className="icon">
-                                    <img src="assets/img/icon/location-dot.svg" alt="img" />
+                                    <img src="/assets/img/icon/location-dot.svg" alt="img" />
                                 </div>
                                 <div className="details">
                                     <p>789 Inner Lane, Holy park, California, USA</p>
