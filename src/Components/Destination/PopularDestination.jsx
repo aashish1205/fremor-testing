@@ -4,6 +4,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Link } from "react-router-dom";
+import EnquirePopupForm from '../Forms/EnquirePopupForm';
+import { useState } from "react";
 
 const destinations = [
     {
@@ -91,6 +93,7 @@ const sectionStyle = {
   };
 
 function PopularDestination() {
+    const [selectedDest, setSelectedDest] = useState(null);
     return (
         <section
             className="tour-sec2 position-relative overflow-hidden bg-top-center z-index-3 space-top"
@@ -126,7 +129,9 @@ function PopularDestination() {
                             <SwiperSlide key={destination.id}>
                                 <div className="tour-card th-ani gsap-cursor">
                                     <div className="tour-card_img global-img">
-                                        <img src={destination.image} alt={destination.title} />
+                                        <Link to={destination.link}>
+                                            <img src={destination.image} alt={destination.title} />
+                                        </Link>
                                     </div>
                                     <div className="tour-content">
                                         <h3 className="box-title">
@@ -144,15 +149,16 @@ function PopularDestination() {
                                             </Link>
                                         </div>
                                         <h4 className="tour-card_price">
+                                            <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
                                             <span className="currency">₹{destination.price}.00</span>/Person
                                         </h4>
                                         <div className="tour-action">
                                             <span>
                                                 <i className="fa-light fa-clock" /> {destination.duration}
                                             </span>
-                                            <Link to="/contact" className="th-btn style4">
+                                            <button onClick={() => setSelectedDest(destination.title)} className="th-btn style4 border-0">
                                                 Book Now
-                                            </Link>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -161,6 +167,12 @@ function PopularDestination() {
                     </Swiper>
                 </div>
             </div>
+            
+            <EnquirePopupForm 
+                isOpen={!!selectedDest} 
+                onClose={() => setSelectedDest(null)} 
+                destinationTitle={selectedDest || 'Destination'} 
+            />
         </section>
     );
 }

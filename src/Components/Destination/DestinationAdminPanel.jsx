@@ -40,7 +40,7 @@ function DestinationAdminPanel() {
         basic_info_text: '',
         included_list: [''], // Array of strings
         excluded_list: [''], // Array of strings
-        itinerary: [{ day: "Day 01", activities: [''] }], // Array of objects
+        itinerary: [{ day: "Day 01", activities: [''], image: '' }], // Array of objects
         brochure_url: ''
     });
     
@@ -93,7 +93,7 @@ function DestinationAdminPanel() {
                 basic_info_text: dest.basic_info_text || '',
                 included_list: dest.included_list?.length ? dest.included_list : [''],
                 excluded_list: dest.excluded_list?.length ? dest.excluded_list : [''],
-                itinerary: dest.itinerary?.length ? dest.itinerary : [{ day: "Day 01", activities: [''] }],
+                itinerary: dest.itinerary?.length ? dest.itinerary : [{ day: "Day 01", activities: [''], image: '' }],
                 brochure_url: dest.brochure_url || ''
             });
         } else {
@@ -114,7 +114,7 @@ function DestinationAdminPanel() {
                 basic_info_text: '',
                 included_list: [''],
                 excluded_list: [''],
-                itinerary: [{ day: "Day 01", activities: [''] }],
+                itinerary: [{ day: "Day 01", activities: [''], image: '' }],
                 brochure_url: ''
             });
         }
@@ -167,14 +167,14 @@ function DestinationAdminPanel() {
         const newDayName = `Day ${dayCount.toString().padStart(2, '0')}`;
         setFormData(prev => ({ 
             ...prev, 
-            itinerary: [...prev.itinerary, { day: newDayName, activities: [''] }] 
+            itinerary: [...prev.itinerary, { day: newDayName, activities: [''], image: '' }]  
         }));
     };
 
     const removeItineraryDay = (dayIndex) => {
         const newItinerary = [...formData.itinerary];
         newItinerary.splice(dayIndex, 1);
-        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", activities: [''] });
+        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", activities: [''], image: '' });
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
@@ -226,10 +226,20 @@ function DestinationAdminPanel() {
             let numericRating = parseFloat(formData.rating) || 4.8;
 
             const cleanArray = arr => arr.filter(item => item.trim() !== '');
-            const cleanItinerary = formData.itinerary.map(day => ({
-                day: day.day,
-                activities: cleanArray(day.activities)
-            })).filter(day => day.day.trim() !== '');
+            const cleanItinerary = [];
+            for (let day of formData.itinerary) {
+                if (day.day.trim() !== '') {
+                    let finalDayImage = day.image || '';
+                    if (day.pendingImageFile) {
+                        finalDayImage = await uploadImage(day.pendingImageFile, 'destination');
+                    }
+                    cleanItinerary.push({
+                        day: day.day,
+                        activities: cleanArray(day.activities),
+                        image: finalDayImage
+                    });
+                }
+            }
 
             const dataToSave = {
                 title: formData.title,
@@ -508,6 +518,24 @@ function DestinationAdminPanel() {
                                         <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItineraryDay(dayIndex)}>
                                             Remove Day
                                         </button>
+                                    </div>
+                                    <div className="mb-2">
+                                        <label className="text-muted small">Day Image</label>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            className="form-control form-control-sm"
+                                            onChange={(e) => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    const file = e.target.files[0];
+                                                    const newItinerary = [...formData.itinerary];
+                                                    newItinerary[dayIndex].pendingImageFile = file;
+                                                    setFormData(prev => ({ ...prev, itinerary: newItinerary }));
+                                                }
+                                            }}
+                                        />
+                                        {dayObj.pendingImageFile && <small className="text-primary d-block mt-1">Pending: {dayObj.pendingImageFile.name}</small>}
+                                        {!dayObj.pendingImageFile && dayObj.image && <small className="text-muted d-block mt-1">Current: {dayObj.image.substring(0, 30)}...</small>}
                                     </div>
                                     <div className="ps-3 border-start border-3 border-primary mt-2">
                                         <label className="text-muted small mb-2">Day Activities / Timeline</label>

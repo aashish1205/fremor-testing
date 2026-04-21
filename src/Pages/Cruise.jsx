@@ -2,7 +2,7 @@ import React from 'react'
 import HeaderOne from '../Components/Header/HeaderOne'
 import BannerFour from '../Components/Banner/BannerFour'
 import AboutThree from '../Components/About/AboutThree'
-import SaleOne from '../Components/Sale/SaleOne'
+import CruiseCard from '../Components/Sale/CruiseCard'
 import GalleryFour from '../Components/Gallery/GalleryFour'
 import BrandOne from '../Components/Brand/BrandOne'
 import TourGuideThree from '../Components/Guide/TourGuideThree'
@@ -18,14 +18,13 @@ function Cruise() {
         <div>
             <HeaderOne />
             <BannerFour />
-            <CruiseSearch />
+            {/*<CruiseSearch />*/}
             <AboutThree />
-            <SaleOne />
+            <CruiseCard />
             <GalleryFour />
-            <BrandOne className="space-bottom"/>
-            <TourGuideThree />
+            {/*<BrandOne className="space-bottom"/>*/}
+            {/*<TourGuideThree />*/}
             <CounterThree />
-            <TestimonialFour />
             <BlogFour />
             <FooterThree />
             <ScrollToTop />

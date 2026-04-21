@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Link } from "react-router-dom";
 
-const   CategoryOne = () => {
+const CategoryOne = () => {
   const swiperRef = useRef(null);
 
   const categories = [
@@ -74,7 +74,7 @@ const   CategoryOne = () => {
   return (
     <section
       className="category-area bg-top-center"
-      style={{ backgroundImage: "url(/assets/img/banners/homecategorybanner.jpg)", backgroundRepeat: "no-repeat" }}
+      style={{ backgroundImage: "url(#)", backgroundRepeat: "no-repeat" }}
     >
       <div className="container th-container">
         <div className="title-area text-center">
@@ -120,7 +120,7 @@ const   CategoryOne = () => {
             </SwiperSlide>
           ))}
           <div className="slider-controller w-100 justify-content-center">
-            <div className="swiper-pagination" style={{maxWidth:"100%"}}></div>
+            <div className="swiper-pagination" style={{ maxWidth: "100%" }}></div>
           </div>
         </Swiper>
 

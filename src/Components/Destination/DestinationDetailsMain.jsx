@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs, EffectFade } from "swiper/modules";
 import { fetchDestinationById, getImageSrc } from '../../services/destinationService';
+import EnquirePopupForm from '../Forms/EnquirePopupForm';
 
 function DestinationDetailsMain() {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -10,6 +11,7 @@ function DestinationDetailsMain() {
     const [destinationPost, setDestinationPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isEnquireOpen, setIsEnquireOpen] = useState(false);
     const { id } = useParams();
 
     useEffect(() => {
@@ -77,8 +79,8 @@ function DestinationDetailsMain() {
                                 >
                                     {images.map((img, index) => (
                                         <SwiperSlide key={index}>
-                                            <div className="tour-slider-img" style={{ height: '400px' }}>
-                                                <img src={img} alt={`Slide ${index + 1}`} style={{ height: '100%', objectFit: 'cover' }} />
+                                            <div className="tour-slider-img" style={{ aspectRatio: '1508/880', width: '100%', overflow: 'hidden' }}>
+                                                <img src={img} alt={`Slide ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             </div>
                                         </SwiperSlide>
                                     ))}
@@ -118,9 +120,15 @@ function DestinationDetailsMain() {
                                     </span>
                                 </div>
                                 <h2 className="box-title">{destinationPost.title}</h2>
-                                <h4 className="tour-price">
-                                    <span className="currency">₹{destinationPost.price}</span>/{destinationPost.price_unit || 'Person'}
-                                </h4>
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 className="tour-price m-0">
+                                        <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
+                                        <span className="currency">₹{destinationPost.price}</span>/{destinationPost.price_unit || 'Person'}
+                                    </h4>
+                                    <button className="th-btn style3" onClick={() => setIsEnquireOpen(true)}>
+                                        <i className="fa-solid fa-paper-plane me-2"></i> Enquire Now
+                                    </button>
+                                </div>
                                 <p className="box-text mb-30">
                                     {destinationPost.description_1 || "No description provided."}
                                 </p>
@@ -198,6 +206,16 @@ function DestinationDetailsMain() {
                                                         role="tabpanel"
                                                     >
                                                         <div className="tour-grid-plan">
+                                                            {dayObj.image && (
+                                                                <div className="mb-4">
+                                                                    <img 
+                                                                        src={getImageSrc(dayObj.image)} 
+                                                                        alt={dayObj.day} 
+                                                                        className="w-100 rounded" 
+                                                                        style={{ aspectRatio: '1508/880', objectFit: 'cover' }} 
+                                                                    />
+                                                                </div>
+                                                            )}
                                                             <div className="checklist">
                                                                 <ul>
                                                                     {dayObj.activities.map((item, index) => (
@@ -336,6 +354,12 @@ function DestinationDetailsMain() {
                     </div>
                 </div>
             </div>
+            
+            <EnquirePopupForm 
+                isOpen={isEnquireOpen} 
+                onClose={() => setIsEnquireOpen(false)} 
+                destinationTitle={destinationPost?.title} 
+            />
         </section>
     );
 }

@@ -43,14 +43,15 @@ function fmtDate(dateStr) {
 }
 
 // ── Professional HTML email template ─────────────────────────────────────────
-function buildEmailHTML({ name, email, phone, country, travelDate, travellers, message, submittedAt }) {
+function buildEmailHTML({ name, email, phone, country, travelDate, travellers, message, submittedAt, enquiryType }) {
+  const displayType = enquiryType === 'Tour Package' ? 'Package' : enquiryType;
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Visa Enquiry</title>
+  <title>${enquiryType} Enquiry</title>
 </head>
 <body style="margin:0;padding:0;background:#f0f3f8;font-family:'Segoe UI',Arial,sans-serif;">
 
@@ -65,7 +66,7 @@ function buildEmailHTML({ name, email, phone, country, travelDate, travellers, m
               ✈️ Fremor Global
             </h1>
             <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">
-              New Visa Enquiry Received
+              New ${enquiryType} Enquiry Received
             </p>
           </td>
         </tr>
@@ -74,7 +75,7 @@ function buildEmailHTML({ name, email, phone, country, travelDate, travellers, m
         <tr>
           <td style="padding:24px 40px 0;text-align:center;">
             <span style="display:inline-block;background:#fff3cd;color:#856404;border:1px solid #ffc107;padding:8px 20px;border-radius:24px;font-size:13px;font-weight:600;">
-              🔔 New enquiry for <strong>${country}</strong> Visa
+              🔔 New enquiry for <strong>${country}</strong> ${displayType}
             </span>
           </td>
         </tr>
@@ -178,7 +179,7 @@ function buildEmailHTML({ name, email, phone, country, travelDate, travellers, m
         <!-- QUICK REPLY BUTTON -->
         <tr>
           <td style="padding:28px 40px 0;text-align:center;">
-            <a href="mailto:${email}?subject=Re: ${country} Visa Enquiry — Fremor Global&body=Dear ${name},%0A%0AThank you for your enquiry..."
+            <a href="mailto:${email}?subject=Re: ${country} ${enquiryType} Enquiry — Fremor Global&body=Dear ${name},%0A%0AThank you for your enquiry..."
                style="display:inline-block;background:linear-gradient(135deg,#0d496e,#1b6a98);color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:30px;font-size:15px;font-weight:700;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(13,73,110,0.35);">
               📧 Reply to ${name}
             </a>
@@ -199,7 +200,7 @@ function buildEmailHTML({ name, email, phone, country, travelDate, travellers, m
         <tr>
           <td style="padding:32px 40px;text-align:center;border-top:1px solid #f0f3f8;margin-top:32px;">
             <p style="margin:0;font-size:12px;color:#aaa;">
-              This enquiry was submitted on <strong>${submittedAt}</strong> via the Fremor Global Visa Detail page.
+              This enquiry was submitted on <strong>${submittedAt}</strong> via the Fremor Global website.
             </p>
             <p style="margin:8px 0 0;font-size:12px;color:#bbb;">
               © ${new Date().getFullYear()} Fremor Global · All rights reserved
@@ -216,9 +217,61 @@ function buildEmailHTML({ name, email, phone, country, travelDate, travellers, m
   `.trim();
 }
 
+// ── User HTML email template ─────────────────────────────────────────────
+function buildUserEmailHTML({ name, country, enquiryType }) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thank You for Your Enquiry</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f3f8;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f3f8;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#06294e 0%,#0b4a7a 60%,#0d5e99 100%);padding:32px 40px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:0.5px;">
+              ✈️ Fremor Global
+            </h1>
+            <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">
+              Thank you for reaching out!
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 40px 32px;">
+            <h2 style="margin:0 0 20px;font-size:18px;color:#1a2b49;font-weight:700;">Dear ${name},</h2>
+            <p style="color:#555;font-size:16px;line-height:1.6;margin:0 0 16px;">
+              Thank you for considering Fremor Global for your upcoming travel to <strong>${country}</strong>! We have successfully received your ${enquiryType} enquiry.
+            </p>
+            <p style="color:#555;font-size:16px;line-height:1.6;margin:0 0 16px;">
+              Our customer support team is currently reviewing your requirements and will contact you shortly to provide detailed information and assist you further with your travel plans.
+            </p>
+            <p style="color:#555;font-size:16px;line-height:1.6;margin:0 0 24px;">
+              If you have any immediate questions, please feel free to reply to this email or contact us directly.
+            </p>
+            <p style="color:#555;font-size:16px;line-height:1.6;margin:0;font-weight:600;">
+              Best regards,<br/>
+              The Fremor Global Team
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+
+</body>
+</html>
+  `.trim();
+}
+
 // ── POST /api/enquiry ────────────────────────────────────────────────────────
 app.post("/api/enquiry", async (req, res) => {
-  const { name, email, phone, country, travelDate, travellers, message } = req.body;
+  const { name, email, phone, country, travelDate, travellers, message, enquiryType = "Visa" } = req.body;
 
   // Basic validation
   if (!name || !email || !phone) {
@@ -231,17 +284,20 @@ app.post("/api/enquiry", async (req, res) => {
     hour: "2-digit", minute: "2-digit",
   });
 
-  const htmlBody = buildEmailHTML({ name, email, phone, country, travelDate, travellers, message, submittedAt });
+  const htmlBody = buildEmailHTML({ name, email, phone, country, travelDate, travellers, message, submittedAt, enquiryType });
+  const userHtmlBody = buildUserEmailHTML({ name, country, enquiryType });
 
-  const mailOptions = {
+  // 1. Email structure for Company (Receiver)
+  const companyMailOptions = {
     from: `"Fremor Global Enquiries" <${process.env.GMAIL_USER}>`,
     to: process.env.RECEIVER_EMAIL,
+    cc: process.env.TEAM_EMAILS ? process.env.TEAM_EMAILS.split(',') : [], // CC to other company members
     replyTo: email,                        // clicking Reply goes to the applicant
-    subject: `✈️ Visa Enquiry — ${country} | ${name} | ${phone}`,
+    subject: `✈️ ${enquiryType} Enquiry — ${country} | ${name} | ${phone}`,
     html: htmlBody,
     // Plain text fallback
     text: [
-      `NEW VISA ENQUIRY — Fremor Global`,
+      `NEW ${enquiryType.toUpperCase()} ENQUIRY — Fremor Global`,
       `──────────────────────────────`,
       `Name        : ${name}`,
       `Email       : ${email}`,
@@ -254,9 +310,24 @@ app.post("/api/enquiry", async (req, res) => {
     ].join("\n"),
   };
 
+  // 2. Email structure for End User
+  const userMailOptions = {
+    from: `"Fremor Global Tours" <${process.env.OFFICIAL_EMAIL || process.env.GMAIL_USER}>`,
+    to: email, // Sending to the user's email address
+    replyTo: process.env.OFFICIAL_EMAIL || process.env.RECEIVER_EMAIL, // User replies will go here
+    subject: `Thank you for your ${enquiryType} enquiry - ${country} | Fremor Global`,
+    html: userHtmlBody,
+    text: `Dear ${name},\n\nThank you for enquiring about ${country}. We have successfully received your ${enquiryType} enquiry.\n\nOur customer support team is reviewing your requirements and will contact you shortly to provide detailed information.\n\nBest regards,\nFremor Global Team`,
+  };
+
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`📨  Enquiry email sent → ${process.env.RECEIVER_EMAIL} | From: ${name} (${email}) | Country: ${country}`);
+    // Send both emails concurrently
+    await Promise.all([
+      transporter.sendMail(companyMailOptions),
+      transporter.sendMail(userMailOptions)
+    ]);
+    
+    console.log(`📨  Enquiry emails sent -> Company (${process.env.RECEIVER_EMAIL}) & User (${email}) | Country: ${country}`);
     res.json({ success: true, message: "Enquiry sent successfully." });
   } catch (err) {
     console.error("❌  Failed to send email:", err.message);

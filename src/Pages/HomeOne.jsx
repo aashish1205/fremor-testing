@@ -16,23 +16,25 @@ import FooterOne from '../Components/Footer/FooterOne'
 import ScrollToTop from '../Components/ScrollToTop'
 import BookingSection from '../Components/Booking/BookingSection'
 import FooterFour from '../Components/Footer/FooterFour'
+import BlogFour from '../Components/Blog/BlogFour'
+import TestimonialFour from '../Components/Testimonials/TestimonialFour'
 
 function HomeOne() {
     return (
         <div>
             <HeaderOne />
             <BannerOne />
-            <BookingSection/>
+            {/* <BookingSection/> */}
             <CategoryOne />
             <DestinationOne />
             <AboutOne />
             <TourOne />
             <GalleryOne />
             <CounterOne />
-            <TourGuide />
-            <TestimonialOne />
-            <BrandOne className="space-bottom"/>
-            <BlogOne />
+            {/* <TourGuide /> */}
+            <TestimonialFour />
+            {/* <BrandOne className="space-bottom"/> */}
+            <BlogFour />
             <FooterFour />
             <ScrollToTop />
         </div>

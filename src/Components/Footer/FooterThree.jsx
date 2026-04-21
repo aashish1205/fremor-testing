@@ -59,21 +59,20 @@ function FooterThree() {
                                         model. Appropriately create interactive infrastructures
                                     </p>
                                     <div className="th-social">
-                                        <Link to="https://www.facebook.com/">
+                                        <Link to="https://www.facebook.com/people/Fremor-global/61562522722104/">
                                             <i className="fab fa-facebook-f" />
                                         </Link>
-                                        <Link to="https://www.twitter.com/">
-                                            <i className="fab fa-twitter" />
-                                        </Link>
-                                        <Link to="https://www.linkedin.com/">
+                                                                               
+                                        <Link to="https://in.linkedin.com/company/fremor-global">
                                             <i className="fab fa-linkedin-in" />
                                         </Link>
-                                        <Link to="https://www.youtube.com/">
-                                            <i className="fab fa-youtube" />
-                                        </Link>
-                                        <Link to="https://www.whatsapp.com/">
+                                        <Link to="https://whatsapp.com/channel/0029VbBcWleGk1Fzprwgo43Z">
                                             <i className="fab fa-whatsapp" />
                                         </Link>
+                                        <Link to="https://www.instagram.com/fremorglobal/">
+                                            <i className="fab fa-instagram" />
+                                        </Link>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -112,13 +111,13 @@ function FooterThree() {
                                         </div>
                                         <div className="details">
                                             <p>
-                                                <Link to="tel:+01234567890" className="info-box_link">
-                                                    +01 234 567 890
+                                                <Link to="tel:+919920499911" className="info-box_link">
+                                                    +91 9920499911
                                                 </Link>
                                             </p>
                                             <p>
-                                                <Link to="tel:+09876543210" className="info-box_link">
-                                                    +09 876 543 210
+                                                <Link to="tel:+918657004943" className="info-box_link">
+                                                    +91 8657004943
                                                 </Link>
                                             </p>
                                         </div>
@@ -130,18 +129,18 @@ function FooterThree() {
                                         <div className="details">
                                             <p>
                                                 <Link
-                                                    to="/mailto:mailinfo00@tourm.com"
+                                                    to="/mailto:connect@fremorglobal.com"
                                                     className="info-box_link"
                                                 >
-                                                    mailinfo00@tourm.com
+                                                    connect@fremorglobal.com
                                                 </Link>
                                             </p>
                                             <p>
                                                 <Link
-                                                    to="/mailto:support24@tourm.com"
+                                                    to="/mailto:askari.rizvi@fremorglobal.com"
                                                     className="info-box_link"
                                                 >
-                                                    support24@tourm.com
+                                                    askari.rizvi@fremorglobal.com
                                                 </Link>
                                             </p>
                                         </div>
@@ -151,7 +150,7 @@ function FooterThree() {
                                             <img src="/assets/img/icon/location-dot.svg" alt="img" />
                                         </div>
                                         <div className="details">
-                                            <p>789 Inner Lane, Holy park, California, USA</p>
+                                            <p>11th floor, Urmi Estate Ganpatrao Kadam Marg, Lower Parel-west, Mumbai- 400013</p>
                                         </div>
                                     </div>
                                 </div>

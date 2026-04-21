@@ -1,11 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation'; // Import navigation styles
 import 'swiper/css/pagination'; // Import pagination styles
 import { Link } from 'react-router-dom';
+import { fetchDestinations, getImageSrc } from '../../services/destinationService';
 
 function TourOne() {
+  const [topDestinations, setTopDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDestinations = async () => {
+      try {
+        const data = await fetchDestinations();
+        // Sort by rating descending and pick top 6
+        const sortedDestinations = data
+          .map(dest => ({ ...dest, numericRating: parseFloat(dest.rating) || 0 }))
+          .sort((a, b) => b.numericRating - a.numericRating)
+          .slice(0, 6);
+
+        setTopDestinations(sortedDestinations);
+      } catch (error) {
+        console.error("Failed to load top destinations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDestinations();
+  }, []);
+
   return (
     <section
       className="tour-area position-relative bg-top-center overflow-hidden space bg-no-repeat"
@@ -19,7 +43,7 @@ function TourOne() {
               <span className="sub-title">Best Place For You</span>
               <h2 className="sec-title">Most Popular Tour</h2>
               <p className="sec-text">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Explore our handpicked selection of highly-rated destinations guaranteed to make your next journey unforgettable.
               </p>
             </div>
           </div>
@@ -38,278 +62,58 @@ function TourOne() {
             grabCursor={true}
             className="swiper th-slider has-shadow slider-drag-wrap"
           >
-            <SwiperSlide key="tour1">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/greece.jpg" alt="Greece Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Greece Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
+            {loading ? (
+              <div className="text-center py-5 w-100">
+                <p>Loading popular destinations...</p>
               </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour2">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/Italy.jpg" alt="Italy Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Italy Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
+            ) : topDestinations.length > 0 ? (
+              topDestinations.map((dest) => {
+                const destinationLink = `/destination/${dest.id}`;
+                return (
+                  <SwiperSlide key={dest.id}>
+                    <div className="tour-box th-ani gsap-cursor">
+                      <div className="tour-box_img global-img">
+                        <img 
+                          src={getImageSrc(dest.image)} 
+                          alt={dest.title} 
+                          style={{ width: '100%', height: '280px', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <div className="tour-content">
+                        <h3 className="box-title">
+                          <Link to={destinationLink}>{dest.title}</Link>
+                        </h3>
+                        <div className="tour-rating">
+                          <div className="star-rating" role="img" aria-label={`Rated ${dest.rating || 5.0} out of 5`}>
+                            <span style={{ width: `${(parseFloat(dest.rating || 5.0) / 5) * 100}%` }}>
+                              Rated <strong className="rating">{dest.rating || 5.0}</strong> out of 5
+                            </span>
+                          </div>
+                          <Link to={destinationLink} className="woocommerce-review-link">
+                            (<span className="count">{dest.rating || 5.0}</span> Rating)
+                          </Link>
+                        </div>
+                        <h4 className="tour-box_price">
+                          <span className="currency">₹{dest.price || '0'}</span>/{(dest.price_unit && dest.price_unit.trim() !== '') ? dest.price_unit : 'Person'}
+                        </h4>
+                        <div className="tour-action">
+                          <span>
+                            <i className="fa-light fa-clock" />{(dest.duration && dest.duration.trim() !== '') ? dest.duration : 'Flexible'}
+                          </span>
+                          <Link to={destinationLink} className="th-btn style4 th-icon">
+                            View Details
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
+                  </SwiperSlide>
+                );
+              })
+            ) : (
+              <div className="text-center py-5 w-100">
+                <p>No destinations found.</p>
               </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour3">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/dubai.jpg" alt="Dubai Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Dubai Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour4">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/switzerland.jpg" alt="Switzerland Tour" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Switzerland Tour</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour5">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/tour_box_1.jpg" alt="Greece Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Greece Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour6">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/tour_box_2.jpg" alt="Italy Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Italy Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour7">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/tour_box_3.jpg" alt="Dubai Tour Package" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Dubai Tour Package</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide key="tour8">
-              <div className="tour-box th-ani gsap-cursor">
-                <div className="tour-box_img global-img">
-                  <img src="/assets/img/tour/tour_box_4.jpg" alt="Switzerland Tour" />
-                </div>
-                <div className="tour-content">
-                  <h3 className="box-title">
-                    <Link to="/tour-details">Switzerland Tour</Link>
-                  </h3>
-                  <div className="tour-rating">
-                    <div className="star-rating" role="img" aria-label="Rated 5.00 out of 5">
-                      <span style={{ width: '100%' }}>
-                        Rated <strong className="rating">5.00</strong> out of 5 based on{' '}
-                        <span className="rating">4.8</span> (4.8 Rating)
-                      </span>
-                    </div>
-                    <Link to="/tour-details" className="woocommerce-review-link">
-                      (<span className="count">4.8</span> Rating)
-                    </Link>
-                  </div>
-                  <h4 className="tour-box_price">
-                    <span className="currency">₹980.00</span>/Person
-                  </h4>
-                  <div className="tour-action">
-                    <span>
-                      <i className="fa-light fa-clock" />7 Days
-                    </span>
-                    <Link to="/contact" className="th-btn style4 th-icon">
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
+            )}
           </Swiper>
         </div>
       </div>

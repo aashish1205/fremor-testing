@@ -15,7 +15,7 @@ function BlogFour() {
                         <div className="col-md-7">
                             <div className="title-area mb-md-0">
                                 <span className="sub-title">News And Blog</span>
-                                <h2 className="sec-title">Tourm's Latest News and Insights</h2>
+                                <h2 className="sec-title">Fremor's Latest News and Insights</h2>
                             </div>
                         </div>
                         <div className="col-md-auto">

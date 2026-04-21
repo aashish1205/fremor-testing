@@ -35,6 +35,9 @@ import Contact from './Contact'
 import Visa from './Visa'
 import VisaDetail from './VisaDetail'
 import Cruise from './Cruise'
+import CruiseDetails from './CruiseDetails'
+import CruiseAdmin from './CruiseAdmin'
+import BlogAdmin from './BlogAdmin'
 function RouterPage() {
   return (
     <div>
@@ -75,6 +78,9 @@ function RouterPage() {
           <Route path="/visa" element={<Visa />}></Route> 
           <Route path="/visa/detail" element={<VisaDetail />}></Route>
           <Route path="/cruise" element={<Cruise />}></Route> 
+          <Route path="/cruise-details/:id" element={<CruiseDetails />} />
+          <Route path="/admin/cruises" element={<CruiseAdmin />} />
+          <Route path="/admin/blogs" element={<BlogAdmin />} />
         </Routes>
       </Router>
     </div>

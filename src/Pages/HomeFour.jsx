@@ -2,7 +2,7 @@ import React from 'react'
 import HeaderFour from '../Components/Header/HeaderFour'
 import BannerFour from '../Components/Banner/BannerFour'
 import AboutThree from '../Components/About/AboutThree'
-import SaleOne from '../Components/Sale/SaleOne'
+import CruiseCard from '../Components/Sale/CruiseCard'
 import GalleryFour from '../Components/Gallery/GalleryFour'
 import BrandOne from '../Components/Brand/BrandOne'
 import TourGuideThree from '../Components/Guide/TourGuideThree'
@@ -18,7 +18,7 @@ function HomeFour() {
             <HeaderFour />
             <BannerFour />
             <AboutThree />
-            <SaleOne />
+            <CruiseCard />
             <GalleryFour />
             <BrandOne className="space-bottom"/>
             <TourGuideThree />

@@ -23,7 +23,7 @@ function About() {
             <ElementSection />
             <TourGuideTwo />
             <TestimonialOne />
-            <BrandOne/>
+            {/*<BrandOne/>*/}
             <GalleryFive />
             <FooterFour />
             <ScrollToTop />

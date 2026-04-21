@@ -18,9 +18,9 @@ function GetInTouch() {
                             <div className="about-contact-details">
                                 <h6 className="box-title">Our Address</h6>
                                 <p className="about-contact-details-text">
-                                    2690 Hiltona Street Victoria
+                                    Fremor Global Travel Pvt Ltd 
                                 </p>
-                                <p className="about-contact-details-text">Road, New York, Canada</p>
+                                <p className="about-contact-details-text">11th floor, Urmi Estate Ganpatrao Kadam Marg, Lower Parel-west, Mumbai- 400013</p>
                             </div>
                         </div>
                     </div>
@@ -32,10 +32,10 @@ function GetInTouch() {
                             <div className="about-contact-details">
                                 <h6 className="box-title">Phone Number</h6>
                                 <p className="about-contact-details-text">
-                                    <Link to="tel:01234567890">+01 234 567 890</Link>
+                                    <Link to="tel:01234567890">+91 9920499911</Link>
                                 </p>
                                 <p className="about-contact-details-text">
-                                    <Link to="tel:01234567890">+09 876 543 210</Link>
+                                    <Link to="tel:01234567890">+91 8657004943</Link>
                                 </p>
                             </div>
                         </div>
@@ -48,10 +48,10 @@ function GetInTouch() {
                             <div className="about-contact-details">
                                 <h6 className="box-title">Email Address</h6>
                                 <p className="about-contact-details-text">
-                                    <Link to="mailto:mailinfo00@tourm.com">mailinfo00@tourm.com</Link>
+                                    <Link to="mailto:connect@fremorglobal.com">connect@fremorglobal.com</Link>
                                 </p>
                                 <p className="about-contact-details-text">
-                                    <Link to="mailto:support24@tourm.com">support24@tourm.com</Link>
+                                    <Link to="mailto:askari.rizvi@fremorglobal.com">askari.rizvi@fremorglobal.com</Link>
                                 </p>
                             </div>
                         </div>

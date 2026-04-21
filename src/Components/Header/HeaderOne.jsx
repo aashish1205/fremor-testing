@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import NiceSelect from "./NiceSelect";
+
 import MobileMenu from "./MobileMenu";
 import LoginForm from "./LoginForm";
 
 function HeaderOne() {
-    const languageOptions = [
-        { value: "language", label: "Language" },
-        { value: "CNY", label: "CNY" },
-        { value: "EUR", label: "EUR" },
-        { value: "AUD", label: "AUD" },
-    ];
 
     const [isSticky, setIsSticky] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,11 +39,11 @@ function HeaderOne() {
                                     <ul>
                                         <li className="d-none d-xl-inline-block">
                                             <i className="fa-sharp fa-regular fa-location-dot" />
-                                            <span>45 New Eskaton Road, Austria</span>
+                                            <span>Lower Parel-west, Mumbai-400073</span>
                                         </li>
                                         <li className="d-none d-xl-inline-block">
                                             <i className="fa-regular fa-clock" />
-                                            <span>Sun to Friday: 8.00 am - 7.00 pm</span>
+                                            <span>Monday to Saturday: 8.00 am - 7.00 pm</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -57,13 +51,7 @@ function HeaderOne() {
 
                             <div className="col-auto">
                                 <div className="header-right">
-                                    <div className="currency-menu">
-                                        <NiceSelect
-                                            options={languageOptions}
-                                            defaultValue="Language"
-                                        />
-                                    </div>
-
+                                    
                                     <div className="header-links">
                                         <ul>
                                             <li className="d-none d-md-inline-block">
@@ -87,7 +75,7 @@ function HeaderOne() {
                                                     type="button"
                                                     onClick={() => setIsLoginFormOpen(true)}
                                                 >
-                                                    Sign In / Register
+                                                    Login/Create Account
                                                     <i className="fa-regular fa-user" />
                                                 </button>
                                             </li>
@@ -129,12 +117,7 @@ function HeaderOne() {
 
                                            
 
-                                            {/* About */}
-                                            <li>
-                                                <Link className={isActive("/about") ? "active" : ""} to="/about">
-                                                    About Us
-                                                </Link>
-                                            </li>
+                                            
 
                                             {/* Destination */}
                                             <li>
@@ -183,9 +166,12 @@ function HeaderOne() {
                                             </li>*/}
 
 
+                                         
+
+                                             {/* Visa */}
                                             <li>
-                                                <Link className={isActive("/blog") ? "active" : ""} to="/blog">
-                                                   Blogs
+                                                <Link className={isActive("/visa") ? "active" : ""} to="/visa">
+                                                    Visa
                                                 </Link>
                                             </li>
 
@@ -198,6 +184,13 @@ function HeaderOne() {
                                                 </Link>
                                             </li>
 
+                                            {/* About */}
+                                            <li>
+                                                <Link className={isActive("/about") ? "active" : ""} to="/about">
+                                                    About Us
+                                                </Link>
+                                            </li>
+
                                             {/* Contact */}
                                             <li>
                                                 <Link className={isActive("/contact") ? "active" : ""} to="/contact">
@@ -205,12 +198,13 @@ function HeaderOne() {
                                                 </Link>
                                             </li>
 
-                                            {/* Visa */}
-                                            <li>
-                                                <Link className={isActive("/visa") ? "active" : ""} to="/visa">
-                                                    Visa
+                                               <li>
+                                                <Link className={isActive("/blog") ? "active" : ""} to="/blog">
+                                                   Fremor Magzine
                                                 </Link>
                                             </li>
+
+                                           
 
                                         </ul>
                                     </nav>
