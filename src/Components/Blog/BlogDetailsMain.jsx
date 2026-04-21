@@ -93,12 +93,12 @@ function BlogDetailsMain() {
                                 {/* Places to Visit Section */}
                                 {places && places.length > 0 && (
                                     <div className="mt-5">
-                                        <h3 className="h3 mb-4 text-primary"><i className="fa-solid fa-map-location-dot me-2"></i> Must-Visit Places</h3>
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-map-location-dot me-2"></i> Must-Visit Places</h4>
                                         <div className="row gy-4">
                                             {places.map((place, index) => (
-                                                <div className="col-12" key={index}>
-                                                    <div className="p-4 bg-light rounded shadow-sm border-start border-primary border-4 w-100">
-                                                        <h4 className="h5 mb-2">{place.title}</h4>
+                                                <div className="col-md-6" key={index}>
+                                                    <div className="p-4 bg-light rounded shadow-sm border-start border-theme border-4 h-100 flex-column d-flex">
+                                                        <h5 className="h6 mb-2 fw-bold">{place.title}</h5>
                                                         <p className="mb-0 text-muted">{place.description}</p>
                                                     </div>
                                                 </div>
@@ -110,16 +110,16 @@ function BlogDetailsMain() {
                                 {/* Activities to Perform Section */}
                                 {activities && activities.length > 0 && (
                                     <div className="mt-5">
-                                        <h3 className="h3 mb-4 text-primary"><i className="fa-solid fa-person-hiking me-2"></i> Exciting Activities</h3>
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-person-hiking me-2"></i> Exciting Activities</h4>
                                         <ul className="list-group list-group-flush shadow-sm rounded">
                                             {activities.map((activity, index) => (
                                                 <li className="list-group-item bg-light p-4 border-bottom" key={index}>
-                                                    <div className="d-flex align-items-start gap-3">
-                                                        <div className="flex-shrink-0 text-secondary mt-1">
-                                                            <i className="fa-solid fa-check-circle" style={{fontSize: '20px'}}></i>
+                                                    <div className="d-flex flex-column flex-sm-row align-items-start gap-3">
+                                                        <div className="flex-shrink-0 text-theme mt-1">
+                                                            <i className="fa-solid fa-check-circle" style={{fontSize: '24px'}}></i>
                                                         </div>
                                                         <div>
-                                                            <h4 className="h5 mb-1">{activity.title}</h4>
+                                                            <h5 className="h6 mb-1 fw-bold">{activity.title}</h5>
                                                             <p className="mb-0 text-muted">{activity.description}</p>
                                                         </div>
                                                     </div>
@@ -132,10 +132,10 @@ function BlogDetailsMain() {
                                 {/* Image Gallery Section */}
                                 {gallery && gallery.length > 0 && (
                                     <div className="mt-5">
-                                        <h3 className="h3 mb-4 text-primary"><i className="fa-solid fa-images me-2"></i> Gallery</h3>
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-images me-2"></i> Gallery</h4>
                                         <div className="row gy-4">
                                             {gallery.map((img, index) => (
-                                                <div className="col-md-6" key={index}>
+                                                <div className="col-12 col-sm-6" key={index}>
                                                     <img src={getBlogImageSrc(img)} alt={`Gallery item ${index+1}`} className="w-100 rounded object-fit-cover shadow-sm" style={{ height: '300px' }} />
                                                 </div>
                                             ))}
@@ -196,7 +196,7 @@ function BlogDetailsMain() {
                                     <div className="offer">
                                         <h6 className="box-title">Need Help? We Are Here To Help You</h6>
                                         <div className="banner-logo">
-                                            <img src="/assets/img/logo2.svg" alt="Tourm" />
+                                            <img src="/assets/img/logo/FremorLogo.png" alt="Fremor" />
                                         </div>
                                         <div className="offer">
                                             <h6 className="offer-title">You Get Online support</h6>

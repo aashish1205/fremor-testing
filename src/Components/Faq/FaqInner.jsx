@@ -6,55 +6,80 @@ function FaqInner() {
 
     const faqs = [
         {
-            question: "How do I start the process of buying a home?",
+            question: "How do I book a trip with you?",
             answer:
-                "The open-concept layout seamlessly connects the living room with the fully equipped kitchen, boasting top-of-the-line appliances and all the essentials for preparing delicious meals.",
+                "You can book directly through our website, connect with our travel experts, or submit an inquiry form. Our team will guide you through every step.",
         },
         {
-            question: "What factors should I consider when choosing a neighborhood?",
+            question: "Can I customize my travel itinerary?",
             answer:
-                "The responsibility for paying closing costs can vary depending on the terms negotiated between the buyer and the seller, as well as local customs and regulations.",
+                "Yes, absolutely. We specialize in personalized travel experiences. You can modify hotels, activities, destinations, and travel dates as per your preference",
         },
         {
-            question: "How can I determine the right price for selling my property?",
+            question: "How far in advance should I book my trip?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "We recommend booking at least 30–45 days in advance for international trips and 15–20 days for domestic travel to get the best rates and availability.",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "Do you assist with visa processing?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Yes, we provide complete visa assistance including documentation, application guidance, and appointment booking.",
         },
         {
-            question: "How can I negotiate the best price when buying a property?",
+            question: "What if my visa gets rejected?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "In case of visa rejection, service charges and visa fees are non-refundable. However, we assist you in reapplying if required.",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "Is travel insurance included?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Travel insurance can be included on request or else and is highly recommended for international trips.",
+        },
+         {
+            question: "What kind of accommodations do you provide?",
+            answer:
+                "We partner with carefully selected 3★, 4★, and 5★ hotels, resorts, and boutique stays to ensure comfort and quality.",
+        },
+         {
+            question: "What payment methods do you accept?",
+            answer:
+                "We accept bank transfers, credit/debit cards, UPI, and other secure payment options for your convenience.",
+        },
+         {
+            question: "Is a deposit required to confirm my booking?",
+            answer:
+                "Yes, a partial deposit is required to secure your booking, with the remaining balance payable before departure.",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "Can I make changes after booking?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Yes, modifications are possible depending on availability and supplier policies. Additional charges may apply.",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "Will I get support during my trip?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Yes, our team provides 24/7 on-trip assistance to ensure a seamless and worry-free experience",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "What is your cancellation policy?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Cancellation policies vary depending on the destination and service providers. Detailed terms will be shared at the time of booking.",
         },
         {
-            question: "What are closing costs and who is responsible for paying them?",
+            question: "How long do refunds take?",
             answer:
-                "Research the local real estate market to understand current trends, property values, and comparable sales in the area. Knowing the market will give you leverage during negotiations.",
+                "Refund timelines depend on airlines, hotels, and vendors, but we ensure timely processing and updates.",
         },
+        {
+            question: "Why should I choose your travel company?",
+            answer:
+                "We focus on curated experiences, personalized service, competitive pricing, and seamless execution—so you can travel with complete peace of mind.",
+        },
+        {
+            question: "Do you offer group discounts or special deals?",
+            answer:
+                "Yes, we provide exclusive offers for group bookings, early-bird deals, and seasonal promotions.",
+        },    
     ];
 
     const toggleAccordion = (index) => {

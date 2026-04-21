@@ -4,7 +4,6 @@ function FaqContact() {
     return (
         <div
             className="bg-top-center space overflow-hidden"
-            style={{background: "url(/assets/img/bg/tour_bg_3.jpg)", backgroundRepeat: "no-repeat", position: "relative", zIndex: "1"}}
         >
             <div className="container">
                 <div className="row justify-content-center">
