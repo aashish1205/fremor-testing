@@ -1,5 +1,7 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import AdminLogin from './AdminLogin'
+import AdminProtectedRoute from '../Components/AdminProtectedRoute'
 import HomeOne from './HomeOne'
 import HomeTwo from './HomeTwo'
 import HomeThree from './HomeThree'
@@ -38,6 +40,13 @@ import Cruise from './Cruise'
 import CruiseDetails from './CruiseDetails'
 import CruiseAdmin from './CruiseAdmin'
 import BlogAdmin from './BlogAdmin'
+import GalleryAdmin from './GalleryAdmin'
+import DashboardAdmin from './DashboardAdmin'
+import MyAccount from './MyAccount'
+import CoTravellers from './CoTravellers'
+import LoggedInDevices from './LoggedInDevices'
+import ProtectedRoute from '../Components/ProtectedRoute'
+
 function RouterPage() {
   return (
     <div>
@@ -51,7 +60,10 @@ function RouterPage() {
           <Route path="/about" element={<About />}></Route>
           <Route path="/destination" element={<Destination />}></Route>
           <Route path="/destination/:id" element={<DestinationDetails />} />
-          <Route path="/admin/destinations" element={<DestinationAdmin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><DashboardAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/destinations" element={<AdminProtectedRoute><DestinationAdmin /></AdminProtectedRoute>} />
           <Route path="/service" element={<Service />}></Route>
           <Route path="/service/:id" element={<ServiceDetails />} />
           <Route path="/activities" element={<Activities />}></Route>
@@ -64,7 +76,7 @@ function RouterPage() {
           <Route path="/gallery" element={<Gallery />}></Route>
           <Route path="/tour" element={<Tour />}></Route>
           <Route path="/tour-details/:id" element={<TourDetails />} />
-          <Route path="/admin/tours" element={<TourAdmin />} />
+          <Route path="/admin/tours" element={<AdminProtectedRoute><TourAdmin /></AdminProtectedRoute>} />
           <Route path="/resort" element={<Resort />}></Route>
           <Route path="/resort/:id" element={<ResortDetails />}></Route>
           <Route path="/tour-guide" element={<TourGuide />}></Route>
@@ -74,13 +86,17 @@ function RouterPage() {
           <Route path="/error" element={<Error />}></Route>
           <Route path="/blog" element={<Blog />}></Route>
           <Route path="/blog/:id" element={<BlogDetails />}></Route>
-          <Route path="/contact" element={<Contact />}></Route> 
+          <Route path="/contact" element={<Contact />}></Route>
+          <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+          <Route path="/co-travellers" element={<ProtectedRoute><CoTravellers /></ProtectedRoute>} />
+          <Route path="/logged-in-devices" element={<ProtectedRoute><LoggedInDevices /></ProtectedRoute>} />
           <Route path="/visa" element={<Visa />}></Route> 
           <Route path="/visa/detail" element={<VisaDetail />}></Route>
           <Route path="/cruise" element={<Cruise />}></Route> 
           <Route path="/cruise-details/:id" element={<CruiseDetails />} />
-          <Route path="/admin/cruises" element={<CruiseAdmin />} />
-          <Route path="/admin/blogs" element={<BlogAdmin />} />
+          <Route path="/admin/cruises" element={<AdminProtectedRoute><CruiseAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/blogs" element={<AdminProtectedRoute><BlogAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/instagram-gallery" element={<AdminProtectedRoute><GalleryAdmin /></AdminProtectedRoute>} />
         </Routes>
       </Router>
     </div>

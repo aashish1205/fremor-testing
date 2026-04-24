@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
 import MobileMenu from "./MobileMenu";
 import LoginForm from "./LoginForm";
@@ -9,6 +10,11 @@ function HeaderOne() {
     const [isSticky, setIsSticky] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLoginFormOpen, setIsLoginFormOpen] = useState(false);
+    
+    // Auth state
+    const [user, setUser] = useState(null);
+    const [userName, setUserName] = useState("");
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     const location = useLocation();
     const currentPath = location.pathname;
@@ -26,6 +32,45 @@ function HeaderOne() {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setUser(session.user);
+                extractName(session.user);
+            }
+        };
+        fetchUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+                setUser(session.user);
+                extractName(session.user);
+            } else {
+                setUser(null);
+                setUserName("");
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const extractName = (userObj) => {
+        const metadata = userObj.user_metadata || {};
+        if (metadata.full_name) {
+            setUserName(metadata.full_name);
+        } else if (metadata.first_name) {
+            setUserName(`${metadata.first_name} ${metadata.last_name || ''}`.trim());
+        } else {
+            setUserName("User");
+        }
+    };
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        setIsProfileDropdownOpen(false);
+    };
 
     return (
         <>
@@ -71,13 +116,41 @@ function HeaderOne() {
                                                 </Link>
                                             </li>
                                             <li>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsLoginFormOpen(true)}
-                                                >
-                                                    Login/Create Account
-                                                    <i className="fa-regular fa-user" />
-                                                </button>
+                                                {user ? (
+                                                    <div style={{ position: "relative" }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                                            style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600 }}
+                                                        >
+                                                            Hi, {userName}
+                                                            <i className="fa-regular fa-chevron-down" style={{ fontSize: "12px" }} />
+                                                        </button>
+                                                        {isProfileDropdownOpen && (
+                                                            <div style={{
+                                                                position: "absolute", top: "100%", right: 0,
+                                                                background: "#fff", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                                                padding: "8px 0", minWidth: "150px", zIndex: 1000, marginTop: "8px", border: "1px solid #eaeaea"
+                                                            }}>
+                                                                <Link to="/my-account" style={{ display: "block", padding: "10px 16px", color: "#333", textDecoration: "none", fontSize: "14px", fontWeight: 500 }} onClick={() => setIsProfileDropdownOpen(false)}>
+                                                                    <i className="fa-regular fa-user me-2" /> My Profile
+                                                                </Link>
+                                                                <button onClick={handleLogout} style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 16px", background: "none", border: "none", borderTop: "1px solid #f1f1f1", color: "#c53030", cursor: "pointer", fontSize: "14px", fontWeight: 500 }}>
+                                                                    <i className="fa-regular fa-arrow-right-from-bracket me-2" /> Logout
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsLoginFormOpen(true)}
+                                                        style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600 }}
+                                                    >
+                                                        Login/Create Account
+                                                        <i className="fa-regular fa-user ms-2" />
+                                                    </button>
+                                                )}
                                             </li>
                                         </ul>
                                     </div>

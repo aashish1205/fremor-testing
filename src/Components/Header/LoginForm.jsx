@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { supabase } from "../../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const sliderImages = [
     {
@@ -19,8 +21,114 @@ const sliderImages = [
 ];
 
 function LoginForm({ isOpen, onClose }) {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("login");
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [showLoginPassword, setShowLoginPassword] = useState(false);
+    const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+    const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
+
+    // Form states
+    const [loginEmail, setLoginEmail] = useState("");
+    const [loginPassword, setLoginPassword] = useState("");
+
+    const [regFirstName, setRegFirstName] = useState("");
+    const [regLastName, setRegLastName] = useState("");
+    const [regEmail, setRegEmail] = useState("");
+    const [regPhone, setRegPhone] = useState("");
+    const [regPassword, setRegPassword] = useState("");
+    const [regConfirmPassword, setRegConfirmPassword] = useState("");
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+
+    // OTP Flow states
+    const [showOtpFlow, setShowOtpFlow] = useState(false);
+    const [otpToken, setOtpToken] = useState("");
+
+    // Auth Actions
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+        setIsSubmitting(true);
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: loginEmail,
+                password: loginPassword,
+            });
+            if (error) throw error;
+            onClose();
+            navigate("/"); // Redirect to home
+        } catch (error) {
+            setErrorMsg(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+        if (regPassword !== regConfirmPassword) {
+            setErrorMsg("Passwords do not match");
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            const { error } = await supabase.auth.signUp({
+                email: regEmail,
+                password: regPassword,
+                options: {
+                    data: {
+                        first_name: regFirstName,
+                        last_name: regLastName,
+                        phone: regPhone,
+                    }
+                }
+            });
+            if (error) throw error;
+            setShowOtpFlow(true);
+        } catch (error) {
+            setErrorMsg(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+        setIsSubmitting(true);
+        try {
+            const { error } = await supabase.auth.verifyOtp({
+                email: regEmail,
+                token: otpToken,
+                type: 'signup'
+            });
+            if (error) throw error;
+            setShowOtpFlow(false);
+            onClose();
+            navigate("/"); // Redirect to home
+        } catch (error) {
+            setErrorMsg(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleGoogleAuth = async () => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) throw error;
+        } catch (error) {
+            setErrorMsg(error.message);
+        }
+    };
 
     // Auto-advance slider
     useEffect(() => {
@@ -151,7 +259,7 @@ function LoginForm({ isOpen, onClose }) {
                     </button>
 
                     {/* Brand Logo */}
-                    <div style={{ textAlign: "center", marginBottom: "24px" }}>
+                    <div style={{ textAlign: "center", marginBottom: "16px" }}>
                         <img
                             src="/assets/img/logo/FremorLogo.png"
                             alt="Fremor"
@@ -159,40 +267,47 @@ function LoginForm({ isOpen, onClose }) {
                         />
                     </div>
 
-                    {/* Tab Switcher */}
-                    <div style={{
-                        display: "flex",
-                        background: "#f3f4f6",
-                        borderRadius: "12px",
-                        padding: "4px",
-                        marginBottom: "28px"
-                    }}>
-                        {["login", "register"].map(tab => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "9px",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    fontWeight: 600,
-                                    fontSize: "14px",
-                                    transition: "all 0.25s ease",
-                                    background: activeTab === tab ? "#fff" : "transparent",
-                                    color: activeTab === tab ? "var(--theme-color, #e74c3c)" : "#888",
-                                    boxShadow: activeTab === tab ? "0 2px 8px rgba(0,0,0,0.1)" : "none"
-                                }}
-                            >
-                                {tab === "login" ? "Login" : "Create Account"}
-                            </button>
-                        ))}
-                    </div>
+                    {errorMsg && (
+                        <div style={{ background: "#fde8e8", color: "#c53030", padding: "10px 14px", borderRadius: "8px", fontSize: "13px", marginBottom: "16px", textAlign: "center", border: "1px solid #f8b4b4" }}>
+                            {errorMsg}
+                        </div>
+                    )}
+
+                    {!showOtpFlow && (
+                        <div style={{
+                            display: "flex",
+                            background: "#f3f4f6",
+                            borderRadius: "12px",
+                            padding: "4px",
+                            marginBottom: "28px"
+                        }}>
+                            {["login", "register"].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => { setActiveTab(tab); setErrorMsg(""); }}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "9px",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        fontWeight: 600,
+                                        fontSize: "14px",
+                                        transition: "all 0.25s ease",
+                                        background: activeTab === tab ? "#fff" : "transparent",
+                                        color: activeTab === tab ? "var(--theme-color, #e74c3c)" : "#888",
+                                        boxShadow: activeTab === tab ? "0 2px 8px rgba(0,0,0,0.1)" : "none"
+                                    }}
+                                >
+                                    {tab === "login" ? "Login" : "Create Account"}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     {/* ── LOGIN FORM ── */}
-                    {activeTab === "login" && (
-                        <form onSubmit={e => e.preventDefault()}>
+                    {activeTab === "login" && !showOtpFlow && (
+                        <form onSubmit={handleLogin}>
                             <p style={{ fontSize: "14px", color: "#888", marginBottom: "20px", textAlign: "center" }}>
                                 Welcome back! Sign in to continue.
                             </p>
@@ -204,6 +319,8 @@ function LoginForm({ isOpen, onClose }) {
                                     type="email"
                                     className="form-control"
                                     placeholder="you@example.com"
+                                    value={loginEmail}
+                                    onChange={(e) => setLoginEmail(e.target.value)}
                                     style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }}
                                     required
                                 />
@@ -212,13 +329,27 @@ function LoginForm({ isOpen, onClose }) {
                                 <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>
                                     Password
                                 </label>
-                                <input
-                                    type="password"
-                                    className="form-control"
-                                    placeholder="Enter your password"
-                                    style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }}
-                                    required
-                                />
+                                <div style={{ position: "relative" }}>
+                                    <input
+                                        type={showLoginPassword ? "text" : "password"}
+                                        className="form-control"
+                                        placeholder="Enter your password"
+                                        value={loginPassword}
+                                        onChange={(e) => setLoginPassword(e.target.value)}
+                                        style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px", paddingRight: "40px" }}
+                                        required
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                        style={{
+                                            position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                                            background: "none", border: "none", color: "#888", cursor: "pointer", padding: 0
+                                        }}
+                                    >
+                                        <i className={`fa-regular ${showLoginPassword ? "fa-slash" : "fa-eye"}`} />
+                                    </button>
+                                </div>
                             </div>
                             <div style={{ textAlign: "right", marginBottom: "20px" }}>
                                 <a href="#" style={{ fontSize: "13px", color: "var(--theme-color, #e74c3c)", textDecoration: "none" }}>
@@ -228,52 +359,46 @@ function LoginForm({ isOpen, onClose }) {
                             <button
                                 type="submit"
                                 className="th-btn btn-fw"
+                                disabled={isSubmitting}
                                 style={{ borderRadius: "10px", padding: "13px", fontSize: "15px", fontWeight: 700, width: "100%", marginBottom: "20px" }}
                             >
-                                Sign In <i className="fa-regular fa-arrow-right ms-2" />
+                                {isSubmitting ? "Signing In..." : "Sign In"} <i className="fa-regular fa-arrow-right ms-2" />
                             </button>
 
                             <div style={{ textAlign: "center", color: "#aaa", fontSize: "13px", marginBottom: "16px" }}>
                                 — Or continue with —
                             </div>
                             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                                <button type="button" style={{
+                                <button type="button" onClick={handleGoogleAuth} style={{
                                     flex: 1, padding: "11px", borderRadius: "10px", border: "1.5px solid #e0e0e0",
                                     background: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
-                                    justifyContent: "center", gap: "8px", fontWeight: 600, fontSize: "14px", color: "#333"
+                                    justifyContent: "center", gap: "8px", fontWeight: 600, fontSize: "14px", color: "#333", width: "100%"
                                 }}>
-                                    <img src="https://www.google.com/favicon.ico" alt="G" style={{ width: "18px" }} /> Google
-                                </button>
-                                <button type="button" style={{
-                                    flex: 1, padding: "11px", borderRadius: "10px", border: "1.5px solid #e0e0e0",
-                                    background: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
-                                    justifyContent: "center", gap: "8px", fontWeight: 600, fontSize: "14px", color: "#333"
-                                }}>
-                                    <i className="fa-regular fa-envelope" style={{ color: "#555" }} /> Email
+                                    <img src="https://www.google.com/favicon.ico" alt="G" style={{ width: "18px" }} /> Continue with Google
                                 </button>
                             </div>
                         </form>
                     )}
 
                     {/* ── REGISTER FORM ── */}
-                    {activeTab === "register" && (
-                        <form onSubmit={e => e.preventDefault()}>
+                    {activeTab === "register" && !showOtpFlow && (
+                        <form onSubmit={handleRegister}>
                             <p style={{ fontSize: "14px", color: "#888", marginBottom: "20px", textAlign: "center" }}>
                                 Join Fremor and start exploring the world!
                             </p>
                             <div style={{ display: "flex", gap: "12px", marginBottom: "0px" }}>
                                 <div className="form-group mb-3" style={{ flex: 1 }}>
                                     <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>First Name</label>
-                                    <input type="text" className="form-control" placeholder="John" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
+                                    <input type="text" value={regFirstName} onChange={(e) => setRegFirstName(e.target.value)} className="form-control" placeholder="John" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
                                 </div>
                                 <div className="form-group mb-3" style={{ flex: 1 }}>
                                     <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>Last Name</label>
-                                    <input type="text" className="form-control" placeholder="Doe" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
+                                    <input type="text" value={regLastName} onChange={(e) => setRegLastName(e.target.value)} className="form-control" placeholder="Doe" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
                                 </div>
                             </div>
                             <div className="form-group mb-3">
                                 <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>Email Address</label>
-                                <input type="email" className="form-control" placeholder="you@example.com" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
+                                <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="form-control" placeholder="you@example.com" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
                             </div>
                             <div className="form-group mb-3">
                                 <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>Phone Number</label>
@@ -288,6 +413,8 @@ function LoginForm({ isOpen, onClose }) {
                                     </div>
                                     <input
                                         type="tel"
+                                        value={regPhone}
+                                        onChange={(e) => setRegPhone(e.target.value)}
                                         className="form-control"
                                         placeholder="Enter mobile number"
                                         maxLength={10}
@@ -298,19 +425,73 @@ function LoginForm({ isOpen, onClose }) {
                             </div>
                             <div className="form-group mb-3">
                                 <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>Password</label>
-                                <input type="password" className="form-control" placeholder="Create a strong password" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
+                                <div style={{ position: "relative" }}>
+                                    <input 
+                                        type={showRegisterPassword ? "text" : "password"} 
+                                        value={regPassword}
+                                        onChange={(e) => setRegPassword(e.target.value)}
+                                        className="form-control" 
+                                        placeholder="Create a strong password" 
+                                        style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px", paddingRight: "40px" }} 
+                                        required 
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                                        style={{
+                                            position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                                            background: "none", border: "none", color: "#888", cursor: "pointer", padding: 0
+                                        }}
+                                    >
+                                        <i className={`fa-regular ${showRegisterPassword ? "fa-slash" : "fa-eye"}`} />
+                                    </button>
+                                </div>
                             </div>
                             <div className="form-group mb-3">
                                 <label style={{ fontWeight: 600, fontSize: "13px", color: "#444", marginBottom: "6px", display: "block" }}>Confirm Password</label>
-                                <input type="password" className="form-control" placeholder="Repeat your password" style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px" }} required />
+                                <div style={{ position: "relative" }}>
+                                    <input 
+                                        type={showRegisterConfirmPassword ? "text" : "password"} 
+                                        value={regConfirmPassword}
+                                        onChange={(e) => setRegConfirmPassword(e.target.value)}
+                                        className="form-control" 
+                                        placeholder="Repeat your password" 
+                                        style={{ borderRadius: "10px", padding: "12px 14px", fontSize: "14px", paddingRight: "40px" }} 
+                                        required 
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowRegisterConfirmPassword(!showRegisterConfirmPassword)}
+                                        style={{
+                                            position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                                            background: "none", border: "none", color: "#888", cursor: "pointer", padding: 0
+                                        }}
+                                    >
+                                        <i className={`fa-regular ${showRegisterConfirmPassword ? "fa-slash" : "fa-eye"}`} />
+                                    </button>
+                                </div>
                             </div>
                             <button
                                 type="submit"
                                 className="th-btn btn-fw"
+                                disabled={isSubmitting}
                                 style={{ borderRadius: "10px", padding: "13px", fontSize: "15px", fontWeight: 700, width: "100%", marginBottom: "14px", marginTop: "6px" }}
                             >
-                                Create Account <i className="fa-solid fa-user-plus ms-2" />
+                                {isSubmitting ? "Creating Account..." : "Create Account"} <i className="fa-solid fa-user-plus ms-2" />
                             </button>
+
+                            <div style={{ textAlign: "center", color: "#aaa", fontSize: "13px", marginBottom: "16px" }}>
+                                — Or continue with —
+                            </div>
+                            <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+                                <button type="button" onClick={handleGoogleAuth} style={{
+                                    flex: 1, padding: "11px", borderRadius: "10px", border: "1.5px solid #e0e0e0",
+                                    background: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
+                                    justifyContent: "center", gap: "8px", fontWeight: 600, fontSize: "14px", color: "#333", width: "100%"
+                                }}>
+                                    <img src="https://www.google.com/favicon.ico" alt="G" style={{ width: "18px" }} /> Continue with Google
+                                </button>
+                            </div>
                         </form>
                     )}
 
