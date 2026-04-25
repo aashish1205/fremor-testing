@@ -32,7 +32,7 @@ function HomeOne() {
             <GalleryOne />
             <CounterOne />
             {/* <TourGuide /> */}
-            <TestimonialFour />
+            <TestimonialOne />
             {/* <BrandOne className="space-bottom"/> */}
             <BlogFour />
             <FooterFour />

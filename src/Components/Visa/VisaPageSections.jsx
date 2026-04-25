@@ -123,7 +123,7 @@ export default function VisaPageSections() {
               </div>
 
               <div className="voucher">
-                ₹ Get ₹250 MMT Tours & Attractions Voucher
+                ₹ Get ₹250 Fremor Global Tours & Attractions Voucher
               </div>
             </div>
           ))}

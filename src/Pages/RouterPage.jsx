@@ -46,6 +46,8 @@ import MyAccount from './MyAccount'
 import CoTravellers from './CoTravellers'
 import LoggedInDevices from './LoggedInDevices'
 import ProtectedRoute from '../Components/ProtectedRoute'
+import Terms from './Terms'
+import TestimonialAdmin from './TestimonialAdmin'
 
 function RouterPage() {
   return (
@@ -96,7 +98,9 @@ function RouterPage() {
           <Route path="/cruise-details/:id" element={<CruiseDetails />} />
           <Route path="/admin/cruises" element={<AdminProtectedRoute><CruiseAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/blogs" element={<AdminProtectedRoute><BlogAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/testimonials" element={<AdminProtectedRoute><TestimonialAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/instagram-gallery" element={<AdminProtectedRoute><GalleryAdmin /></AdminProtectedRoute>} />
+          <Route path="/terms" element={<Terms />} />
         </Routes>
       </Router>
     </div>

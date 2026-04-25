@@ -45,13 +45,13 @@ const AdminLayout = ({ children, email }) => {
                         Cruises
                     </NavLink>
 
-                    <NavLink 
+                    {/*<NavLink 
                         to="/admin/tours" 
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <i className="fa-solid fa-route"></i>
                         Tours
-                    </NavLink>
+                    </NavLink>*/}
 
                     <NavLink 
                         to="/admin/blogs" 
@@ -59,6 +59,14 @@ const AdminLayout = ({ children, email }) => {
                     >
                         <i className="fa-solid fa-newspaper"></i>
                         Blogs
+                    </NavLink>
+
+                    <NavLink 
+                        to="/admin/testimonials" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-comments"></i>
+                        Testimonials
                     </NavLink>
 
                     <NavLink 

@@ -1,49 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-
-const testimonials = [
-  {
-    name: "Maria Doe",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_1.jpg",
-    text: "A home that perfectly blends sustainability with luxury until I discovered Ecoland Residence. From the moment I stepped into this community, I knew it was where I wanted to live. The commitment to eco-friendly living.",
-  },
-  {
-    name: "Andrew Simon",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_2.jpg",
-    text: "The home boasts sleek, contemporary architecture with clean lines and expansive windows, allowing natural light to flood the interiors. It incorporates passive design principles.",
-  },
-  {
-    name: "Alex Jordan",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_1.jpg",
-    text: "Solar panels adorn the roof, harnessing renewable energy to power the home and even feed excess electricity back into the grid. High-performance insulation and triple-glazed windows enhance energy efficiency.",
-  },
-  {
-    name: "Maria Doe",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_1.jpg",
-    text: "A home that perfectly blends sustainability with luxury until I discovered Ecoland Residence. From the moment I stepped into this community, I knew it was where I wanted to live. The commitment to eco-friendly living.",
-  },
-  {
-    name: "Andrew Simon",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_2.jpg",
-    text: "The home boasts sleek, contemporary architecture with clean lines and expansive windows, allowing natural light to flood the interiors. It incorporates passive design principles.",
-  },
-  {
-    name: "Alex Jordan",
-    designation: "Traveller",
-    image: "/assets/img/testimonial/testi_1_1.jpg",
-    text: "Solar panels adorn the roof, harnessing renewable energy to power the home and even feed excess electricity back into the grid. High-performance insulation and triple-glazed windows enhance energy efficiency.",
-  },
-];
+import { fetchTestimonials, getTestimonialImageSrc } from "../../services/testimonialService";
 
 function TestimonialOne() {
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        const data = await fetchTestimonials();
+        setTestimonials(data);
+      } catch (error) {
+        console.error("Error loading testimonials:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTestimonials();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="testi-area overflow-hidden space shape-mockup-wrap" id="testi-sec">
+        <div className="container-fluid p-0 text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // If no testimonials are available from the backend, we can optionally hide the section or show a fallback
+  if (testimonials.length === 0) {
+    return null; // Or render a placeholder if needed
+  }
+
   return (
     <section className="testi-area overflow-hidden space shape-mockup-wrap" id="testi-sec">
       <div className="container-fluid p-0">
@@ -57,25 +54,29 @@ function TestimonialOne() {
             pagination={{ clickable: true }}
             spaceBetween={30}
             centeredSlides={true}
-            loop={true}
+            loop={testimonials.length > 2} // Only loop if we have enough slides
             slidesPerGroup={1}
             speed={1200}
             breakpoints={{
-              0: { slidesPerView: 1},
-              767: { slidesPerView: 2},
-              992: { slidesPerView: 2},
-              1200: { slidesPerView: 2},
-              1400: { slidesPerView: 3},
+              0: { slidesPerView: 1 },
+              767: { slidesPerView: 2 },
+              992: { slidesPerView: 2 },
+              1200: { slidesPerView: 2 },
+              1400: { slidesPerView: 3 },
             }}
             className="testiSlider1 has-shadow"
           >
             {testimonials.map((item, index) => (
-              <SwiperSlide key={index}>
+              <SwiperSlide key={item.id || index}>
                 <div className="testi-card">
                   <div className="testi-card_wrapper">
                     <div className="testi-card_profile">
                       <div className="testi-card_avater">
-                        <img src={item.image} alt="testimonial" />
+                        <img 
+                            src={getTestimonialImageSrc(item.image_url)} 
+                            alt={item.name} 
+                            style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%' }}
+                        />
                       </div>
                       <div className="media-body">
                         <h3 className="box-title">{item.name}</h3>
@@ -84,7 +85,11 @@ function TestimonialOne() {
                     </div>
                     <div className="testi-card_review">
                       {[...Array(5)].map((_, i) => (
-                        <i key={i} className="fa-solid fa-star" />
+                        <i 
+                            key={i} 
+                            className="fa-solid fa-star" 
+                            style={{ color: i < (item.rating || 5) ? '#FFB114' : '#e2e8f0' }} 
+                        />
                       ))}
                     </div>
                   </div>
@@ -99,10 +104,10 @@ function TestimonialOne() {
           <div className="slider-pagination" />
         </div>
       </div>
-      <div className="shape-mockup d-none d-xl-block" style={{bottom:"-2%", right:"0%"}}>
+      <div className="shape-mockup d-none d-xl-block" style={{ bottom: "-2%", right: "0%" }}>
         <img src="/assets/img/shape/line2.png" alt="shape" />
       </div>
-      <div className="shape-mockup movingX d-none d-xl-block" style={{top:"30%", left:"5%"}}>
+      <div className="shape-mockup movingX d-none d-xl-block" style={{ top: "30%", left: "5%" }}>
         <img src="/assets/img/shape/shape_7.png" alt="shape" />
       </div>
     </section>

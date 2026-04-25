@@ -265,11 +265,11 @@ function HeaderOne() {
                                             </li>
 
                                             {/* Contact */}
-                                            <li>
+                                            {/*<li>
                                                 <Link className={isActive("/contact") ? "active" : ""} to="/contact">
                                                     Contact Us
                                                 </Link>
-                                            </li>
+                                            </li>*/}
 
                                                <li>
                                                 <Link className={isActive("/blog") ? "active" : ""} to="/blog">
