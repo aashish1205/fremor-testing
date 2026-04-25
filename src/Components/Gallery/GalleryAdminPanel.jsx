@@ -9,6 +9,8 @@ import {
     deleteGalleryFile,
     getGalleryImageSrc
 } from '../../services/instagramGalleryService';
+import { useDataTable } from '../../hooks/useDataTable';
+import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
 function GalleryAdminPanel() {
@@ -33,6 +35,17 @@ function GalleryAdminPanel() {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    // DataTable hook
+    const { 
+        searchTerm, 
+        handleSearch, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        paginatedData,
+        totalItems
+    } = useDataTable(images, ['caption']);
 
     useEffect(() => {
         loadImages();
@@ -174,16 +187,29 @@ function GalleryAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header">
+            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <h2>Instagram Gallery</h2>
+                    <h2 className="m-0">Instagram Gallery</h2>
                     <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: '0.9rem' }}>
                         Manage gallery images displayed on the About page
                     </p>
                 </div>
-                <button className="th-btn" onClick={() => handleOpenModal('add')}>
-                    <i className="fa-solid fa-plus me-2"></i> Add Image
-                </button>
+                <div className="d-flex gap-3 align-items-center">
+                    <div className="position-relative">
+                        <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search caption..." 
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="form-control ps-5"
+                            style={{ minWidth: '250px', borderRadius: '8px' }}
+                        />
+                    </div>
+                    <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
+                        <i className="fa-solid fa-plus me-2"></i> Add Image
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -206,14 +232,14 @@ function GalleryAdminPanel() {
                             </tr>
                         </thead>
                         <tbody>
-                            {images.length === 0 ? (
+                            {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-4">
-                                        No gallery images found. Click "Add Image" to get started.
+                                    <td colSpan="6" className="text-center py-4 text-muted">
+                                        {searchTerm ? 'No gallery images found matching your search.' : 'No gallery images found. Click "Add Image" to get started.'}
                                     </td>
                                 </tr>
                             ) : (
-                                images.map(img => (
+                                paginatedData.map(img => (
                                     <tr key={img.id}>
                                         <td>
                                             <div className="admin-img-thumb truncate-img">
@@ -274,6 +300,13 @@ function GalleryAdminPanel() {
                             )}
                         </tbody>
                     </table>
+                    
+                    <AdminPagination 
+                        currentPage={currentPage} 
+                        totalPages={totalPages} 
+                        onPageChange={setCurrentPage} 
+                        totalItems={totalItems}
+                    />
                 </div>
             )}
 

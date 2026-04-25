@@ -30,6 +30,14 @@ const AdminLayout = ({ children, email }) => {
                     </NavLink>
                     
                     <NavLink 
+                        to="/admin/travellers" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-users"></i>
+                        Travellers
+                    </NavLink>
+                    
+                    <NavLink 
                         to="/admin/destinations" 
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >

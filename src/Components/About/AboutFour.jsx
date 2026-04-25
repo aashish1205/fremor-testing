@@ -23,7 +23,7 @@ function AboutFour() {
                      <div className="title-area mb-20">
                         <span className="sub-title style1 ">Welcome To Fremor</span>
                         <h2 className="sec-title mb-20 pe-xl-5 me-xl-5 heading">
-                           We are world reputeted travel agency
+                           We are world reputed travel agency
                         </h2>
                      </div>
                      <p className="pe-xl-5">

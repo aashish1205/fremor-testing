@@ -8,6 +8,8 @@ import {
     deleteTourImage, 
     getTourImageSrc 
 } from '../../services/tourService';
+import { useDataTable } from '../../hooks/useDataTable';
+import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
 function TourAdminPanel() {
@@ -43,6 +45,17 @@ function TourAdminPanel() {
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    // DataTable hook
+    const { 
+        searchTerm, 
+        handleSearch, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        paginatedData,
+        totalItems
+    } = useDataTable(tours, ['title', 'price']);
 
     useEffect(() => {
         loadTours();
@@ -297,11 +310,24 @@ function TourAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header">
-                <h2>Manage Advanced Tours</h2>
-                <button className="th-btn" onClick={() => handleOpenModal('add')}>
-                    <i className="fa-solid fa-plus me-2"></i> Add Tour
-                </button>
+            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h2 className="m-0">Manage Advanced Tours</h2>
+                <div className="d-flex gap-3 align-items-center">
+                    <div className="position-relative">
+                        <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search tours..." 
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="form-control ps-5"
+                            style={{ minWidth: '250px', borderRadius: '8px' }}
+                        />
+                    </div>
+                    <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
+                        <i className="fa-solid fa-plus me-2"></i> Add Tour
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -323,12 +349,14 @@ function TourAdminPanel() {
                             </tr>
                         </thead>
                         <tbody>
-                            {tours.length === 0 ? (
+                            {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-4">No tours found.</td>
+                                    <td colSpan="5" className="text-center py-4 text-muted">
+                                        {searchTerm ? 'No tours found matching your search.' : 'No tours found.'}
+                                    </td>
                                 </tr>
                             ) : (
-                                tours.map(tour => (
+                                paginatedData.map(tour => (
                                     <tr key={tour.id}>
                                         <td>
                                             <div className="admin-img-thumb truncate-img">
@@ -353,6 +381,13 @@ function TourAdminPanel() {
                             )}
                         </tbody>
                     </table>
+                    
+                    <AdminPagination 
+                        currentPage={currentPage} 
+                        totalPages={totalPages} 
+                        onPageChange={setCurrentPage} 
+                        totalItems={totalItems}
+                    />
                 </div>
             )}
 

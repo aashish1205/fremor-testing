@@ -10,6 +10,8 @@ import {
     deleteCruiseBrochure,
     getCruiseImageSrc 
 } from '../../services/cruiseService';
+import { useDataTable } from '../../hooks/useDataTable';
+import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
 function CruiseAdminPanel() {
@@ -46,6 +48,17 @@ function CruiseAdminPanel() {
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    // DataTable hook
+    const { 
+        searchTerm, 
+        handleSearch, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        paginatedData,
+        totalItems
+    } = useDataTable(cruises, ['title', 'type', 'length', 'capacity']);
 
     useEffect(() => {
         loadCruises();
@@ -309,11 +322,24 @@ function CruiseAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header">
-                <h2>Manage Cruises</h2>
-                <button className="th-btn" onClick={() => handleOpenModal('add')}>
-                    <i className="fa-solid fa-plus me-2"></i> Add Cruise
-                </button>
+            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h2 className="m-0">Manage Cruises</h2>
+                <div className="d-flex gap-3 align-items-center">
+                    <div className="position-relative">
+                        <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search cruises..." 
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="form-control ps-5"
+                            style={{ minWidth: '250px', borderRadius: '8px' }}
+                        />
+                    </div>
+                    <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
+                        <i className="fa-solid fa-plus me-2"></i> Add Cruise
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -335,12 +361,14 @@ function CruiseAdminPanel() {
                             </tr>
                         </thead>
                         <tbody>
-                            {cruises.length === 0 ? (
+                            {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-4">No cruises found.</td>
+                                    <td colSpan="5" className="text-center py-4 text-muted">
+                                        {searchTerm ? 'No cruises found matching your search.' : 'No cruises found.'}
+                                    </td>
                                 </tr>
                             ) : (
-                                cruises.map(cruise => (
+                                paginatedData.map(cruise => (
                                     <tr key={cruise.id}>
                                         <td>
                                             <div className="admin-img-thumb truncate-img">
@@ -365,6 +393,13 @@ function CruiseAdminPanel() {
                             )}
                         </tbody>
                     </table>
+                    
+                    <AdminPagination 
+                        currentPage={currentPage} 
+                        totalPages={totalPages} 
+                        onPageChange={setCurrentPage} 
+                        totalItems={totalItems}
+                    />
                 </div>
             )}
 

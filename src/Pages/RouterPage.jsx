@@ -48,6 +48,8 @@ import LoggedInDevices from './LoggedInDevices'
 import ProtectedRoute from '../Components/ProtectedRoute'
 import Terms from './Terms'
 import TestimonialAdmin from './TestimonialAdmin'
+import TravellersAdmin from './TravellersAdmin'
+import TravellerDetailsAdmin from './TravellerDetailsAdmin'
 
 function RouterPage() {
   return (
@@ -65,6 +67,8 @@ function RouterPage() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminProtectedRoute><DashboardAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/travellers" element={<AdminProtectedRoute><TravellersAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/travellers/:id" element={<AdminProtectedRoute><TravellerDetailsAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/destinations" element={<AdminProtectedRoute><DestinationAdmin /></AdminProtectedRoute>} />
           <Route path="/service" element={<Service />}></Route>
           <Route path="/service/:id" element={<ServiceDetails />} />

@@ -53,7 +53,22 @@ function HeaderOne() {
             }
         });
 
-        return () => subscription.unsubscribe();
+        // Automatically show login popup after 5 seconds if not logged in
+        const popupTimer = setTimeout(async () => {
+            const hasShownPopup = sessionStorage.getItem("loginPopupShown");
+            if (!hasShownPopup) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    setIsLoginFormOpen(true);
+                    sessionStorage.setItem("loginPopupShown", "true");
+                }
+            }
+        }, 5000);
+
+        return () => {
+            subscription.unsubscribe();
+            clearTimeout(popupTimer);
+        };
     }, []);
 
     const extractName = (userObj) => {

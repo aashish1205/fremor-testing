@@ -8,6 +8,8 @@ import {
     deleteBlogImage, 
     getBlogImageSrc 
 } from '../../services/blogService';
+import { useDataTable } from '../../hooks/useDataTable';
+import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
 function BlogAdminPanel() {
@@ -37,6 +39,17 @@ function BlogAdminPanel() {
     const [galleryFiles, setGalleryFiles] = useState([]);
 
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    // DataTable hook
+    const { 
+        searchTerm, 
+        handleSearch, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        paginatedData,
+        totalItems
+    } = useDataTable(blogs, ['title', 'category', 'author']);
 
     useEffect(() => {
         loadBlogs();
@@ -220,11 +233,24 @@ function BlogAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header">
-                <h2>Manage Blogs (Fremor Magazine)</h2>
-                <button className="th-btn" onClick={() => handleOpenModal('add')}>
-                    <i className="fa-solid fa-plus me-2"></i> Add Blog
-                </button>
+            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h2 className="m-0">Manage Blogs (Fremor Magazine)</h2>
+                <div className="d-flex gap-3 align-items-center">
+                    <div className="position-relative">
+                        <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search blogs..." 
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="form-control ps-5"
+                            style={{ minWidth: '250px', borderRadius: '8px' }}
+                        />
+                    </div>
+                    <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
+                        <i className="fa-solid fa-plus me-2"></i> Add Blog
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -246,12 +272,14 @@ function BlogAdminPanel() {
                             </tr>
                         </thead>
                         <tbody>
-                            {blogs.length === 0 ? (
+                            {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-4">No blogs found.</td>
+                                    <td colSpan="5" className="text-center py-4 text-muted">
+                                        {searchTerm ? 'No blogs found matching your search.' : 'No blogs found.'}
+                                    </td>
                                 </tr>
                             ) : (
-                                blogs.map(blog => (
+                                paginatedData.map(blog => (
                                     <tr key={blog.id}>
                                         <td>
                                             <div className="admin-img-thumb truncate-img">
@@ -276,6 +304,13 @@ function BlogAdminPanel() {
                             )}
                         </tbody>
                     </table>
+                    
+                    <AdminPagination 
+                        currentPage={currentPage} 
+                        totalPages={totalPages} 
+                        onPageChange={setCurrentPage} 
+                        totalItems={totalItems}
+                    />
                 </div>
             )}
 
