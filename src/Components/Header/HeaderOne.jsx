@@ -193,7 +193,7 @@ function HeaderOne() {
                                 </div>
 
                                 {/* Main Menu */}
-                                <div className="col-auto me-xl-auto">
+                                <div className="col-auto ms-auto me-xl-5">
                                     <nav className="main-menu d-none d-xl-inline-block">
                                         <ul>
 
