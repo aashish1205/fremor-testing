@@ -3,11 +3,20 @@ import { supabase } from '../supabaseClient';
 const BUCKET_NAME = 'destination-images';
 
 // ─── FETCH ALL DESTINATIONS ───────────────────────────────────────────
-export async function fetchDestinations() {
-    const { data, error } = await supabase
+export async function fetchDestinations(category = null, packageType = null) {
+    let query = supabase
         .from('destinations')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+        
+    if (category) {
+        query = query.eq('category', category);
+    }
+    
+    if (packageType) {
+        query = query.eq('package_type', packageType);
+    }
+        
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return data;

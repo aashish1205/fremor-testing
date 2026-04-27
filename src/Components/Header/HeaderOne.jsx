@@ -53,21 +53,8 @@ function HeaderOne() {
             }
         });
 
-        // Automatically show login popup after 5 seconds if not logged in
-        const popupTimer = setTimeout(async () => {
-            const hasShownPopup = sessionStorage.getItem("loginPopupShown");
-            if (!hasShownPopup) {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) {
-                    setIsLoginFormOpen(true);
-                    sessionStorage.setItem("loginPopupShown", "true");
-                }
-            }
-        }, 5000);
-
         return () => {
             subscription.unsubscribe();
-            clearTimeout(popupTimer);
         };
     }, []);
 
@@ -130,7 +117,7 @@ function HeaderOne() {
                                                     Support
                                                 </Link>
                                             </li>
-                                            <li>
+                                            {/*<li>
                                                 {user ? (
                                                     <div style={{ position: "relative" }}>
                                                         <button
@@ -166,7 +153,7 @@ function HeaderOne() {
                                                         <i className="fa-regular fa-user ms-2" />
                                                     </button>
                                                 )}
-                                            </li>
+                                            </li>*/}
                                         </ul>
                                     </div>
                                 </div>
@@ -208,10 +195,18 @@ function HeaderOne() {
                                             
 
                                             {/* Destination */}
-                                            <li>
-                                                <Link className={isActive("/destination") ? "active" : ""} to="/destination">
+                                            <li className={`menu-item-has-children ${isActive("/destination") ? "active" : ""}`}>
+                                                <Link to="/destination">
                                                     Destinations
                                                 </Link>
+                                                <ul className="sub-menu">
+                                                    <li>
+                                                        <Link to="/destination?category=Inbound">Inbound (India)</Link>
+                                                    </li>
+                                                    <li>
+                                                        <Link to="/destination?category=Outbound">Outbound (International)</Link>
+                                                    </li>
+                                                </ul>
                                             </li>
 
                                             {/* Service */}

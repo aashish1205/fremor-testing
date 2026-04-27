@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import DestinationCard from './DestinationCard';
 import DestinationCardTwo from './DestinationCardTwo';
 import { fetchDestinations, searchDestinations } from '../../services/destinationService';
+import { fetchBlogs, getBlogImageSrc } from '../../services/blogService';
 
 function DestinationInner() {
     const [activeTab, setActiveTab] = useState('tab-grid');
@@ -11,18 +12,35 @@ function DestinationInner() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchParams] = useSearchParams();
+    const [recentBlogs, setRecentBlogs] = useState([]);
+    const category = searchParams.get('category');
+    const packageType = searchParams.get('package_type');
+    
     const postsPerPage = 9;
 
-    // Fetch destinations on mount
+    // Fetch destinations on mount and when filters change
     useEffect(() => {
         loadDestinations();
-    }, []);
+        loadRecentBlogs();
+        // Reset to first page when category or package_type changes
+        setCurrentPage(1);
+    }, [category, packageType]);
+
+    const loadRecentBlogs = async () => {
+        try {
+            const blogsData = await fetchBlogs();
+            setRecentBlogs(blogsData.slice(0, 3));
+        } catch (err) {
+            console.error('Error fetching recent blogs:', err);
+        }
+    };
 
     const loadDestinations = async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await fetchDestinations();
+            const data = await fetchDestinations(category, packageType);
             setDestinations(data);
         } catch (err) {
             console.error('Error fetching destinations:', err);
@@ -240,121 +258,53 @@ function DestinationInner() {
                                 <h3 className="widget_title">Categories</h3>
                                 <ul>
                                     <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            City Tour
+                                        <Link to="/destination?package_type=Standard">
+                                            <i className="fa-solid fa-box text-primary me-2"></i>
+                                            Standard Package
                                         </Link>
-                                        <span>(8)</span>
                                     </li>
                                     <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            Beach Tours
+                                        <Link to="/destination?package_type=Premium">
+                                            <i className="fa-solid fa-gem text-info me-2"></i>
+                                            Premium Package
                                         </Link>
-                                        <span>(6)</span>
                                     </li>
                                     <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            Wildlife Tours
+                                        <Link to="/destination?package_type=Luxury">
+                                            <i className="fa-solid fa-crown text-warning me-2"></i>
+                                            Luxury Package
                                         </Link>
-                                        <span>(2)</span>
-                                    </li>
-                                    <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            News &amp; Tips
-                                        </Link>
-                                        <span>(7)</span>
-                                    </li>
-                                    <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            Adventure Tours
-                                        </Link>
-                                        <span>(9)</span>
-                                    </li>
-                                    <li>
-                                        <Link to="/blog">
-                                            <img src="/assets/img/theme-img/map.svg" alt="" />
-                                            Mountain Tours
-                                        </Link>
-                                        <span>(10)</span>
                                     </li>
                                 </ul>
                             </div>
                             <div className="widget  ">
-                                <h3 className="widget_title">Recent Posts</h3>
+                                <h3 className="widget_title">Recent Blog Posts</h3>
                                 <div className="recent-post-wrap">
-                                    <div className="recent-post">
-                                        <div className="media-img">
-                                            <Link to="/blog/1">
-                                                <img
-                                                    src="/assets/img/blog/recent-post-1-1.jpg"
-                                                    alt="Blog"
-                                                />
-                                            </Link>
-                                        </div>
-                                        <div className="media-body">
-                                            <h4 className="post-title">
-                                                <Link className="text-inherit" to="/blog/1">
-                                                    Exploring The Green Spaces Of the island maldives
-                                                </Link>
-                                            </h4>
-                                            <div className="recent-post-meta">
-                                                <Link to="/blog">
-                                                    <i className="fa-regular fa-calendar" />
-                                                    22/6/ 2025
+                                    {recentBlogs.map((blog) => (
+                                        <div className="recent-post" key={blog.id}>
+                                            <div className="media-img">
+                                                <Link to={`/blog/${blog.id}`}>
+                                                    <img
+                                                        src={getBlogImageSrc(blog.main_image)}
+                                                        alt="Blog"
+                                                    />
                                                 </Link>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="recent-post">
-                                        <div className="media-img">
-                                            <Link to="/blog/1">
-                                                <img
-                                                    src="/assets/img/blog/recent-post-1-2.jpg"
-                                                    alt="Blog"
-                                                />
-                                            </Link>
-                                        </div>
-                                        <div className="media-body">
-                                            <h4 className="post-title">
-                                                <Link className="text-inherit" to="/blog/1">
-                                                    Harmony With Nature Of Belgium Tour and travle
-                                                </Link>
-                                            </h4>
-                                            <div className="recent-post-meta">
-                                                <Link to="/blog">
-                                                    <i className="fa-regular fa-calendar" />
-                                                    25/6/ 2025
-                                                </Link>
+                                            <div className="media-body">
+                                                <h4 className="post-title">
+                                                    <Link className="text-inherit" to={`/blog/${blog.id}`}>
+                                                        {blog.title}
+                                                    </Link>
+                                                </h4>
+                                                <div className="recent-post-meta">
+                                                    <Link to={`/blog/${blog.id}`}>
+                                                        <i className="fa-regular fa-calendar" />
+                                                        {new Date(blog.created_at).toLocaleDateString()}
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="recent-post">
-                                        <div className="media-img">
-                                            <Link to="/blog/1">
-                                                <img
-                                                    src="/assets/img/blog/recent-post-1-3.jpg"
-                                                    alt="Blog"
-                                                />
-                                            </Link>
-                                        </div>
-                                        <div className="media-body">
-                                            <h4 className="post-title">
-                                                <Link className="text-inherit" to="/blog/1">
-                                                    Exploring The Green Spaces Of Realar Residence
-                                                </Link>
-                                            </h4>
-                                            <div className="recent-post-meta">
-                                                <Link to="/blog">
-                                                    <i className="fa-regular fa-calendar" />
-                                                    27/6/ 2025
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
                             <div className="widget widget_tag_cloud  ">
@@ -373,7 +323,7 @@ function DestinationInner() {
                             <div
                                 className="widget widget_offer  "
                                 data-bg-src="/assets/img/bg/widget_bg_1.jpg"
-                                style={{ backgroundImage: "url(/assets/img/bg/widget_bg_1.jpg)" }}
+                                style={{ backgroundImage: "url(/assets/img/bg/colorkit.png)" }}
                             >
                                 <div className="offer-banner">
                                     <div className="offer">
@@ -385,8 +335,8 @@ function DestinationInner() {
                                         </div>
                                         <div className="offer">
                                             <h6 className="offer-title">You Get Online support</h6>
-                                            <Link className="offter-num" to={+256214203215}>
-                                                +256 214 203 215
+                                            <Link className="offter-num" to={+919920499911}>
+                                                +91 9920499911
                                             </Link>
                                         </div>
                                         <Link to="/contact" className="th-btn style2 th-icon">

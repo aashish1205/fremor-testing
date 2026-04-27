@@ -334,10 +334,24 @@ function DestinationDetailsMain() {
                             <div className="widget widget_categories  ">
                                 <h3 className="widget_title">Categories</h3>
                                 <ul>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> City Tour</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Beach Tours</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Wildlife Tours</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Adventure Tours</Link></li>
+                                    <li>
+                                        <Link to="/destination?package_type=Standard">
+                                            <i className="fa-solid fa-box text-primary me-2"></i>
+                                            Standard Package
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/destination?package_type=Premium">
+                                            <i className="fa-solid fa-gem text-info me-2"></i>
+                                            Premium Package
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/destination?package_type=Luxury">
+                                            <i className="fa-solid fa-crown text-warning me-2"></i>
+                                            Luxury Package
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                             <div className="widget widget_tag_cloud  ">

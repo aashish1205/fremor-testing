@@ -28,6 +28,14 @@ const AdminLayout = ({ children, email }) => {
                         <i className="fa-solid fa-chart-line"></i>
                         Dashboard
                     </NavLink>
+
+                    <NavLink 
+                        to="/admin/team" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-user-shield"></i>
+                        Team Members
+                    </NavLink>
                     
                     <NavLink 
                         to="/admin/travellers" 
@@ -44,6 +52,8 @@ const AdminLayout = ({ children, email }) => {
                         <i className="fa-solid fa-map-location-dot"></i>
                         Destinations
                     </NavLink>
+
+                    
 
                     <NavLink 
                         to="/admin/cruises" 

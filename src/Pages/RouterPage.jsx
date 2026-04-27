@@ -50,6 +50,10 @@ import Terms from './Terms'
 import TestimonialAdmin from './TestimonialAdmin'
 import TravellersAdmin from './TravellersAdmin'
 import TravellerDetailsAdmin from './TravellerDetailsAdmin'
+import TeamAdmin from './TeamAdmin'
+import TeamLogin from './TeamLogin'
+import TeamDashboard from './TeamDashboard'
+import TeamProtectedRoute from '../Components/TeamProtectedRoute'
 
 function RouterPage() {
   return (
@@ -104,6 +108,11 @@ function RouterPage() {
           <Route path="/admin/blogs" element={<AdminProtectedRoute><BlogAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/testimonials" element={<AdminProtectedRoute><TestimonialAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/instagram-gallery" element={<AdminProtectedRoute><GalleryAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/team" element={<AdminProtectedRoute><TeamAdmin /></AdminProtectedRoute>} />
+          
+          <Route path="/team/login" element={<TeamLogin />} />
+          <Route path="/team/dashboard" element={<TeamProtectedRoute><TeamDashboard /></TeamProtectedRoute>} />
+          
           <Route path="/terms" element={<Terms />} />
         </Routes>
       </Router>

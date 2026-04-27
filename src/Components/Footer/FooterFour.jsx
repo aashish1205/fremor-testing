@@ -101,9 +101,9 @@ function FooterFour() {
                                         <li>
                                             <Link to="/about">About us</Link>
                                         </li>
-                                        <li>
+                                        {/*<li>
                                             <Link to="/service">Our Service</Link>
-                                        </li>
+                                        </li>*/}
                                         <li>
                                             <Link to="/terms">Terms of Service</Link>
                                         </li>

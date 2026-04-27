@@ -43,7 +43,9 @@ function DestinationAdminPanel() {
         included_list: [''], // Array of strings
         excluded_list: [''], // Array of strings
         itinerary: [{ day: "Day 01", activities: [''], image: '' }], // Array of objects
-        brochure_url: ''
+        brochure_url: '',
+        category: 'Inbound',
+        package_type: 'Standard'
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
@@ -107,7 +109,9 @@ function DestinationAdminPanel() {
                 included_list: dest.included_list?.length ? dest.included_list : [''],
                 excluded_list: dest.excluded_list?.length ? dest.excluded_list : [''],
                 itinerary: dest.itinerary?.length ? dest.itinerary : [{ day: "Day 01", activities: [''], image: '' }],
-                brochure_url: dest.brochure_url || ''
+                brochure_url: dest.brochure_url || '',
+                category: dest.category || 'Inbound',
+                package_type: dest.package_type || 'Standard'
             });
         } else {
             setFormData({
@@ -128,7 +132,9 @@ function DestinationAdminPanel() {
                 included_list: [''],
                 excluded_list: [''],
                 itinerary: [{ day: "Day 01", activities: [''], image: '' }],
-                brochure_url: ''
+                brochure_url: '',
+                category: 'Inbound',
+                package_type: 'Standard'
             });
         }
         setPrimaryImageFile(null);
@@ -271,7 +277,9 @@ function DestinationAdminPanel() {
                 included_list: cleanArray(formData.included_list),
                 excluded_list: cleanArray(formData.excluded_list),
                 itinerary: cleanItinerary,
-                brochure_url: formData.brochure_url
+                brochure_url: formData.brochure_url,
+                category: formData.category,
+                package_type: formData.package_type
             };
 
             // Handle brochure file upload
@@ -379,6 +387,8 @@ function DestinationAdminPanel() {
                             <tr>
                                 <th>Thumbnail</th>
                                 <th>Title</th>
+                                <th>Category</th>
+                                <th>Type</th>
                                 <th>Location</th>
                                 <th>Price</th>
                                 <th>Actions</th>
@@ -387,7 +397,7 @@ function DestinationAdminPanel() {
                         <tbody>
                             {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-4 text-muted">
+                                    <td colSpan="7" className="text-center py-4 text-muted">
                                         {searchTerm ? 'No destinations found matching your search.' : 'No destinations found.'}
                                     </td>
                                 </tr>
@@ -400,6 +410,16 @@ function DestinationAdminPanel() {
                                             </div>
                                         </td>
                                         <td><strong>{dest.title}</strong></td>
+                                        <td>
+                                            <span style={{ fontWeight: '600', color: dest.category === 'Outbound' ? '#0d6efd' : '#198754' }}>
+                                                {dest.category || 'Inbound'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${dest.package_type === 'Luxury' ? 'bg-warning text-dark' : dest.package_type === 'Premium' ? 'bg-info text-dark' : 'bg-secondary'}`}>
+                                                {dest.package_type || 'Standard'}
+                                            </span>
+                                        </td>
                                         <td>{dest.location || '-'}</td>
                                         <td>₹{dest.price}</td>
                                         <td>
@@ -449,6 +469,21 @@ function DestinationAdminPanel() {
                                 <div className="col-md-6 mb-3">
                                     <label>Price * (Numeric)</label>
                                     <input type="number" step="0.01" name="price" value={formData.price} onChange={handleInputChange} className="form-control" required />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Tour Category *</label>
+                                    <select name="category" value={formData.category} onChange={handleInputChange} className="form-control" required>
+                                        <option value="Inbound">Inbound (India)</option>
+                                        <option value="Outbound">Outbound (International)</option>
+                                    </select>
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Package Type *</label>
+                                    <select name="package_type" value={formData.package_type} onChange={handleInputChange} className="form-control" required>
+                                        <option value="Standard">Standard Package</option>
+                                        <option value="Premium">Premium Package</option>
+                                        <option value="Luxury">Luxury Package</option>
+                                    </select>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <label>Price Unit *(Person/Package)</label>
