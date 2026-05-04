@@ -79,8 +79,8 @@ function DestinationDetailsMain() {
                                 >
                                     {images.map((img, index) => (
                                         <SwiperSlide key={index}>
-                                            <div className="tour-slider-img" style={{ aspectRatio: '1508/880', width: '100%', overflow: 'hidden' }}>
-                                                <img src={img} alt={`Slide ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <div className="tour-slider-img" style={{ width: '100%', overflow: 'hidden', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
+                                                <img src={img} alt={`Slide ${index + 1}`} style={{ width: '100%', aspectRatio: '16/9', objectFit: 'contain' }} />
                                             </div>
                                         </SwiperSlide>
                                     ))}
@@ -120,7 +120,7 @@ function DestinationDetailsMain() {
                                     </span>
                                 </div>
                                 <h2 className="box-title">{destinationPost.title}</h2>
-                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="d-flex flex-column flex-md-row justify-content-md-between align-items-start align-items-md-center mb-4 gap-3">
                                     <h4 className="tour-price m-0">
                                         <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
                                         <span className="currency">₹{destinationPost.price}</span>/{destinationPost.price_unit || 'Person'}
@@ -148,42 +148,11 @@ function DestinationDetailsMain() {
                                     </ul>
                                 </div>
 
-                                <h2 className="box-title">Basic Information</h2>
-                                <p className="blog-text mb-35">
-                                    {destinationPost.basic_info_text || "General information about arriving and departing."}
-                                </p>
-                                <div className="destination-checklist mb-50">
-                                    <div className="checklist style2 d-flex gap-5">
-                                        <ul>
-                                            <li><span className='fw-bold me-2'>Location:</span> {destinationPost.location || destinationPost.title}</li>
-                                            <li><span className='fw-bold me-2'>Rating:</span> {destinationPost.rating}</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <h2 className="box-title">Included and Excluded</h2>
-                                <div className="destination-checklist d-flex gap-5">
-                                    <div className="checklist style2 style4 w-50">
-                                        <ul>
-                                            {included.map((item, i) => (
-                                                <li key={i}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="checklist style5 w-50">
-                                        <ul>
-                                            {excluded.map((item, i) => (
-                                                <li key={i}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
                                 {itinerary.length > 0 && (
-                                    <>
-                                        <h3 className="page-title mt-50 mb-0">Tour Plan</h3>
+                                    <div className="mb-50 mt-4">
+                                        <h2 className="box-title">Tour Plan</h2>
                                         <div>
-                                            <ul className="nav nav-tabs tour-tab mt-10" role="tablist">
+                                            <ul className="nav nav-tabs tour-tab mt-10" role="tablist" style={{ flexWrap: 'wrap', borderBottom: 'none', paddingBottom: '5px' }}>
                                                 {itinerary.map((dayObj) => (
                                                     <li className="nav-item" key={dayObj.day} role="presentation">
                                                         <button
@@ -207,12 +176,12 @@ function DestinationDetailsMain() {
                                                     >
                                                         <div className="tour-grid-plan">
                                                             {dayObj.image && (
-                                                                <div className="mb-4">
+                                                                <div className="mb-4 bg-light rounded" style={{ overflow: 'hidden' }}>
                                                                     <img 
                                                                         src={getImageSrc(dayObj.image)} 
                                                                         alt={dayObj.day} 
-                                                                        className="w-100 rounded" 
-                                                                        style={{ aspectRatio: '1508/880', objectFit: 'cover' }} 
+                                                                        className="w-100" 
+                                                                        style={{ height: 'auto', maxHeight: '500px', objectFit: 'contain' }} 
                                                                     />
                                                                 </div>
                                                             )}
@@ -228,8 +197,39 @@ function DestinationDetailsMain() {
                                                 ))}
                                             </div>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
+
+                                <h2 className="box-title">Basic Information</h2>
+                                <p className="blog-text mb-35">
+                                    {destinationPost.basic_info_text || "General information about arriving and departing."}
+                                </p>
+                                <div className="destination-checklist mb-50">
+                                    <div className="checklist style2 d-flex flex-column flex-md-row gap-3 gap-md-5">
+                                        <ul>
+                                            <li><span className='fw-bold me-2'>Location:</span> {destinationPost.location || destinationPost.title}</li>
+                                            <li><span className='fw-bold me-2'>Rating:</span> {destinationPost.rating}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h2 className="box-title">Included and Excluded</h2>
+                                <div className="destination-checklist d-flex flex-column flex-md-row gap-4 gap-md-5 mb-50">
+                                    <div className="checklist style2 style4 w-100 w-md-50">
+                                        <ul>
+                                            {included.map((item, i) => (
+                                                <li key={i}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="checklist style5 w-100 w-md-50">
+                                        <ul>
+                                            {excluded.map((item, i) => (
+                                                <li key={i}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
 
                                 {/* Download Brochure Section */}
                                 {destinationPost.brochure_url && (

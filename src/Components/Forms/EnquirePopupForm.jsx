@@ -16,16 +16,7 @@ export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) 
     
     noOfAdults: '1',
     noOfChildren: '0',
-    childrenAge: '',
-    
-    hotelCategory: '3★',
-    roomType: 'Double',
-    noOfRooms: '1',
-    
-    mealPlan: 'CP',
-    transfers: 'SIC',
-    sightseeingRequired: 'Yes',
-    flightRequired: 'Yes'
+    childrenAge: ''
   });
 
   const [status, setStatus] = useState('idle'); // idle, sending, success, error
@@ -56,14 +47,7 @@ export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) 
           travel_end_date: formData.travelEndDate || null,
           no_of_adults: parseInt(formData.noOfAdults) || 1,
           no_of_children: parseInt(formData.noOfChildren) || 0,
-          children_age: formData.childrenAge,
-          hotel_category: formData.hotelCategory,
-          room_type: formData.roomType,
-          no_of_rooms: parseInt(formData.noOfRooms) || 1,
-          meal_plan: formData.mealPlan,
-          transfers: formData.transfers,
-          sightseeing_required: formData.sightseeingRequired === 'Yes',
-          flight_required: formData.flightRequired === 'Yes'
+          children_age: formData.childrenAge
         }]);
 
       if (dbError) {
@@ -85,17 +69,6 @@ Travel Dates: ${formData.travelStartDate} to ${formData.travelEndDate}
 
 Passenger Details:
 Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${formData.childrenAge})
-
-Accommodation:
-Hotel Category: ${formData.hotelCategory}
-Room Type: ${formData.roomType}
-Rooms: ${formData.noOfRooms}
-
-Requirements:
-Meal Plan: ${formData.mealPlan}
-Transfers: ${formData.transfers}
-Sightseeing: ${formData.sightseeingRequired}
-Flight: ${formData.flightRequired}
       `;
 
       await fetch('/api/enquiry', {
@@ -202,65 +175,6 @@ Flight: ${formData.flightRequired}
                 <div className="col-md-4">
                   <label className="form-label small">Children Age(s)</label>
                   <input type="text" name="childrenAge" value={formData.childrenAge} onChange={handleChange} className="form-control" placeholder="e.g. 5, 8" />
-                </div>
-              </div>
-
-              <h5 className="text-secondary border-bottom pb-2 mb-3">4. Accommodation Preferences</h5>
-              <div className="row g-3 mb-4">
-                <div className="col-md-4">
-                  <label className="form-label small">Hotel Category *</label>
-                  <select name="hotelCategory" value={formData.hotelCategory} onChange={handleChange} className="form-select" required>
-                    <option value="3★">3★</option>
-                    <option value="4★">4★</option>
-                    <option value="5★">5★</option>
-                    <option value="Luxury">Luxury</option>
-                  </select>
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label small">Room Type</label>
-                  <select name="roomType" value={formData.roomType} onChange={handleChange} className="form-select">
-                    <option value="Double">Double</option>
-                    <option value="Twin">Twin</option>
-                    <option value="Family">Family</option>
-                    <option value="Suite">Suite</option>
-                  </select>
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label small">No. of Rooms</label>
-                  <input type="number" name="noOfRooms" value={formData.noOfRooms} onChange={handleChange} className="form-control" min="1" />
-                </div>
-              </div>
-
-              <h5 className="text-secondary border-bottom pb-2 mb-3">5. Package Requirements</h5>
-              <div className="row g-3 mb-4">
-                <div className="col-md-6">
-                  <label className="form-label small">Meal Plan</label>
-                  <select name="mealPlan" value={formData.mealPlan} onChange={handleChange} className="form-select">
-                    <option value="CP">CP (Continental Plan - Breakfast)</option>
-                    <option value="MAP">MAP (Modified American Plan - Breakfast+Dinner)</option>
-                    <option value="AP">AP (American Plan - All Meals)</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Transfers</label>
-                  <select name="transfers" value={formData.transfers} onChange={handleChange} className="form-select">
-                    <option value="SIC">SIC (Seat in Coach)</option>
-                    <option value="Private">Private</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Sightseeing Required</label>
-                  <select name="sightseeingRequired" value={formData.sightseeingRequired} onChange={handleChange} className="form-select">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Flight Required</label>
-                  <select name="flightRequired" value={formData.flightRequired} onChange={handleChange} className="form-select">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
                 </div>
               </div>
 

@@ -62,7 +62,7 @@ function FooterThree() {
                                         <Link to="https://www.facebook.com/people/Fremor-global/61562522722104/">
                                             <i className="fab fa-facebook-f" />
                                         </Link>
-                                                                               
+
                                         <Link to="https://in.linkedin.com/company/fremor-global">
                                             <i className="fab fa-linkedin-in" />
                                         </Link>
@@ -72,7 +72,7 @@ function FooterThree() {
                                         <Link to="https://www.instagram.com/fremorglobal/">
                                             <i className="fab fa-instagram" />
                                         </Link>
-                                        
+
                                     </div>
                                 </div>
                             </div>

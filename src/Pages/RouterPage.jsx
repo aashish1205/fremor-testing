@@ -54,12 +54,14 @@ import TeamAdmin from './TeamAdmin'
 import TeamLogin from './TeamLogin'
 import TeamDashboard from './TeamDashboard'
 import TeamProtectedRoute from '../Components/TeamProtectedRoute'
+import FloatingEnquireWidget from '../Components/Forms/FloatingEnquireWidget'
 
 function RouterPage() {
   return (
     <div>
       <Router>
         <LoadTop />
+        <FloatingEnquireWidget />
         <Routes>
           <Route path="/" element={<HomeOne />}></Route>
           <Route path="/home-tour" element={<HomeTwo />}></Route>

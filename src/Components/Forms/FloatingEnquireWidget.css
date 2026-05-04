@@ -1,0 +1,114 @@
+@keyframes runBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.floating-widget-wrapper {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 9990;
+  padding: 3px; /* Border width */
+  border-radius: 16px;
+  /* Glow/Running effect */
+  background: linear-gradient(90deg, #ff007f, #7928ca, #00f0ff, #ff007f);
+  background-size: 300% 300%;
+  animation: runBorder 4s linear infinite;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.floating-widget-content {
+  background: white;
+  border-radius: 14px;
+  padding: 20px 20px 15px;
+  width: 280px;
+  position: relative;
+}
+
+.floating-widget-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #adb5bd;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.floating-widget-close:hover {
+  color: #495057;
+}
+
+.floating-widget-icon {
+  position: absolute;
+  top: -25px;
+  left: 25px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+}
+
+.floating-widget-text {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.floating-widget-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 8px;
+}
+
+.floating-widget-desc {
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+.floating-widget-btn {
+  width: 100%;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.floating-widget-btn:hover {
+  background: #0b5ed7;
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .floating-widget-wrapper {
+    bottom: 15px;
+    right: 15px;
+    left: 15px; /* Make it almost full width minus margins */
+    width: calc(100% - 30px);
+  }
+  .floating-widget-content {
+    width: 100%;
+  }
+}

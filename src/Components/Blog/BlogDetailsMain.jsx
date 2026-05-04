@@ -191,7 +191,7 @@ function BlogDetailsMain() {
                                     <Link to="/blog">Travel</Link>
                                 </div>
                             </div>
-                            <div className="widget widget_offer" style={{ background: "url(/assets/img/bg/widget_bg_1.jpg)" }}>
+                            <div className="widget widget_offer" style={{ background: "url(/assets/img/bg/colorkit.png)" }}>
                                 <div className="offer-banner">
                                     <div className="offer">
                                         <h6 className="box-title">Need Help? We Are Here To Help You</h6>
@@ -200,7 +200,7 @@ function BlogDetailsMain() {
                                         </div>
                                         <div className="offer">
                                             <h6 className="offer-title">You Get Online support</h6>
-                                            <Link className="offter-num" to="tel:+256214203215">+256 214 203 215</Link>
+                                            <Link className="offter-num" to="tel:+919920499911">+91 9920499911</Link>
                                         </div>
                                         <Link to="/contact" className="th-btn style2 th-icon">Contact Us</Link>
                                     </div>
