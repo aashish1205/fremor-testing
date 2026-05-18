@@ -1,0 +1,189 @@
+.visa-page {
+  background: #ffffff;
+  padding: 24px;
+  max-width: 1300px;
+  margin: auto;
+}
+
+.visa-section {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* HEADER */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h2 {
+  font-size: 20px;
+}
+
+/* SLIDER */
+.country-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  margin-top: 18px;
+  scroll-behavior: smooth;
+}
+
+/* CARD */
+.country-card {
+  min-width: 260px;
+  border: 1px solid #e8ecf2;
+  border-radius: 14px;
+  padding: 16px;
+  transition: 0.25s;
+}
+
+.country-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+/* CARD TOP */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-top img {
+  width: 38px;
+}
+
+.visa-type {
+  background: #eef4ff;
+  color: #2f6ce5;
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+.visa-deadline {
+  color: #00a19a;
+  font-size: 14px;
+}
+
+.visa-sub {
+  font-size: 13px;
+  color: #666;
+}
+
+.card-divider {
+  border-top: 1px dashed #e6e6e6;
+  margin: 10px 0;
+}
+
+.price {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.fee {
+  font-size: 12px;
+  color: gray;
+}
+
+.voucher {
+  margin-top: 10px;
+  background: #e4f3f1;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* EUROPE */
+.europe-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.europe-card {
+  border-radius: 16px;
+  padding: 18px;
+  color: black;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e8ecf2;
+}
+
+.europe-flag {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.sticker {
+  background: #fff3cd;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.europe-info {
+  margin-top: 50px;
+}
+
+.europe-card button {
+  background: none;
+  border: none;
+  color: #0077ff;
+  cursor: pointer;
+}
+
+/* ANNOUNCEMENT */
+.announcement-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #e6f3f3;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+.holiday-tag {
+  margin-left: auto;
+  color: #0ea5a4;
+  font-weight: 600;
+}
+
+/* SLIDER BUTTON */
+.slider-nav button {
+  background: #f0f2f7;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .europe-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .visa-page {
+    padding: 12px;
+  }
+
+  .europe-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .country-card {
+    min-width: 85%;
+  }
+}

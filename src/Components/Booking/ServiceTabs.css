@@ -1,0 +1,95 @@
+/* ===== MakeMyTrip-style Service Tabs ===== */
+
+.mmt-tabs-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0;
+}
+
+.mmt-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 32px 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+.mmt-tab-icon {
+  font-size: 24px;
+  color: #4a4a4a;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.mmt-tab-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a4a4a;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: color 0.25s ease;
+}
+
+/* Hover */
+.mmt-tab:hover .mmt-tab-icon {
+  color: #0d496e;
+}
+
+.mmt-tab:hover .mmt-tab-label {
+  color: #0d496e;
+}
+
+/* Active */
+.mmt-tab.active {
+  border-bottom-color: #0d496e;
+}
+
+.mmt-tab.active .mmt-tab-icon {
+  color: #0d496e;
+}
+
+.mmt-tab.active .mmt-tab-label {
+  color: #0d496e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mmt-tabs-wrapper {
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mmt-tabs-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mmt-tab {
+    padding: 16px 20px 12px;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .mmt-tab-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .mmt-tab-label {
+    font-size: 11px;
+  }
+}

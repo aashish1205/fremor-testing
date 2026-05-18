@@ -1,0 +1,83 @@
+/* ===== TRAIN PANEL - MakeMyTrip Clone ===== */
+/* Reuses shared .mmt-* classes from flightPanel.css */
+
+.mmt-train {
+  animation: panelFadeIn 0.3s ease both;
+}
+
+/* Train class field */
+.train-class-field {
+  flex: 1 !important;
+}
+
+.train-class-display {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.train-class-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* PNR / Live Status panel */
+.train-pnr-panel {
+  padding: 28px;
+  background: #fff;
+}
+
+.pnr-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.pnr-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.pnr-input:focus {
+  border-color: #0d496e;
+}
+
+.pnr-input::placeholder {
+  color: #c0c0c0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .train-class-display {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 600px) {
+  .train-class-display {
+    font-size: 20px;
+  }
+
+  .train-pnr-panel {
+    padding: 20px 16px;
+  }
+}
