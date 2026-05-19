@@ -223,7 +223,7 @@ export default function VisaSearch() {
     <div className="visa-search-wrapper">
       <div className="title-area text-center">
         <span className="sub-title">Apply for a Visa</span>
-        <h2 className="sec-title">On Time, Powered by Experts</h2>
+        <h2 className="sec-title">Travel Beyond Borders With Confidence</h2>
       </div>
 
       <div className="visa-search-box">

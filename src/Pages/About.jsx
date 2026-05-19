@@ -5,7 +5,7 @@ import AboutFour from '../Components/About/AboutFour'
 import OfferTwo from '../Components/Offer/OfferTwo'
 import ElementSection from '../Components/Elements/ElementSection'
 import TourGuideTwo from '../Components/Guide/TourGuideTwo'
-import InstagramReels from '../Components/Gallery/InstagramReels'
+import CustomerVideoReviews from '../Components/Gallery/CustomerVideoReviews'
 import TestimonialOne from '../Components/Testimonials/TestimonialOne'
 import BrandOne from '../Components/Brand/BrandOne'
 import GalleryFive from '../Components/Gallery/GalleryFive'
@@ -23,7 +23,7 @@ function About() {
             <OfferTwo />
             <ElementSection />
             <TourGuideTwo />
-            <InstagramReels />
+            <CustomerVideoReviews />
             <TestimonialOne />
             {/*<BrandOne/>*/}
             <GalleryFive />

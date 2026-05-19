@@ -41,6 +41,7 @@ import CruiseDetails from './CruiseDetails'
 import CruiseAdmin from './CruiseAdmin'
 import BlogAdmin from './BlogAdmin'
 import GalleryAdmin from './GalleryAdmin'
+import CustomerReviewsAdmin from './CustomerReviewsAdmin'
 import DashboardAdmin from './DashboardAdmin'
 import MyAccount from './MyAccount'
 import CoTravellers from './CoTravellers'
@@ -125,6 +126,7 @@ function RouterContent() {
           <Route path="/admin/blogs" element={<AdminProtectedRoute><BlogAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/testimonials" element={<AdminProtectedRoute><TestimonialAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/instagram-gallery" element={<AdminProtectedRoute><GalleryAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/customer-video-reviews" element={<AdminProtectedRoute><CustomerReviewsAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/team" element={<AdminProtectedRoute><TeamAdmin /></AdminProtectedRoute>} />
           
           <Route path="/team/login" element={<TeamLogin />} />

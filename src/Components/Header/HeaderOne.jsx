@@ -86,7 +86,7 @@ function HeaderOne() {
 
     return (
         <>
-            <header className="th-header header-layout1">
+            <header className="th-header header-layout1" style={{ position: 'relative', zIndex: 9999 }}>
                 {/* Header Top - Hidden on Mobile to save vertical space */}
                 <div className="header-top d-none d-lg-block">
                     <div className="container th-container">
@@ -207,7 +207,7 @@ function HeaderOne() {
                                             {/* Destination */}
                                             <li className={`menu-item-has-children ${isParentActive(["/destination"]) ? "active" : ""}`}>
                                                 <Link to="/destination">
-                                                    Destinations
+                                                    Explore Tours
                                                 </Link>
                                                 <ul className="sub-menu">
                                                     <li>

@@ -94,6 +94,14 @@ const AdminLayout = ({ children, email }) => {
                         <i className="fab fa-instagram"></i>
                         Instagram Gallery
                     </NavLink>
+
+                    <NavLink 
+                        to="/admin/customer-video-reviews" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-video"></i>
+                        Customer Videos
+                    </NavLink>
                 </nav>
             </aside>
 
