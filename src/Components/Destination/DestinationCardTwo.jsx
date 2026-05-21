@@ -5,7 +5,7 @@ import EnquirePopupForm from '../Forms/EnquirePopupForm';
 
 function DestinationCardTwo(props) {
     const [isEnquireOpen, setIsEnquireOpen] = useState(false);
-    const { destinationID, destinationImage, destinationTitle, destinationPrice, destinationDuration, destinationPriceUnit } = props;
+    const { destinationID, destinationImage, destinationTitle, destinationPrice, destinationDuration, destinationPriceUnit, destinationNights, destinationDays } = props;
     return (
         <div className="tour-box style-flex th-ani">
             <div className="tour-box_img global-img">
@@ -42,10 +42,22 @@ function DestinationCardTwo(props) {
                     <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
                     <span className="currency">{destinationPrice ? destinationPrice : '₹980.00'}</span>/{destinationPriceUnit ? destinationPriceUnit : 'Person'}
                 </h4>
-                <div className="tour-action">
-                    <span>
-                        <i className="fa-light fa-clock" />{destinationDuration ? destinationDuration : '7 Days'}
-                    </span>
+                <div className="tour-action" style={{ gap: '15px', flexWrap: 'wrap' }}>
+                    {(destinationNights > 0 || destinationDays > 0) ? (
+                        <span className="tour-duration" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0369a1', fontWeight: '700', fontSize: '13px' }}>
+                                <i className="fa-solid fa-moon" style={{ fontSize: '12px' }}></i> {destinationNights} N
+                            </span>
+                            <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#cbd5e1' }}></span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontWeight: '700', fontSize: '13px' }}>
+                                <i className="fa-solid fa-sun" style={{ fontSize: '12px' }}></i> {destinationDays} D
+                            </span>
+                        </span>
+                    ) : (
+                        <span>
+                            <i className="fa-light fa-clock" />{destinationDuration ? destinationDuration : '7 Days'}
+                        </span>
+                    )}
                     <button onClick={() => setIsEnquireOpen(true)} className="th-btn style4 th-icon border-0">
                         Book Now
                     </button>

@@ -94,12 +94,25 @@ function TourOne() {
                           </Link>
                         </div>
                         <h4 className="tour-box_price">
+                          <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
                           <span className="currency">₹{dest.price || '0'}</span>/{(dest.price_unit && dest.price_unit.trim() !== '') ? dest.price_unit : 'Person'}
                         </h4>
-                        <div className="tour-action">
-                          <span>
-                            <i className="fa-light fa-clock" />{(dest.duration && dest.duration.trim() !== '') ? dest.duration : 'Flexible'}
-                          </span>
+                        <div className="tour-action" style={{ gap: '15px', flexWrap: 'wrap' }}>
+                          {(dest.nights > 0 || dest.days > 0) ? (
+                            <span className="tour-duration" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0369a1', fontWeight: '700', fontSize: '13px' }}>
+                                    <i className="fa-solid fa-moon" style={{ fontSize: '12px' }}></i> {dest.nights} N
+                                </span>
+                                <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#cbd5e1' }}></span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontWeight: '700', fontSize: '13px' }}>
+                                    <i className="fa-solid fa-sun" style={{ fontSize: '12px' }}></i> {dest.days} D
+                                </span>
+                            </span>
+                          ) : (
+                            <span>
+                              <i className="fa-light fa-clock" />{(dest.duration && dest.duration.trim() !== '') ? dest.duration : 'Flexible'}
+                            </span>
+                          )}
                           <Link to={destinationLink} className="th-btn style4 th-icon">
                             View Details
                           </Link>

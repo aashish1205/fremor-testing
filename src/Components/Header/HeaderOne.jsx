@@ -34,6 +34,20 @@ function HeaderOne() {
     }, []);
 
     useEffect(() => {
+        if (!isProfileDropdownOpen) return;
+        const handleOutsideClick = () => {
+            setIsProfileDropdownOpen(false);
+        };
+        const timer = setTimeout(() => {
+            document.addEventListener("click", handleOutsideClick);
+        }, 0);
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener("click", handleOutsideClick);
+        };
+    }, [isProfileDropdownOpen]);
+
+    useEffect(() => {
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
@@ -303,15 +317,74 @@ function HeaderOne() {
                                     </nav>
 
                                     <div className="d-flex align-items-center gap-3">
-                                        <button
-                                            type="button"
-                                            className="d-block d-xl-none"
-                                            onClick={() => user ? setIsProfileDropdownOpen(!isProfileDropdownOpen) : setIsLoginFormOpen(true)}
-                                            style={{ background: "none", border: "none", color: "var(--theme-color)", cursor: "pointer", fontSize: "22px", padding: 0 }}
-                                            aria-label="User Account"
-                                        >
-                                            <i className="fa-regular fa-circle-user" />
-                                        </button>
+                                        <div className="d-block d-xl-none" style={{ position: "relative" }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => user ? setIsProfileDropdownOpen(!isProfileDropdownOpen) : setIsLoginFormOpen(true)}
+                                                style={{ background: "none", border: "none", color: "var(--theme-color)", cursor: "pointer", fontSize: "22px", padding: 0 }}
+                                                aria-label="User Account"
+                                            >
+                                                <i className="fa-regular fa-circle-user" />
+                                            </button>
+                                            {user && isProfileDropdownOpen && (
+                                                <div style={{
+                                                    position: "absolute",
+                                                    top: "100%",
+                                                    right: 0,
+                                                    background: "#fff",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                                    padding: "8px 0",
+                                                    minWidth: "160px",
+                                                    zIndex: 10000,
+                                                    marginTop: "10px",
+                                                    border: "1px solid #eaeaea",
+                                                    textAlign: "left"
+                                                }}>
+                                                    <div style={{
+                                                        padding: "8px 16px",
+                                                        fontSize: "12px",
+                                                        color: "#666",
+                                                        borderBottom: "1px solid #f1f1f1",
+                                                        fontWeight: "600"
+                                                    }}>
+                                                        Hi, {userName}
+                                                    </div>
+                                                    <Link 
+                                                        to="/my-account" 
+                                                        style={{ 
+                                                            display: "block", 
+                                                            padding: "10px 16px", 
+                                                            color: "#333", 
+                                                            textDecoration: "none", 
+                                                            fontSize: "14px", 
+                                                            fontWeight: 500 
+                                                        }} 
+                                                        onClick={() => setIsProfileDropdownOpen(false)}
+                                                    >
+                                                        <i className="fa-regular fa-user me-2" /> My Profile
+                                                    </Link>
+                                                    <button 
+                                                        onClick={handleLogout} 
+                                                        style={{ 
+                                                            display: "block", 
+                                                            width: "100%", 
+                                                            textAlign: "left", 
+                                                            padding: "10px 16px", 
+                                                            background: "none", 
+                                                            border: "none", 
+                                                            borderTop: "1px solid #f1f1f1", 
+                                                            color: "#c53030", 
+                                                            cursor: "pointer", 
+                                                            fontSize: "14px", 
+                                                            fontWeight: 500 
+                                                        }}
+                                                    >
+                                                        <i className="fa-regular fa-arrow-right-from-bracket me-2" /> Logout
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                         <button
                                             type="button"
                                             className="th-menu-toggle d-block d-xl-none"
@@ -348,6 +421,10 @@ function HeaderOne() {
             <MobileMenu
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
+                onLoginClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsLoginFormOpen(true);
+                }}
             />
             <LoginForm
                 isOpen={isLoginFormOpen}

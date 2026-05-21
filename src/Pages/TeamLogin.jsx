@@ -16,7 +16,23 @@ const TeamLogin = () => {
         const checkSession = () => {
             const teamSession = localStorage.getItem('team_session');
             if (teamSession) {
-                navigate('/team/dashboard');
+                try {
+                    const session = JSON.parse(teamSession);
+                    const role = session.role || 'All';
+                    let redirectPath = '/team/dashboard';
+                    if (role === 'Blog Writer') {
+                        redirectPath = '/team/blogs';
+                    } else if (role === 'Package Editor') {
+                        redirectPath = '/team/destinations';
+                    } else if (role === 'Customer Support') {
+                        redirectPath = '/team/travellers';
+                    } else if (role === 'All') {
+                        redirectPath = '/team/travellers';
+                    }
+                    navigate(redirectPath);
+                } catch (e) {
+                    navigate('/team/dashboard');
+                }
             }
         };
         checkSession();
@@ -46,11 +62,22 @@ const TeamLogin = () => {
                 name: teamData.name,
                 email: teamData.email,
                 phone: teamData.phone,
-                role: 'team_member'
+                role: teamData.role || 'All'
             }));
             
-            // Redirect to team dashboard
-            navigate('/team/dashboard');
+            // Redirect to default page based on role
+            const role = teamData.role || 'All';
+            let redirectPath = '/team/dashboard';
+            if (role === 'Blog Writer') {
+                redirectPath = '/team/blogs';
+            } else if (role === 'Package Editor') {
+                redirectPath = '/team/destinations';
+            } else if (role === 'Customer Support') {
+                redirectPath = '/team/travellers';
+            } else if (role === 'All') {
+                redirectPath = '/team/travellers';
+            }
+            navigate(redirectPath);
         } catch (error) {
             setError(error.message);
         } finally {

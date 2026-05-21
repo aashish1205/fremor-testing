@@ -202,6 +202,8 @@ function DestinationInner({ category: propCategory }) {
                                                     destinationPrice={`₹${data.price}`}
                                                     destinationDuration={data.duration}
                                                     destinationPriceUnit={data.price_unit}
+                                                    destinationNights={data.nights}
+                                                    destinationDays={data.days}
                                                 />
                                             </div>
                                         ))}
@@ -219,6 +221,8 @@ function DestinationInner({ category: propCategory }) {
                                                     destinationPrice={`₹${data.price}`}
                                                     destinationDuration={data.duration}
                                                     destinationPriceUnit={data.price_unit}
+                                                    destinationNights={data.nights}
+                                                    destinationDays={data.days}
                                                 />
                                             </div>
                                         ))}
@@ -278,6 +282,9 @@ function DestinationInner({ category: propCategory }) {
                                     </li>
                                 </ul>
                             </div>
+                            
+                            <CallbackCard />
+
                             <div className="widget  ">
                                 <h3 className="widget_title">Recent Blog Posts</h3>
                                 <div className="recent-post-wrap">
@@ -308,8 +315,8 @@ function DestinationInner({ category: propCategory }) {
                                     ))}
                                 </div>
                             </div>
-                            <CallbackCard />
-                            <div
+                            
+                            {/*<div
                                 className="widget widget_offer  "
                                 data-bg-src="/assets/img/bg/widget_bg_1.jpg"
                                 style={{ backgroundImage: "url(/assets/img/bg/colorkit.png)" }}
@@ -333,7 +340,7 @@ function DestinationInner({ category: propCategory }) {
                                         </Link>
                                     </div>
                                 </div>
-                            </div>
+                            </div>*/}
                         </aside>
                     </div>
                 </div>

@@ -46,7 +46,9 @@ function DestinationAdminPanel() {
         itinerary: [{ day: "Day 01", activities: [''], image: '' }], // Array of objects
         brochure_url: '',
         category: 'Inbound',
-        package_type: 'Standard'
+        package_type: 'Standard',
+        nights: 0,
+        days: 0
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
@@ -113,7 +115,9 @@ function DestinationAdminPanel() {
                 itinerary: dest.itinerary?.length ? dest.itinerary : [{ day: "Day 01", activities: [''], image: '' }],
                 brochure_url: dest.brochure_url || '',
                 category: dest.category || 'Inbound',
-                package_type: dest.package_type || 'Standard'
+                package_type: dest.package_type || 'Standard',
+                nights: dest.nights || 0,
+                days: dest.days || 0
             });
         } else {
             setFormData({
@@ -137,7 +141,9 @@ function DestinationAdminPanel() {
                 itinerary: [{ day: "Day 01", activities: [''], image: '' }],
                 brochure_url: '',
                 category: 'Inbound',
-                package_type: 'Standard'
+                package_type: 'Standard',
+                nights: 0,
+                days: 0
             });
         }
         setPrimaryImageFile(null);
@@ -319,7 +325,9 @@ function DestinationAdminPanel() {
                 itinerary: cleanItinerary,
                 brochure_url: formData.brochure_url,
                 category: formData.category,
-                package_type: formData.package_type
+                package_type: formData.package_type,
+                nights: parseInt(formData.nights) || 0,
+                days: parseInt(formData.days) || 0
             };
 
             // Handle brochure file upload
@@ -532,6 +540,14 @@ function DestinationAdminPanel() {
                                 <div className="col-md-6 mb-3">
                                     <label>Duration * (e.g. 7 Days)</label>
                                     <input type="text" name="duration" value={formData.duration} onChange={handleInputChange} className="form-control" required />
+                                </div>
+                                <div className="col-md-3 mb-3">
+                                    <label>Nights *</label>
+                                    <input type="number" min="0" name="nights" value={formData.nights} onChange={handleInputChange} className="form-control" required />
+                                </div>
+                                <div className="col-md-3 mb-3">
+                                    <label>Days *</label>
+                                    <input type="number" min="0" name="days" value={formData.days} onChange={handleInputChange} className="form-control" required />
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <label>Rating</label>

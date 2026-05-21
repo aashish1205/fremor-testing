@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const TeamDashboard = () => {
+    const navigate = useNavigate();
     // Assuming teamMember details were passed down or can be fetched from local storage
     const teamSession = JSON.parse(localStorage.getItem('team_session') || '{}');
 
@@ -30,21 +32,25 @@ const TeamDashboard = () => {
                     }}>
                         <div style={{ position: 'relative', zIndex: 2 }}>
                             <h3 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '1rem' }}>
-                                Ready to make an impact?
+                                Ready to manage services?
                             </h3>
                             <p style={{ fontSize: '1.1rem', opacity: 0.9, maxWidth: '600px', marginBottom: '2rem' }}>
-                                This dashboard is currently being set up. Soon, you will have access to custom tools, reports, and modules assigned to you by the Superadmin. Stay tuned!
+                                Use the sidebar navigation to view Travellers, or manage Destinations, Cruises, Blogs, Testimonials, the Instagram Gallery, and Customer Video Reviews.
                             </p>
-                            <button style={{ 
-                                background: 'white', 
-                                color: '#059669', 
-                                border: 'none', 
-                                padding: '0.8rem 2rem', 
-                                borderRadius: '30px', 
-                                fontWeight: '700', 
-                                fontSize: '1rem',
-                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-                            }}>
+                            <button 
+                                onClick={() => navigate('/team/travellers')}
+                                style={{ 
+                                    background: 'white', 
+                                    color: '#059669', 
+                                    border: 'none', 
+                                    padding: '0.8rem 2rem', 
+                                    borderRadius: '30px', 
+                                    fontWeight: '700', 
+                                    fontSize: '1rem',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer'
+                                }}
+                            >
                                 Get Started
                             </button>
                         </div>
@@ -93,7 +99,7 @@ const TeamDashboard = () => {
                             </li>
                             <li style={{ padding: '0.75rem 0', display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ color: '#64748b' }}>Role</span>
-                                <span style={{ fontWeight: '500', color: '#10b981' }}>Team Member</span>
+                                <span style={{ fontWeight: '500', color: '#10b981' }}>{teamSession.role || 'Team Member'}</span>
                             </li>
                         </ul>
                     </div>

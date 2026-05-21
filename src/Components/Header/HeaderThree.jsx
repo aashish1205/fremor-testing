@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import SideMenu from './SideMenu';
 import MobileMenu from './MobileMenu';
+import LoginForm from './LoginForm';
 
 function HeaderThree() {
     const [isSticky, setIsSticky] = useState(false);
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLoginFormOpen, setIsLoginFormOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -287,8 +289,16 @@ function HeaderThree() {
                     </div>
                 </div>
             </header>
-            <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-            <SideMenu isOpen={isSideMenuOpen} onClose={() => setIsSideMenuOpen(false)} />
+             <MobileMenu 
+                isOpen={isMobileMenuOpen} 
+                onClose={() => setIsMobileMenuOpen(false)} 
+                onLoginClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsLoginFormOpen(true);
+                }}
+             />
+             <SideMenu isOpen={isSideMenuOpen} onClose={() => setIsSideMenuOpen(false)} />
+             <LoginForm isOpen={isLoginFormOpen} onClose={() => setIsLoginFormOpen(false)} />
         </>
     )
 }

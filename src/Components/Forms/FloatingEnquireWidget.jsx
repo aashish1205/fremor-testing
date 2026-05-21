@@ -8,8 +8,14 @@ export default function FloatingEnquireWidget() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
 
-  // Hide on cruise pages
-  if (location.pathname.includes('/cruise')) return null;
+  // Hide on cruise, admin, or team pages
+  if (
+    location.pathname.includes('/cruise') ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/team')
+  ) {
+    return null;
+  }
 
   // Don't render if user explicitly closed it
   if (!isVisible) return null;

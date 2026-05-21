@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import AdminLogin from './AdminLogin'
 import AdminProtectedRoute from '../Components/AdminProtectedRoute'
@@ -61,8 +61,13 @@ import FremorLoader from '../Components/Loader/loader'
 function RouterContent() {
   const location = useLocation()
   const [showLoader, setShowLoader] = useState(false)
+  const isFirstMount = useRef(true)
 
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false
+      return
+    }
     setShowLoader(true)
     const timer = setTimeout(() => {
       setShowLoader(false)
@@ -131,6 +136,14 @@ function RouterContent() {
           
           <Route path="/team/login" element={<TeamLogin />} />
           <Route path="/team/dashboard" element={<TeamProtectedRoute><TeamDashboard /></TeamProtectedRoute>} />
+          <Route path="/team/travellers" element={<TeamProtectedRoute><TravellersAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/travellers/:id" element={<TeamProtectedRoute><TravellerDetailsAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/destinations" element={<TeamProtectedRoute><DestinationAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/cruises" element={<TeamProtectedRoute><CruiseAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/blogs" element={<TeamProtectedRoute><BlogAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/testimonials" element={<TeamProtectedRoute><TestimonialAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/instagram-gallery" element={<TeamProtectedRoute><GalleryAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/customer-video-reviews" element={<TeamProtectedRoute><CustomerReviewsAdmin /></TeamProtectedRoute>} />
           
           <Route path="/terms" element={<Terms />} />
         </Routes>

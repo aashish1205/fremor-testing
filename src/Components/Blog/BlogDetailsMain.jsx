@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { fetchBlogById, getBlogImageSrc } from '../../services/blogService';
+import { fetchDestinations, getImageSrc } from '../../services/destinationService';
 
 function BlogDetailsMain() {
     const { id } = useParams();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const [destinations, setDestinations] = useState([]);
+    const [destinationsLoading, setDestinationsLoading] = useState(true);
 
     useEffect(() => {
         const loadBlog = async () => {
@@ -20,6 +24,21 @@ function BlogDetailsMain() {
         };
         loadBlog();
     }, [id]);
+
+    useEffect(() => {
+        const loadDestinations = async () => {
+            try {
+                const data = await fetchDestinations();
+                // Show exactly 3 packages
+                setDestinations(data.slice(0, 3));
+            } catch (error) {
+                console.error("Error loading destinations:", error);
+            } finally {
+                setDestinationsLoading(false);
+            }
+        };
+        loadDestinations();
+    }, []);
 
     if (loading) {
         return (
@@ -173,14 +192,43 @@ function BlogDetailsMain() {
                                     </button>
                                 </form>
                             </div>
-                            <div className="widget widget_categories">
-                                <h3 className="widget_title">Categories</h3>
-                                <ul>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> City Tour</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Beach Tours</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Wildlife Tours</Link></li>
-                                    <li><Link to="/blog"><img src="/assets/img/theme-img/map.svg" alt="" /> Adventure Tours</Link></li>
-                                </ul>
+                            <div className="widget">
+                                <h3 className="widget_title">Most Visited Destinations</h3>
+                                <div className="recent-post-wrap">
+                                    {destinationsLoading ? (
+                                        <div className="text-center py-3">
+                                            <div className="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
+                                    ) : destinations.length === 0 ? (
+                                        <p className="text-muted small">No destinations found.</p>
+                                    ) : (
+                                        destinations.map((dest) => (
+                                            <div className="recent-post" key={dest.id}>
+                                                <div className="media-img">
+                                                    <Link to={`/destination/${dest.id}`}>
+                                                        <img
+                                                            src={getImageSrc(dest.image)}
+                                                            alt={dest.title}
+                                                        />
+                                                    </Link>
+                                                </div>
+                                                <div className="media-body">
+                                                    <h4 className="post-title">
+                                                        <Link className="text-inherit" to={`/destination/${dest.id}`}>
+                                                            {dest.title}
+                                                        </Link>
+                                                    </h4>
+                                                    <div className="recent-post-meta" style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
+                                                        <span className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Starting from</span>
+                                                        <span style={{ color: '#0962E8', fontWeight: '700', fontSize: '14px' }}>
+                                                            ₹{dest.price}/{dest.price_unit || 'Person'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
                             </div>
                             <div className="widget widget_tag_cloud">
                                 <h3 className="widget_title">Popular Tags</h3>

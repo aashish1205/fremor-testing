@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDataTable } from '../hooks/useDataTable';
 import AdminPagination from '../Components/Admin/AdminPagination';
 
@@ -9,6 +9,7 @@ const TravellersAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const { 
         searchTerm, 
@@ -43,7 +44,8 @@ const TravellersAdmin = () => {
     };
 
     const handleViewUser = (u) => {
-        navigate(`/admin/travellers/${u.id}`);
+        const prefix = location.pathname.startsWith('/team') ? '/team' : '/admin';
+        navigate(`${prefix}/travellers/${u.id}`);
     };
 
     // Helper to format dates

@@ -202,6 +202,40 @@ function DestinationDetailsMain() {
                         flex: 0 0 auto;
                     }
                 }
+
+                /* Tour Quick Info Bar */
+                .tour-quick-info-bar {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 15px;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    border-radius: 16px;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+                }
+                @media (max-width: 768px) {
+                    .tour-quick-info-bar {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    .tour-quick-info-bar .info-item {
+                        border-right: none !important;
+                    }
+                }
+                @media (max-width: 480px) {
+                    .tour-quick-info-bar {
+                        grid-template-columns: 1fr;
+                    }
+                    .tour-quick-info-bar .info-item {
+                        border-right: none !important;
+                        border-bottom: 1px solid #e2e8f0;
+                        padding-bottom: 15px;
+                    }
+                    .tour-quick-info-bar .info-item:last-child {
+                        border-bottom: none;
+                        padding-bottom: 0;
+                    }
+                }
             `}} />
         <section className="space">
             <div className="container shape-mockup-wrap">
@@ -235,6 +269,45 @@ function DestinationDetailsMain() {
                                         <i className="fa-solid fa-paper-plane me-2"></i> Enquire Now
                                     </button>
                                 </div>
+
+                                {/* Beautiful Quick Info Bar */}
+                                <div className="tour-quick-info-bar mb-4">
+                                    <div className="info-item text-center d-flex flex-column align-items-center justify-content-center" style={{ borderRight: '1px solid #e2e8f0' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f9ff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                            <i className="fa-solid fa-moon" style={{ color: '#0284c7', fontSize: '18px' }}></i>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nights</span>
+                                        <span style={{ fontSize: '18px', color: '#0f172a', fontWeight: '700' }}>
+                                            {(destinationPost.nights > 0) ? `${destinationPost.nights} Nights` : (destinationPost.duration ? destinationPost.duration : 'N/A')}
+                                        </span>
+                                    </div>
+                                    <div className="info-item text-center d-flex flex-column align-items-center justify-content-center" style={{ borderRight: '1px solid #e2e8f0' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                            <i className="fa-solid fa-sun" style={{ color: '#ea580c', fontSize: '18px' }}></i>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days</span>
+                                        <span style={{ fontSize: '18px', color: '#0f172a', fontWeight: '700' }}>
+                                            {(destinationPost.days > 0) ? `${destinationPost.days} Days` : (destinationPost.duration ? destinationPost.duration : 'N/A')}
+                                        </span>
+                                    </div>
+                                    <div className="info-item text-center d-flex flex-column align-items-center justify-content-center" style={{ borderRight: '1px solid #e2e8f0' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                            <i className="fa-solid fa-location-dot" style={{ color: '#16a34a', fontSize: '18px' }}></i>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</span>
+                                        <span style={{ fontSize: '16px', color: '#0f172a', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} title={destinationPost.location || destinationPost.title}>
+                                            {destinationPost.location || destinationPost.title}
+                                        </span>
+                                    </div>
+                                    <div className="info-item text-center d-flex flex-column align-items-center justify-content-center">
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                            <i className="fa-solid fa-star" style={{ color: '#d97706', fontSize: '18px' }}></i>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rating</span>
+                                        <span style={{ fontSize: '18px', color: '#0f172a', fontWeight: '700' }}>{destinationPost.rating || 4.8} / 5</span>
+                                    </div>
+                                </div>
+
                                 <p className="box-text mb-30">
                                     {destinationPost.description_1 || "No description provided."}
                                 </p>

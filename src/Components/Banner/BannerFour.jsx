@@ -15,15 +15,15 @@ function BannerFour() {
             <div className="container shape-mockup-wrap">
                 <div className="hero-style4 text-center">
                     <span className="sub-title style1">Welcome to Our</span>
-                    <h1 className="hero-title">Elite Yacht Hire Services in Florida</h1>
-                    <div className="btn-group">
+                    <h1 className="hero-title">Sail Beyond Horizons with Fremor Global</h1>
+                    {/*<div className="btn-group">
                         <Link to="/tour" className="th-btn th-icon">
                             Explore Tours
                         </Link>
                         <Link to="/service" className="th-btn style3 th-icon">
                             Our Services
                         </Link>
-                    </div>
+                    </div>*/}
                 </div>
                 <div className="shape-mockup shape1"
                     style={{

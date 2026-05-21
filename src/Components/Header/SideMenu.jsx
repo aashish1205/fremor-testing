@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom'
 function SideMenu({ isOpen, onClose }) {
     const [activeMenu, setActiveMenu] = useState(null);
     
-        // Toggle the active state of a dropdown menu
-        const toggleMenu = (index) => {
-            setActiveMenu(activeMenu === index ? null : index);
-        };
+    // Toggle the active state of a dropdown menu
+    const toggleMenu = (index) => {
+        setActiveMenu(activeMenu === index ? null : index);
+    };
+
     return (
         <>
             <div className={`sidemenu-wrapper sidemenu-info ${isOpen ? "show" : ""}`} style={{ visibility: isOpen ? "visible" : "hidden" }} onClick={onClose} aria-label="Close">
-                <div className="sidemenu-content">
+                <div className="sidemenu-content" onClick={(e) => e.stopPropagation()}>
                     <button className="closeButton sideMenuCls" onClick={onClose} aria-label="Close">
                         <i className="far fa-times" />
                     </button>
@@ -19,74 +20,31 @@ function SideMenu({ isOpen, onClose }) {
                         <div className="th-widget-about">
                             <div className="about-logo">
                                 <Link to="/">
-                                    <img src="/assets/img/logo/FremorLogo-white.png" alt="Tourm" />
+                                    <img src="/assets/img/logo/FremorLogo-white.png" alt="Fremor" />
                                 </Link>
                             </div>
                             <p className="about-text">
-                                Rapidiously myocardinate cross-platform intellectual capital model.
-                                Appropriately create interactive infrastructures
+                                Explore the world with Fremor. Discover bespoke travel destinations, luxury cruises, and seamless visa processing.
                             </p>
                             <div className="th-social">
-                                <Link to="https://www.facebook.com/">
+                                <a href="https://www.facebook.com/people/Fremor-global/61562522722104/" target="_blank" rel="noopener noreferrer">
                                     <i className="fab fa-facebook-f" />
-                                </Link>
-                                <Link to="https://www.twitter.com/">
-                                    <i className="fab fa-twitter" />
-                                </Link>
-                                <Link to="https://www.linkedin.com/">
+                                </a>
+                                <a href="https://in.linkedin.com/company/fremor-global" target="_blank" rel="noopener noreferrer">
                                     <i className="fab fa-linkedin-in" />
-                                </Link>
-                                <Link to="https://www.whatsapp.com/">
+                                </a>
+                                <a href="https://www.instagram.com/fremorglobal/" target="_blank" rel="noopener noreferrer">
+                                    <i className="fab fa-instagram" />
+                                </a>
+                                <a href="https://www.whatsapp.com/" target="_blank" rel="noopener noreferrer">
                                     <i className="fab fa-whatsapp" />
-                                </Link>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div className="widget  ">
-                        <h3 className="widget_title">Recent Posts</h3>
-                        <div className="recent-post-wrap">
-                            <div className="recent-post">
-                                <div className="media-img">
-                                    <Link to="/blog/1">
-                                        <img src="/assets/img/blog/recent-post-1-1.jpg" alt="Blog Image" />
-                                    </Link>
-                                </div>
-                                <div className="media-body">
-                                    <div className="recent-post-meta">
-                                        <Link to="/blog">
-                                            <i className="far fa-calendar" />
-                                            24 Jun , 2025
-                                        </Link>
-                                    </div>
-                                    <h4 className="post-title">
-                                        <Link className="text-inherit" to="/blog/1">
-                                            Where Vision Meets Concrete Reality
-                                        </Link>
-                                    </h4>
-                                </div>
-                            </div>
-                            <div className="recent-post">
-                                <div className="media-img">
-                                    <Link to="/blog/1">
-                                        <img src="/assets/img/blog/recent-post-1-2.jpg" alt="Blog Image" />
-                                    </Link>
-                                </div>
-                                <div className="media-body">
-                                    <div className="recent-post-meta">
-                                        <Link to="/blog">
-                                            <i className="far fa-calendar" />
-                                            22 Jun , 2025
-                                        </Link>
-                                    </div>
-                                    <h4 className="post-title">
-                                        <Link className="text-inherit" to="/blog/1">
-                                            Raising the Bar in Construction.
-                                        </Link>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
+                    {/* We can hide or replace recent posts widget since it has placeholder blogs */}
+                    
                     <div className="widget  ">
                         <h3 className="widget_title">Get In Touch</h3>
                         <div className="th-widget-contact">
@@ -96,13 +54,13 @@ function SideMenu({ isOpen, onClose }) {
                                 </div>
                                 <div className="details">
                                     <p>
-                                        <Link to="tel:+01234567890" className="info-box_link">
-                                            +01 234 567 890
+                                        <Link to="tel:+919920499911" className="info-box_link">
+                                            +91 9920499911
                                         </Link>
                                     </p>
                                     <p>
-                                        <Link to="tel:+09876543210" className="info-box_link">
-                                            +09 876 543 210
+                                        <Link to="tel:+918657004943" className="info-box_link">
+                                            +91 8657004943
                                         </Link>
                                     </p>
                                 </div>
@@ -113,13 +71,13 @@ function SideMenu({ isOpen, onClose }) {
                                 </div>
                                 <div className="details">
                                     <p>
-                                        <Link to="mailto:mailinfo00@tourm.com" className="info-box_link">
-                                            mailinfo00@tourm.com
+                                        <Link to="mailto:connect@fremorglobal.com" className="info-box_link">
+                                            connect@fremorglobal.com
                                         </Link>
                                     </p>
                                     <p>
-                                        <Link to="mailto:support24@tourm.com" className="info-box_link">
-                                            support24@tourm.com
+                                        <Link to="mailto:askari.rizvi@fremorglobal.com" className="info-box_link">
+                                            askari.rizvi@fremorglobal.com
                                         </Link>
                                     </p>
                                 </div>
@@ -129,7 +87,7 @@ function SideMenu({ isOpen, onClose }) {
                                     <img src="/assets/img/icon/location-dot.svg" alt="img" />
                                 </div>
                                 <div className="details">
-                                    <p>789 Inner Lane, Holy park, California, USA</p>
+                                    <p>11th floor, Urmi Estate Ganpatrao Kadam Marg, Lower Parel-west, Mumbai- 400013</p>
                                 </div>
                             </div>
                         </div>

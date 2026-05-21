@@ -10,6 +10,29 @@ const TeamLayout = ({ children, teamMember }) => {
         navigate('/team/login');
     };
 
+    const isTabAllowed = (role, path) => {
+        // Backward compatibility
+        if (role === 'team_member' || !role) return true;
+
+        const normalized = path.toLowerCase();
+        if (role === 'Blog Writer') {
+            return normalized === '/team/blogs';
+        }
+        if (role === 'Package Editor') {
+            return normalized === '/team/destinations' || normalized === '/team/cruises';
+        }
+        if (role === 'Customer Support') {
+            return normalized === '/team/travellers' ||
+                   normalized === '/team/testimonials' ||
+                   normalized === '/team/instagram-gallery' ||
+                   normalized === '/team/customer-video-reviews';
+        }
+        if (role === 'All') {
+            return normalized !== '/team/dashboard';
+        }
+        return true;
+    };
+
     return (
         <div className="admin-dashboard-container">
             {/* Sidebar */}
@@ -19,15 +42,85 @@ const TeamLayout = ({ children, teamMember }) => {
                 </div>
                 
                 <nav className="admin-sidebar-nav">
-                    <NavLink 
-                        to="/team/dashboard" 
-                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-                    >
-                        <i className="fa-solid fa-house-user"></i>
-                        Welcome
-                    </NavLink>
+                    {isTabAllowed(teamMember?.role, '/team/dashboard') && (
+                        <NavLink 
+                            to="/team/dashboard" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-house-user"></i>
+                            Welcome
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/travellers') && (
+                        <NavLink 
+                            to="/team/travellers" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-users"></i>
+                            Travellers
+                        </NavLink>
+                    )}
                     
-                    {/* Add more team-specific modules here in the future */}
+                    {isTabAllowed(teamMember?.role, '/team/destinations') && (
+                        <NavLink 
+                            to="/team/destinations" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-map-location-dot"></i>
+                            Destinations
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/cruises') && (
+                        <NavLink 
+                            to="/team/cruises" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-ship"></i>
+                            Cruises
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/blogs') && (
+                        <NavLink 
+                            to="/team/blogs" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-newspaper"></i>
+                            Blogs
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/testimonials') && (
+                        <NavLink 
+                            to="/team/testimonials" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-comments"></i>
+                            Testimonials
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/instagram-gallery') && (
+                        <NavLink 
+                            to="/team/instagram-gallery" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fab fa-instagram"></i>
+                            Instagram Gallery
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/customer-video-reviews') && (
+                        <NavLink 
+                            to="/team/customer-video-reviews" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-video"></i>
+                            Customer Videos
+                        </NavLink>
+                    )}
                 </nav>
             </aside>
 
@@ -52,7 +145,7 @@ const TeamLayout = ({ children, teamMember }) => {
                                 </div>
                                 <div className="admin-profile-info d-none d-md-flex">
                                     <span className="admin-profile-name">{teamMember?.name || 'Team Member'}</span>
-                                    <span className="admin-profile-role">Fremor Team</span>
+                                    <span className="admin-profile-role">{teamMember?.role || 'Fremor Team'}</span>
                                 </div>
                                 <i className="fa-solid fa-chevron-down ms-2 text-muted" style={{ fontSize: '0.8rem' }}></i>
                             </button>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 const TravellerDetailsAdmin = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const prefix = location.pathname.startsWith('/team') ? '/team' : '/admin';
 
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ const TravellerDetailsAdmin = () => {
             <div className="alert alert-danger m-4">
                 {error || 'User not found.'}
                 <br />
-                <button className="btn btn-primary mt-3" onClick={() => navigate('/admin/travellers')}>
+                <button className="btn btn-primary mt-3" onClick={() => navigate(`${prefix}/travellers`)}>
                     Back to Travellers
                 </button>
             </div>
@@ -82,7 +84,7 @@ const TravellerDetailsAdmin = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="d-flex align-items-center gap-3">
                     <button 
-                        onClick={() => navigate('/admin/travellers')}
+                        onClick={() => navigate(`${prefix}/travellers`)}
                         style={{ background: '#f1f5f9', border: 'none', width: '40px', height: '40px', borderRadius: '8px', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                     >
                         <i className="fa-solid fa-arrow-left"></i>

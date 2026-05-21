@@ -8,13 +8,15 @@ const TeamAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [editId, setEditId] = useState(null);
     
     // Form state
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
-        password: ''
+        password: '',
+        role: 'All'
     });
     const [saving, setSaving] = useState(false);
 
@@ -62,6 +64,18 @@ const TeamAdmin = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleEdit = (member) => {
+        setEditId(member.id);
+        setFormData({
+            name: member.name || '',
+            email: member.email || '',
+            phone: member.phone || '',
+            password: '',
+            role: member.role || 'All'
+        });
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -71,25 +85,47 @@ const TeamAdmin = () => {
             const { data: { session } } = await supabase.auth.getSession();
             const adminEmail = session?.user?.email || 'Unknown Admin';
 
-            const { error } = await supabase
-                .from('fremor_team')
-                .insert([{
+            if (editId) {
+                const updateData = {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
-                    password: formData.password, // In a real app, hash this!
-                    created_by: adminEmail
-                }]);
+                    role: formData.role || 'All'
+                };
+                if (formData.password) {
+                    updateData.password = formData.password;
+                }
 
-            if (error) throw error;
+                const { error } = await supabase
+                    .from('fremor_team')
+                    .update(updateData)
+                    .eq('id', editId);
+
+                if (error) throw error;
+                alert('Team member updated successfully!');
+            } else {
+                const { error } = await supabase
+                    .from('fremor_team')
+                    .insert([{
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        password: formData.password,
+                        role: formData.role || 'All',
+                        created_by: adminEmail
+                    }]);
+
+                if (error) throw error;
+                alert('Team member added successfully!');
+            }
 
             // Reset form and modal
-            setFormData({ name: '', email: '', phone: '', password: '' });
+            setFormData({ name: '', email: '', phone: '', password: '', role: 'All' });
+            setEditId(null);
             setShowModal(false);
             
             // Refresh list
             fetchTeam();
-            alert('Team member added successfully!');
         } catch (err) {
             console.error('Error saving team member:', err);
             alert(`Error: ${err.message}`);
@@ -143,7 +179,11 @@ const TeamAdmin = () => {
                         />
                     </div>
                     <button 
-                        onClick={() => setShowModal(true)}
+                        onClick={() => {
+                            setEditId(null);
+                            setFormData({ name: '', email: '', phone: '', password: '', role: 'All' });
+                            setShowModal(true);
+                        }}
                         style={{ background: '#2563eb', color: 'white', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', fontWeight: '500', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.2)' }}
                     >
                         <i className="fa-solid fa-plus me-2"></i> Add Team Member
@@ -191,7 +231,7 @@ const TeamAdmin = () => {
                                                     </div>
                                                     <div>
                                                         <div style={{ fontWeight: '600', color: '#0f172a' }}>{u.name}</div>
-                                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Team Member</div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{u.role || 'All'}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -206,6 +246,12 @@ const TeamAdmin = () => {
                                                 {formatDate(u.created_at)}
                                             </td>
                                             <td style={{ padding: '1rem 0.5rem', border: 'none', textAlign: 'right' }}>
+                                                <button 
+                                                    onClick={() => handleEdit(u)}
+                                                    style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.4rem 1rem', borderRadius: '6px', color: '#2563eb', fontWeight: '600', fontSize: '0.85rem', marginRight: '0.5rem' }}
+                                                >
+                                                    <i className="fa-regular fa-edit"></i> Edit
+                                                </button>
                                                 <button 
                                                     onClick={() => handleDelete(u.id)}
                                                     style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '0.4rem 1rem', borderRadius: '6px', color: '#ef4444', fontWeight: '600', fontSize: '0.85rem' }}
@@ -256,7 +302,7 @@ const TeamAdmin = () => {
                         overflow: 'hidden'
                     }}>
                         <div style={{ borderBottom: '1px solid #f1f5f9', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h5 style={{ fontWeight: '700', color: '#0f172a', margin: 0 }}>Add Team Member</h5>
+                            <h5 style={{ fontWeight: '700', color: '#0f172a', margin: 0 }}>{editId ? 'Edit Team Member Details' : 'Add Team Member'}</h5>
                             <button 
                                 type="button" 
                                 onClick={() => setShowModal(false)}
@@ -305,22 +351,37 @@ const TeamAdmin = () => {
                                         style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
                                     />
                                 </div>
-                                <div className="mb-4">
-                                    <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Password</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleInputChange}
-                                        required 
-                                        placeholder="Assign a secure password"
-                                        style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                    />
-                                    <div className="form-text mt-2" style={{ fontSize: '0.8rem' }}>
-                                        The team member will use this password to log in.
-                                    </div>
-                                </div>
+                                 <div className="mb-4">
+                                     <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>{editId ? 'New Password (Optional)' : 'Password'}</label>
+                                     <input 
+                                         type="text" 
+                                         className="form-control" 
+                                         name="password"
+                                         value={formData.password}
+                                         onChange={handleInputChange}
+                                         required={!editId} 
+                                         placeholder={editId ? "Leave blank to keep existing password" : "Assign a secure password"}
+                                         style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                     />
+                                     <div className="form-text mt-2" style={{ fontSize: '0.8rem' }}>
+                                         {editId ? "Only fill this in if you want to reset the user's password." : "The team member will use this password to log in."}
+                                     </div>
+                                 </div>
+                                 <div className="mb-4">
+                                     <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Role</label>
+                                     <select 
+                                         className="form-select" 
+                                         name="role"
+                                         value={formData.role}
+                                         onChange={handleInputChange}
+                                         style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                     >
+                                         <option value="All">All</option>
+                                         <option value="Blog Writer">Blog Writer</option>
+                                         <option value="Package Editor">Package Editor</option>
+                                         <option value="Customer Support">Customer Support</option>
+                                     </select>
+                                 </div>
                                 <div className="d-flex justify-content-end gap-2 mt-4">
                                     <button 
                                         type="button" 
@@ -336,7 +397,7 @@ const TeamAdmin = () => {
                                         disabled={saving}
                                         style={{ borderRadius: '8px', fontWeight: '500', padding: '0.6rem 1.25rem', background: '#2563eb', border: 'none' }}
                                     >
-                                        {saving ? 'Adding...' : 'Add Member'}
+                                        {saving ? (editId ? 'Saving...' : 'Adding...') : (editId ? 'Save Changes' : 'Add Member')}
                                     </button>
                                 </div>
                             </form>

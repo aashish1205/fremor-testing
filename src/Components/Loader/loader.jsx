@@ -1,16 +1,99 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const FremorLoader = ({ show }) => {
-  if (!show) return null;
+  const [progress, setProgress] = useState(0);
+  const [shouldRender, setShouldRender] = useState(show);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [fadeFlight, setFadeFlight] = useState(false);
+
+  useEffect(() => {
+    if (show) {
+      setShouldRender(true);
+      setIsFadingOut(false);
+      setFadeFlight(false);
+      setProgress(0);
+    }
+  }, [show]);
+
+  useEffect(() => {
+    if (!shouldRender) return;
+
+    let intervalId;
+
+    if (show) {
+      // Simulate loading progress (crawls up to 96%)
+      intervalId = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 60) {
+            return prev + Math.random() * 2 + 1; // 1% to 3% increments
+          } else if (prev < 85) {
+            return prev + Math.random() * 1 + 0.5; // 0.5% to 1.5% increments
+          } else if (prev < 96) {
+            return prev + 0.15; // slow crawl
+          } else {
+            return prev; // hold at 96%
+          }
+        });
+      }, 30);
+    } else {
+      // Complete loading (fast-forward to 100%)
+      intervalId = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 100) {
+            const next = prev + Math.random() * 6 + 4; // 4% to 10% increments
+            return next >= 100 ? 100 : next;
+          } else {
+            clearInterval(intervalId);
+            return 100;
+          }
+        });
+      }, 20);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [show, shouldRender]);
+
+  useEffect(() => {
+    if (progress === 100) {
+      setFadeFlight(true);
+      const fadeOutTimer = setTimeout(() => {
+        setIsFadingOut(true);
+      }, 500); // Wait 500ms for flight scene to fade out first
+      
+      const unmountTimer = setTimeout(() => {
+        setShouldRender(false);
+      }, 1400); // Wait another 900ms for the logo and container to fade out completely
+      
+      return () => {
+        clearTimeout(fadeOutTimer);
+        clearTimeout(unmountTimer);
+      };
+    }
+  }, [progress]);
+
+  if (!shouldRender) return null;
 
   return (
-    <div className="fremor-loader-container">
+    <div className={`fremor-loader-container ${isFadingOut ? 'fade-out' : ''}`}>
       <style>{`
         :root {
           --primary-dark: #112b3c;
           --secondary-dark: #0f2534;
           --primary-light: #b8dfef;
           --secondary-light: #8ecae6;
+          --airplane-size: 80px;
+          --track-margin: calc(var(--airplane-size) / 2);
+          --track-width: calc(100% - var(--airplane-size));
+          --track-top: 80px;
+        }
+
+        @media (max-width: 600px) {
+          :root {
+            --airplane-size: 60px;
+            --track-margin: calc(var(--airplane-size) / 2);
+            --track-width: calc(100% - var(--airplane-size));
+            --track-top: 50px;
+          }
         }
 
         .fremor-loader-container {
@@ -23,14 +106,15 @@ const FremorLoader = ({ show }) => {
           display: flex;
           justify-content: center;
           align-items: center;
-          z-index: 9999;
-          animation: fadeIn 0.5s ease-out;
+          z-index: 99999; /* Higher z-index to overlay headers */
           overflow: hidden;
+          opacity: 1;
+          transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
         }
 
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .fremor-loader-container.fade-out {
+          opacity: 0;
+          pointer-events: none;
         }
 
         .bg-layer {
@@ -89,10 +173,20 @@ const FremorLoader = ({ show }) => {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 30px;
+          gap: 35px;
         }
 
-        .logo-wrapper { margin-bottom: 15px; }
+        .logo-wrapper {
+          margin-bottom: 15px;
+          opacity: 1;
+          transform: translateY(0);
+          transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+        }
+
+        .logo-wrapper.fade-out {
+          opacity: 0;
+          transform: translateY(-15px);
+        }
 
         .logo-img { 
           width: clamp(200px, 40vw, 350px);
@@ -116,6 +210,14 @@ const FremorLoader = ({ show }) => {
           max-width: 700px;
           overflow: hidden;
           margin: 0 auto;
+          opacity: 1;
+          transform: translateY(0);
+          transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flight-scene.fade-out {
+          opacity: 0;
+          transform: translateY(15px);
         }
 
         .cloud {
@@ -147,74 +249,81 @@ const FremorLoader = ({ show }) => {
           100% { transform: translateX(150vw); }
         }
 
+        .flight-track {
+          position: absolute;
+          top: var(--track-top);
+          left: var(--track-margin);
+          width: var(--track-width);
+          height: 2px;
+          background: rgba(184, 223, 239, 0.12);
+          border-radius: 2px;
+          z-index: 1;
+        }
+
         .flight-trail {
           position: absolute;
-          top: 50px;
-          left: 0;
-          width: 100%;
+          top: var(--track-top);
+          left: var(--track-margin);
           height: 2px;
-          background: linear-gradient(90deg, transparent 0%, rgba(184, 223, 239, 0.4) 50%, rgba(184, 223, 239, 0.8) 100%);
-          z-index: 2;
-          transform: scaleX(0);
-          transform-origin: left;
-          animation: trailReveal 2s forwards ease-out, trailBlink 1.5s 2s infinite;
+          background: linear-gradient(90deg, rgba(142, 202, 230, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%);
+          border-radius: 2px;
+          z-index: 3;
+          transition: width 0.08s linear;
         }
+        
         .flight-trail-glow {
           position: absolute;
-          top: 45px;
-          left: 0;
-          width: 100%;
-          height: 15px;
-          background: radial-gradient(circle at right center, rgba(142, 202, 230, 0.3), transparent 80%);
-          z-index: 1;
-          animation: trailReveal 2s forwards ease-out 0.3s;
-        }
-
-        @keyframes trailReveal {
-          0% { transform: scaleX(0); opacity: 0; }
-          100% { transform: scaleX(1); opacity: 1; }
-        }
-
-        @keyframes trailBlink {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
+          top: calc(var(--track-top) - 5px);
+          left: var(--track-margin);
+          height: 12px;
+          background: linear-gradient(90deg, transparent 0%, rgba(142, 202, 230, 0.25) 100%);
+          border-radius: 6px;
+          filter: blur(4px);
+          z-index: 2;
+          transition: width 0.08s linear;
         }
 
         .airplane-wrapper {
           position: absolute;
-          top: 0;
-          left: -20%;
-          width: 100%;
-          height: 100%;
+          top: var(--track-top);
+          width: var(--airplane-size);
+          height: var(--airplane-size);
+          margin-top: calc(var(--airplane-size) * -1);
+          margin-left: calc(var(--airplane-size) / -2);
           z-index: 5;
-          animation: flyHorizontally 6s infinite cubic-bezier(0.65, 0, 0.35, 1);
-          filter: drop-shadow(0 0 15px rgba(184, 223, 239, 0.3));
+          transition: left 0.08s linear;
         }
 
-        @keyframes flyHorizontally {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(140%); }
+        .airplane-glow {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translate(-50%, 50%);
+          width: calc(var(--airplane-size) * 1.5);
+          height: calc(var(--airplane-size) * 0.35);
+          background: radial-gradient(ellipse at center, rgba(142, 202, 230, 0.45) 0%, transparent 70%);
+          pointer-events: none;
+          z-index: -1;
         }
 
         @keyframes turbulence {
-          0%, 100% { transform: rotate(-1deg) translateY(-5px); }
-          50% { transform: rotate(1deg) translateY(5px); }
+          0%, 100% { transform: rotate(-1.5deg) translateY(-2px); }
+          50% { transform: rotate(1.5deg) translateY(2px); }
         }
 
         .airplane-img {
-          width: 80px;
-          height: 80px;
+          width: 100%;
+          height: 100%;
           object-fit: contain;
-          animation: flyHorizontally 6s infinite cubic-bezier(0.65, 0, 0.35, 1), turbulence 3s infinite ease-in-out;
-          filter: drop-shadow(0 0 15px rgba(184, 223, 239, 0.5));
+          animation: turbulence 3.5s infinite ease-in-out;
+          filter: drop-shadow(0 0 10px rgba(184, 223, 239, 0.4));
         }
 
         @media (max-width: 600px) {
-          .loader-content { gap: 10px; }
+          .loader-content { gap: 15px; }
           .flight-scene { height: 80px; }
           .logo-img { width: 180px; }
           .logo-tagline { font-size: 0.6rem; letter-spacing: 3px; }
-          .airplane-img { width: 60px; height: 60px; }
         }
       `}</style>
 
@@ -226,20 +335,22 @@ const FremorLoader = ({ show }) => {
       </div>
 
       <div className="loader-content">
-        <div className="logo-wrapper">
+        <div className={`logo-wrapper ${isFadingOut ? 'fade-out' : ''}`}>
           <img src="/assets/img/logo/FremorLogo.png" alt="Fremor" className="logo-img" />
           <div className="logo-tagline">START THE TRIP FROM HOME</div>
         </div>
 
-        <div className="flight-scene">
+        <div className={`flight-scene ${fadeFlight ? 'fade-out' : ''}`}>
           <div className="cloud cloud-1"></div>
           <div className="cloud cloud-2"></div>
           <div className="cloud cloud-3"></div>
           
-          <div className="flight-trail"></div>
-          <div className="flight-trail-glow"></div>
+          <div className="flight-track"></div>
+          <div className="flight-trail" style={{ width: `calc(var(--track-width) * ${progress / 100})` }}></div>
+          <div className="flight-trail-glow" style={{ width: `calc(var(--track-width) * ${progress / 100})` }}></div>
 
-          <div className="airplane-wrapper">
+          <div className="airplane-wrapper" style={{ left: `calc(var(--track-margin) + var(--track-width) * ${progress / 100})` }}>
+            <div className="airplane-glow"></div>
             <img src="/assets/img/transitions/airplane.png" alt="Airplane" className="airplane-img" />
           </div>
         </div>

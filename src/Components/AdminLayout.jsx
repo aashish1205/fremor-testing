@@ -50,7 +50,7 @@ const AdminLayout = ({ children, email }) => {
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <i className="fa-solid fa-map-location-dot"></i>
-                        Destinations
+                        Tour Packages
                     </NavLink>
 
                     
@@ -60,7 +60,7 @@ const AdminLayout = ({ children, email }) => {
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <i className="fa-solid fa-ship"></i>
-                        Cruises
+                        Cruise Packages
                     </NavLink>
 
                     {/*<NavLink 
@@ -79,15 +79,7 @@ const AdminLayout = ({ children, email }) => {
                         Blogs
                     </NavLink>
 
-                    <NavLink 
-                        to="/admin/testimonials" 
-                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-                    >
-                        <i className="fa-solid fa-comments"></i>
-                        Testimonials
-                    </NavLink>
-
-                    <NavLink 
+                     <NavLink 
                         to="/admin/instagram-gallery" 
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >
@@ -96,11 +88,21 @@ const AdminLayout = ({ children, email }) => {
                     </NavLink>
 
                     <NavLink 
+                        to="/admin/testimonials" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-comments"></i>
+                        Testimonials Texts
+                    </NavLink>
+
+                   
+
+                    <NavLink 
                         to="/admin/customer-video-reviews" 
                         className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <i className="fa-solid fa-video"></i>
-                        Customer Videos
+                        Testimonal Videos
                     </NavLink>
                 </nav>
             </aside>

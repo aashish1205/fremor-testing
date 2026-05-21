@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import TeamLayout from './TeamLayout';
 
 const TeamProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [teamMember, setTeamMember] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         const checkAuth = () => {
@@ -12,7 +13,8 @@ const TeamProtectedRoute = ({ children }) => {
             if (sessionData) {
                 try {
                     const member = JSON.parse(sessionData);
-                    if (member && member.role === 'team_member') {
+                    const validRoles = ['All', 'Blog Writer', 'Package Editor', 'Customer Support', 'team_member'];
+                    if (member && (validRoles.includes(member.role) || !member.role)) {
                         setTeamMember(member);
                         setIsAuthenticated(true);
                         return;
@@ -40,6 +42,43 @@ const TeamProtectedRoute = ({ children }) => {
 
     if (!isAuthenticated) {
         return <Navigate to="/team/login" replace />;
+    }
+
+    const isRouteAllowed = (role, path) => {
+        // Backward compatibility
+        if (role === 'team_member' || !role) return true;
+
+        const normalized = path.toLowerCase();
+        if (role === 'Blog Writer') {
+            return normalized.startsWith('/team/blogs');
+        }
+        if (role === 'Package Editor') {
+            return normalized.startsWith('/team/destinations') || normalized.startsWith('/team/cruises');
+        }
+        if (role === 'Customer Support') {
+            return normalized.startsWith('/team/travellers') ||
+                   normalized.startsWith('/team/testimonials') ||
+                   normalized.startsWith('/team/instagram-gallery') ||
+                   normalized.startsWith('/team/customer-video-reviews');
+        }
+        if (role === 'All') {
+            return !normalized.startsWith('/team/dashboard');
+        }
+        return true;
+    };
+
+    const getDefaultRoute = (role) => {
+        if (role === 'Blog Writer') return '/team/blogs';
+        if (role === 'Package Editor') return '/team/destinations';
+        if (role === 'Customer Support') return '/team/travellers';
+        if (role === 'All') return '/team/travellers';
+        return '/team/dashboard';
+    };
+
+    const currentRole = teamMember?.role || 'All';
+    if (!isRouteAllowed(currentRole, location.pathname)) {
+        const fallback = getDefaultRoute(currentRole);
+        return <Navigate to={fallback} replace />;
     }
 
     return <TeamLayout teamMember={teamMember}>{children}</TeamLayout>;

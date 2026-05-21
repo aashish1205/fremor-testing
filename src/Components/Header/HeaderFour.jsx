@@ -349,7 +349,14 @@ function HeaderFour() {
                </div>
             </div>
          </header>
-         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+         <MobileMenu 
+            isOpen={isMobileMenuOpen} 
+            onClose={() => setIsMobileMenuOpen(false)} 
+            onLoginClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsLoginFormOpen(true);
+            }}
+         />
          <LoginForm isOpen={isLoginFormOpen} onClose={() => setIsLoginFormOpen(false)} />
       </>
    )
