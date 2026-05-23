@@ -35,3 +35,136 @@
     font-size: 13px;
   }
 }
+
+/* Tour Card/Destination Card Vertical Spacing Adjustments */
+.tour-box .tour-content {
+  padding: 16px 20px 16px 20px !important;
+}
+
+.tour-box .box-title {
+  margin-bottom: 4px !important;
+}
+
+.tour-box .tour-rating {
+  margin-bottom: 8px !important;
+}
+
+.tour-box_price,
+.tour-box .tour-box_price {
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+.tour-box .tour-action {
+  margin-top: 0 !important;
+}
+
+/* Make the button size and padding slightly more compact for better spacing */
+.tour-box .tour-action .th-btn {
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+}
+
+/* Header Alignment and Responsiveness Overrides */
+.header-container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  transition: max-width 0.3s ease;
+}
+
+@media (min-width: 1200px) {
+  .header-container {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .header-container {
+    max-width: 1320px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .header-container {
+    max-width: 1440px;
+  }
+}
+
+/* Make the header-top background white only */
+.header-layout1 .header-top {
+  background-color: #ffffff !important;
+}
+
+/* Set the bottom navigation / menu background to the logo's container theme color (#0d496e) */
+.header-layout1 .menu-area,
+.header-layout1 .sticky-wrapper.sticky,
+.header-layout1 .sticky-wrapper.sticky .menu-area {
+  background-color: #0d496e !important;
+}
+
+/* Main menu link typography color adjustments on dark blue background */
+.header-layout1 .main-menu > ul > li > a {
+  color: #ffffff !important;
+}
+
+/* Menu hover states - text turns yellow */
+.header-layout1 .main-menu > ul > li > a:hover {
+  color: var(--yellow-color) !important;
+}
+
+/* Menu active states - text turns to #afd4e0 */
+.header-layout1 .main-menu > ul > li > a.active,
+.header-layout1 .main-menu > ul > li.active > a {
+  color: #afd4e0 !important;
+}
+
+/* Hover/active line indicator */
+.header-layout1 .main-menu > ul > li > a:before {
+  background: #ffffff !important;
+}
+.header-layout1 .main-menu > ul > li > a:hover:before {
+  background: var(--yellow-color) !important;
+}
+.header-layout1 .main-menu > ul > li > a.active:before,
+.header-layout1 .main-menu > ul > li.active > a:before {
+  background: #afd4e0 !important;
+  width: 100% !important;
+}
+
+/* Dropdown chevrons / arrows on dark blue background */
+.header-layout1 .main-menu ul li.menu-item-has-children > a:after {
+  color: #ffffff !important;
+}
+.header-layout1 .main-menu ul li.menu-item-has-children > a:hover:after {
+  color: var(--yellow-color) !important;
+}
+.header-layout1 .main-menu ul li.menu-item-has-children.active > a:after,
+.header-layout1 .main-menu ul li.menu-item-has-children > a.active:after {
+  color: #afd4e0 !important;
+}
+
+/* Mobile menu toggle (hamburger button) - styled cleanly on dark blue background */
+.header-layout1 .th-menu-toggle {
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+}
+.header-layout1 .th-menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #ffffff !important;
+}
+
+/* Guest login button in sticky / menu area - white background with theme blue text */
+.header-layout1 .menu-area .th-btn.style3 {
+  background-color: #ffffff !important;
+  color: #0d496e !important;
+}
+.header-layout1 .menu-area .th-btn.style3:before {
+  background-color: var(--yellow-color) !important;
+}
+.header-layout1 .menu-area .th-btn.style3:hover {
+  color: var(--title-color, #113d48) !important;
+}

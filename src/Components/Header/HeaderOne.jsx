@@ -103,7 +103,7 @@ function HeaderOne() {
             <header className="th-header header-layout1" style={{ position: 'relative', zIndex: 9999 }}>
                 {/* Header Top - Hidden on Mobile to save vertical space */}
                 <div className="header-top d-none d-lg-block">
-                    <div className="container th-container">
+                    <div className="header-container">
                         <div className="row justify-content-center justify-content-xl-between align-items-center">
                             <div className="col-auto d-none d-md-block">
                                 <div className="header-links">
@@ -112,10 +112,10 @@ function HeaderOne() {
                                             <i className="fa-sharp fa-regular fa-location-dot" />
                                             <span>Lower Parel-west, Mumbai-400073</span>
                                         </li>
-                                        <li className="d-none d-xl-inline-block">
+                                        {/*<li className="d-none d-xl-inline-block">
                                             <i className="fa-regular fa-clock" />
                                             <span>Monday to Saturday: 8.00 am - 7.00 pm</span>
-                                        </li>
+                                        </li>*/}
                                     </ul>
                                 </div>
                             </div>
@@ -188,7 +188,7 @@ function HeaderOne() {
 
                 <div className={`sticky-wrapper ${isSticky ? "sticky" : ""}`}>
                     <div className="menu-area">
-                        <div className="container th-container">
+                        <div className="header-container">
                             <div className="row align-items-center justify-content-between">
 
                                 {/* Logo */}
@@ -305,11 +305,11 @@ function HeaderOne() {
                                                 </Link>
                                             </li>*/}
 
-                                               <li>
+                                             {/*  <li>
                                                 <Link className={isActive("/blog") ? "active" : ""} to="/blog">
                                                     Magzine
                                                 </Link>
-                                            </li>
+                                            </li>*/}
 
                                            
 
@@ -321,7 +321,7 @@ function HeaderOne() {
                                             <button
                                                 type="button"
                                                 onClick={() => user ? setIsProfileDropdownOpen(!isProfileDropdownOpen) : setIsLoginFormOpen(true)}
-                                                style={{ background: "none", border: "none", color: "var(--theme-color)", cursor: "pointer", fontSize: "22px", padding: 0 }}
+                                                style={{ background: "none", border: "none", color: "var(--white-color, #ffffff)", cursor: "pointer", fontSize: "22px", padding: 0 }}
                                                 aria-label="User Account"
                                             >
                                                 <i className="fa-regular fa-circle-user" />
@@ -395,25 +395,64 @@ function HeaderOne() {
                                     </div>
                                 </div>
 
-                                {/* Button - Temporarily disabled */}
-                                {/* <div className="col-auto d-none d-xl-block">
-                                    <div className="header-button">
-                                        <Link to="/contact" className="th-btn style3 th-icon">
-                                            Book Now
-                                        </Link>
+                                {isSticky && (
+                                    <div className="col-auto d-none d-xl-block">
+                                        <div className="header-button">
+                                            {user ? (
+                                                <div style={{ position: "relative" }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: "8px",
+                                                            background: "none",
+                                                            border: "none",
+                                                            color: "var(--white-color, #ffffff)",
+                                                            cursor: "pointer",
+                                                            fontWeight: 600,
+                                                            fontSize: "16px",
+                                                            padding: "10px 15px"
+                                                        }}
+                                                    >
+                                                        Hi, {userName}
+                                                        <i className="fa-regular fa-chevron-down" style={{ fontSize: "12px" }} />
+                                                    </button>
+                                                    {isProfileDropdownOpen && (
+                                                        <div style={{
+                                                            position: "absolute", top: "100%", right: 0,
+                                                            background: "#fff", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                                            padding: "8px 0", minWidth: "160px", zIndex: 10000, marginTop: "10px", border: "1px solid #eaeaea",
+                                                            textAlign: "left"
+                                                        }}>
+                                                            <Link to="/my-account" style={{ display: "block", padding: "10px 16px", color: "#333", textDecoration: "none", fontSize: "14px", fontWeight: 500 }} onClick={() => setIsProfileDropdownOpen(false)}>
+                                                                <i className="fa-regular fa-user me-2" /> My Profile
+                                                            </Link>
+                                                            <button onClick={handleLogout} style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 16px", background: "none", border: "none", borderTop: "1px solid #f1f1f1", color: "#c53030", cursor: "pointer", fontSize: "14px", fontWeight: 500 }}>
+                                                                <i className="fa-regular fa-arrow-right-from-bracket me-2" /> Logout
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsLoginFormOpen(true)}
+                                                    className="th-btn style3"
+                                                    style={{ padding: "13px 26px", fontSize: "14px", borderRadius: "30px" }}
+                                                >
+                                                    Login / Create Account
+                                                    <i className="fa-regular fa-user ms-2" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div> */}
+                                )}
 
                             </div>
                         </div>
 
-                        <div
-                            className="logo-bg bg-mask"
-                            style={{
-                                WebkitMaskImage: "url(/assets/img/logo_bg_mask.png)",
-                                maskImage: "url(/assets/img/logo_bg_mask.png)",
-                            }}
-                        />
                     </div>
                 </div>
             </header>

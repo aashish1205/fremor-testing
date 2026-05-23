@@ -75,6 +75,9 @@ function FooterTwo() {
                                             <Link to="/about">About us</Link>
                                         </li>
                                         <li>
+                                            <Link to="/blog">Magzine</Link>
+                                        </li>
+                                        <li>
                                             <Link to="/service">Our Service</Link>
                                         </li>
                                         <li>

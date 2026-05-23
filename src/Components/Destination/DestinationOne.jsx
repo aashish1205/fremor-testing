@@ -82,7 +82,7 @@ function DestinationOne() {
       <div className="container">
         <div className="title-area text-center">
           <span className="sub-title">Top Destination</span>
-          <h2 className="sec-title">Popular Destination</h2>
+          <h2 className="sec-title">Experience The Global Wonders</h2>
         </div>
 
         <div className={`slider-drag-wrap ${cursorActive ? 'active' : ''}`}>

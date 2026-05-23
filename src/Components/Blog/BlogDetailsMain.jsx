@@ -230,7 +230,7 @@ function BlogDetailsMain() {
                                     )}
                                 </div>
                             </div>
-                            <div className="widget widget_tag_cloud">
+                            {/*<div className="widget widget_tag_cloud">
                                 <h3 className="widget_title">Popular Tags</h3>
                                 <div className="tagcloud">
                                     <Link to="/blog">Tour</Link>
@@ -238,8 +238,8 @@ function BlogDetailsMain() {
                                     <Link to="/blog">Luxury</Link>
                                     <Link to="/blog">Travel</Link>
                                 </div>
-                            </div>
-                            <div className="widget widget_offer" style={{ background: "url(/assets/img/bg/colorkit.png)" }}>
+                            </div>*/}
+                            {/*<div className="widget widget_offer" style={{ background: "url(/assets/img/bg/colorkit.png)" }}>
                                 <div className="offer-banner">
                                     <div className="offer">
                                         <h6 className="box-title">Need Help? We Are Here To Help You</h6>
@@ -253,7 +253,7 @@ function BlogDetailsMain() {
                                         <Link to="/contact" className="th-btn style2 th-icon">Contact Us</Link>
                                     </div>
                                 </div>
-                            </div>
+                            </div>*/}
                         </aside>
                     </div>
                 </div>

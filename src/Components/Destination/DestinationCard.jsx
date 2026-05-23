@@ -43,7 +43,7 @@ function DestinationCard(props) {
                         <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
                         <span className="currency">{destinationPrice ? destinationPrice : '₹980.00'}</span>/{destinationPriceUnit ? destinationPriceUnit : 'Person'}
                     </h4>
-                    <div className="tour-action" style={{ gap: '15px', flexWrap: 'wrap' }}>
+                    <div className="tour-action" style={{ gap: '10px 15px', flexWrap: 'wrap' }}>
                         {(destinationNights > 0 || destinationDays > 0) ? (
                             <span className="tour-duration" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0369a1', fontWeight: '700', fontSize: '13px' }}>

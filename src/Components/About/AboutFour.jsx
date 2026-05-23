@@ -21,24 +21,17 @@ function AboutFour() {
                <div className="col-xl-5">
                   <div className="ps-xl-4">
                      <div className="title-area mb-20">
-                        <span className="sub-title style1 ">Welcome To Fremor</span>
+                        <span className="sub-title style1 ">Welcome to Fremor Global</span>
                         <h2 className="sec-title mb-20 pe-xl-5 me-xl-5 heading">
-                           We are world reputed travel agency
+                           Your Trusted Worldwide Travel Partner
                         </h2>
                      </div>
                      <p className="pe-xl-5">
-                        There are many variations of passages of available but the majority
-                        have suffered alteration in some form, by injected hum randomised
-                        words.
+                       Welcome to Fremor Global Travel, your trusted partner for unforgettable journeys across the world. We specialize in creating seamless travel experiences for individuals, families, corporate clients, FIT, and GIT travelers with carefully designed domestic and international tour packages.
                      </p>
                      <p className="mb-30 pe-xl-5">
                         {" "}
-                        Leiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-                        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt.
+                       At Fremor Global Travel, we believe travel is more than just visiting destinations — it is about discovering cultures, creating memories, and experiencing the world with comfort and confidence. Our team is committed to delivering personalized travel solutions with professional service, competitive pricing, and reliable global partnerships.
                      </p>
                      <div className="about-item-wrap">
                         <div className="about-item style2">

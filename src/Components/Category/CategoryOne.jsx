@@ -9,16 +9,14 @@ const CategoryOne = () => {
   const swiperRef = useRef(null);
 
   const categories = [
-    { id: 1, title: "Cruises", imgSrc: "/assets/img/tourcategory/Cruiseshome.jpg" },
     { id: 2, title: "Hiking", imgSrc: "/assets/img/tourcategory/hikinghome.jpg" },
-    { id: 3, title: "Airbirds", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
-    { id: 4, title: "Wildlife", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
-    { id: 5, title: "Walking", imgSrc: "/assets/img/tourcategory/Walkinghome.jpg" },
-    { id: 6, title: "Cruises", imgSrc: "/assets/img/tourcategory/Cruiseshome.jpg" },
-    { id: 7, title: "Hiking", imgSrc: "/assets/img/tourcategory/hikinghome.jpg" },
-    { id: 8, title: "Airbirds", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
-    { id: 9, title: "Wildlife", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
-    { id: 10, title: "Walking", imgSrc: "/assets/img/tourcategory/Walkinghome.jpg" },
+    { id: 3, title: "Trekking", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
+    { id: 4, title: "Camping", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
+    { id: 5, title: "River Rafting", imgSrc: "/assets/img/tourcategory/Walkinghome.jpg" },
+    { id: 6, title: "Scuba Diving", imgSrc: "/assets/img/tourcategory/Cruiseshome.jpg" },
+    { id: 7, title: "Bungee Jumping", imgSrc: "/assets/img/tourcategory/hikinghome.jpg" },
+    { id: 8, title: "Skiing", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
+    { id: 9, title: "Desert Safari", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
   ];
 
   useEffect(() => {

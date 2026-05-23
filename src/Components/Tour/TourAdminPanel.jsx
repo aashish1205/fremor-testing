@@ -41,7 +41,6 @@ function TourAdminPanel() {
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
-    const [galleryFiles, setGalleryFiles] = useState([]);
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -117,7 +116,6 @@ function TourAdminPanel() {
             });
         }
         setPrimaryImageFile(null);
-        setGalleryFiles([]);
         setIsModalOpen(true);
     };
 
@@ -188,34 +186,19 @@ function TourAdminPanel() {
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
-    const removeGalleryImage = (indexToRemove) => {
-        const newGallery = formData.gallery_images.filter((_, index) => index !== indexToRemove);
-        setFormData(prev => ({ ...prev, gallery_images: newGallery }));
-    };
 
-    const removePendingGalleryFile = (indexToRemove) => {
-        setGalleryFiles(prev => prev.filter((_, index) => index !== indexToRemove));
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             setIsSubmitting(true);
             let finalImage = formData.primary_image;
-            let currentGallery = [...formData.gallery_images];
+            let currentGallery = formData.gallery_images || [];
 
             if (primaryImageFile) {
                 finalImage = await uploadTourImage(primaryImageFile, 'tours');
                 if (modalMode === 'edit' && formData.primary_image) {
                     await deleteTourImage(formData.primary_image);
-                }
-            }
-
-            // Upload multiple pending gallery files consecutively
-            if (galleryFiles.length > 0) {
-                for (let file of galleryFiles) {
-                    const uploadedUrl = await uploadTourImage(file, 'tours');
-                    currentGallery.push(uploadedUrl);
                 }
             }
 
@@ -427,40 +410,6 @@ function TourAdminPanel() {
                                 )}
                             </div>
 
-                            <div className="form-group mb-4 border rounded p-3 bg-light">
-                                <label className="fw-bold">Swiper Gallery Images (Multiple)</label>
-                                <input type="file" accept="image/*" multiple onChange={(e) => {
-                                    if(e.target.files) setGalleryFiles(prev => [...prev, ...Array.from(e.target.files)])
-                                }} className="form-control mb-3" />
-                                
-                                {formData.gallery_images && formData.gallery_images.length > 0 && (
-                                    <div className="mb-2">
-                                        <label className="small text-muted d-block">Existing Gallery (Click to remove)</label>
-                                        <div className="d-flex flex-wrap gap-2 mt-1">
-                                            {formData.gallery_images.map((img, i) => (
-                                                <div key={i} className="position-relative" style={{ width: '60px', height: '60px' }}>
-                                                    <img src={getTourImageSrc(img)} alt="gallery" className="w-100 h-100 object-fit-cover rounded border" />
-                                                    <button type="button" onClick={() => removeGalleryImage(i)} className="btn btn-sm btn-danger position-absolute top-0 end-0 p-0" style={{ width: '20px', height: '20px', transform: 'translate(30%, -30%)' }}>&times;</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {galleryFiles.length > 0 && (
-                                    <div className="mt-3">
-                                        <label className="small text-primary d-block">Pending Uploads ({galleryFiles.length} files)</label>
-                                        <div className="d-flex flex-wrap gap-2 mt-1">
-                                            {galleryFiles.map((file, i) => (
-                                                <div key={i} className="badge bg-secondary p-2 d-flex align-items-center">
-                                                    <span className="me-2 text-truncate" style={{maxWidth: '100px'}}>{file.name}</span>
-                                                    <button type="button" className="btn-close btn-close-white" style={{fontSize: '10px'}} onClick={() => removePendingGalleryFile(i)}></button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
 
                             <div className="form-group mb-3">
                                 <label>Main Description Paragraph 1</label>

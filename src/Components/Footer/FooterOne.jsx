@@ -83,6 +83,9 @@ function FooterOne() {
                                         <li>
                                             <Link to="/contact">Tour Booking Now</Link>
                                         </li>
+                                        <li>
+                                            <Link to="/blog">Magzine</Link>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

@@ -9,8 +9,8 @@ function OfferTwo() {
         >
             <div className="container">
                 <div className="title-area text-center">
-                    <span className="sub-title">Services We Offer</span>
-                    <h2 className="sec-title">Our Amazing services</h2>
+                    {/*<span className="sub-title">Services We Offer</span>*/}
+                    <h2 className="sec-title">Our Exclusive Holiday Services</h2>
                 </div>
                 <div className="row gy-4 gx-4">
                     <div className="col-xl-3 col-lg-4 col-md-6">
