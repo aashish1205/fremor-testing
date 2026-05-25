@@ -131,7 +131,7 @@ export default function VisaPageSections() {
       </section>
 
       {/* EUROPE */}
-      <section className="visa-section">
+      {/*<section className="visa-section">
         <h4>Visit Europe!</h4>
 
         <div className="europe-grid">
@@ -149,10 +149,10 @@ export default function VisaPageSections() {
             </div>
           ))}
         </div>
-      </section>
+      </section>*/}
 
       {/* ANNOUNCEMENTS */}
-      <section className="visa-section">
+      {/*<section className="visa-section">
         <h4>Visa Announcements</h4>
 
         <div className="announcement-card">
@@ -168,7 +168,7 @@ export default function VisaPageSections() {
 
           <span className="holiday-tag">HOLIDAY</span>
         </div>
-      </section>
+      </section>*/}
     </div>
   );
 }
