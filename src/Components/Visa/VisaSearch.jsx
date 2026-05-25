@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchVisas } from "../../services/visaService";
 import "./VisaSearch.css";
 
 export default function VisaSearch() {
@@ -19,18 +20,18 @@ export default function VisaSearch() {
   const calendarRef = useRef();
   const navigate = useNavigate();
 
-  // Fetch countries API
+  // Fetch countries dynamically from Supabase
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name,flags")
-      .then((res) => res.json())
+    fetchVisas()
       .then((data) => {
-        const formatted = data
-          .map((c) => ({
-            name: c.name.common,
-            flag: c.flags.png,
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name));
+        const formatted = data.map((v) => ({
+          name: v.country_name,
+          flag: v.flag_url || `https://flagcdn.com/w40/${v.country_code}.png`,
+        }));
         setCountries(formatted);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch visa countries:", err);
       });
   }, []);
 

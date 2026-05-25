@@ -72,6 +72,7 @@ function BlogDetailsMain() {
     const places = parseArraySafe(blog.places_to_visit);
     const activities = parseArraySafe(blog.activities);
     const gallery = parseArraySafe(blog.image_gallery);
+    const tips = parseArraySafe(blog.tips);
 
     const formattedDate = new Date(blog.created_at).toLocaleDateString('en-US', {
         day: '2-digit', month: 'short', year: 'numeric'
@@ -104,8 +105,75 @@ function BlogDetailsMain() {
                                 
                                 <h2 className="blog-title">{blog.title}</h2>
                                 
+                                {/* Short Description / Lead Summary */}
+                                {blog.short_description && (
+                                    <div className="blog-lead-summary mt-4 p-4 rounded text-muted" style={{ 
+                                        fontSize: '1.15rem', 
+                                        lineHeight: '1.8', 
+                                        fontStyle: 'italic',
+                                        background: '#f8fafc',
+                                        borderLeft: '4px solid #0962E8',
+                                        fontWeight: '500'
+                                    }}>
+                                        {blog.short_description}
+                                    </div>
+                                )}
+
+                                {/* Quick Travel Facts Grid */}
+                                {(blog.best_time || blog.duration || blog.budget || blog.visa_info) && (
+                                    <div className="blog-travel-facts mt-5">
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-compass me-2"></i> Quick Travel Guide</h4>
+                                        <div className="row g-3">
+                                            {blog.best_time && (
+                                                <div className="col-sm-6 col-md-3">
+                                                    <div style={{ background: '#f8fafc', border: '1px solid #f1f5f9', padding: '1.25rem 1rem', borderRadius: '12px', textAlign: 'center', height: '100%' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: '#3b82f615', color: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '1.2rem' }}>
+                                                            <i className="fa-regular fa-calendar-days"></i>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Best Time</div>
+                                                        <div style={{ fontSize: '1rem', color: '#0f172a', fontWeight: '700', marginTop: '4px' }}>{blog.best_time}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {blog.duration && (
+                                                <div className="col-sm-6 col-md-3">
+                                                    <div style={{ background: '#f8fafc', border: '1px solid #f1f5f9', padding: '1.25rem 1rem', borderRadius: '12px', textAlign: 'center', height: '100%' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: '#ec489915', color: '#ec4899', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '1.2rem' }}>
+                                                            <i className="fa-regular fa-clock"></i>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ideal Duration</div>
+                                                        <div style={{ fontSize: '1rem', color: '#0f172a', fontWeight: '700', marginTop: '4px' }}>{blog.duration}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {blog.budget && (
+                                                <div className="col-sm-6 col-md-3">
+                                                    <div style={{ background: '#f8fafc', border: '1px solid #f1f5f9', padding: '1.25rem 1rem', borderRadius: '12px', textAlign: 'center', height: '100%' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: '#10b98115', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '1.2rem' }}>
+                                                            <i className="fa-solid fa-indian-rupee-sign"></i>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Est. Budget</div>
+                                                        <div style={{ fontSize: '1rem', color: '#0f172a', fontWeight: '700', marginTop: '4px' }}>{blog.budget}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {blog.visa_info && (
+                                                <div className="col-sm-6 col-md-3">
+                                                    <div style={{ background: '#f8fafc', border: '1px solid #f1f5f9', padding: '1.25rem 1rem', borderRadius: '12px', textAlign: 'center', height: '100%' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: '#8b5cf615', color: '#8b5cf6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '1.2rem' }}>
+                                                            <i className="fa-solid fa-passport"></i>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Visa Required</div>
+                                                        <div style={{ fontSize: '1rem', color: '#0f172a', fontWeight: '700', marginTop: '4px' }}>{blog.visa_info}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                
                                 {/* Main Content */}
-                                <div className="blog-text mt-4 text-justify" style={{ whiteSpace: 'pre-line', fontSize: '1.1rem', lineHeight: '1.8' }}>
+                                <div className="blog-text mt-5 text-justify" style={{ whiteSpace: 'pre-line', fontSize: '1.1rem', lineHeight: '1.8' }}>
                                     {blog.content}
                                 </div>
 
@@ -145,6 +213,23 @@ function BlogDetailsMain() {
                                                 </li>
                                             ))}
                                         </ul>
+                                    </div>
+                                )}
+
+                                {/* Essential Travel Tips Section */}
+                                {tips && tips.length > 0 && (
+                                    <div className="mt-5">
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-lightbulb me-2"></i> Essential Travel Tips</h4>
+                                        <div className="p-4 bg-light rounded shadow-sm border border-light">
+                                            <ul className="list-unstyled mb-0" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                {tips.map((tip, index) => (
+                                                    <li key={index} className="d-flex align-items-start gap-2" style={{ fontSize: '1.05rem', color: '#475569', lineHeight: '1.6' }}>
+                                                        <i className="fa-solid fa-circle-check text-success mt-1" style={{ fontSize: '18px', flexShrink: 0 }}></i>
+                                                        <span>{tip}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
                                 )}
 

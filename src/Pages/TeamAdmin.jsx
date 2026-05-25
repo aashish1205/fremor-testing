@@ -19,6 +19,8 @@ const TeamAdmin = () => {
         role: 'All'
     });
     const [saving, setSaving] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const { 
         searchTerm, 
@@ -73,11 +75,15 @@ const TeamAdmin = () => {
             password: '',
             role: member.role || 'All'
         });
+        setSuccessMessage('');
+        setErrorMessage('');
         setShowModal(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSuccessMessage('');
+        setErrorMessage('');
         
         try {
             setSaving(true);
@@ -102,7 +108,7 @@ const TeamAdmin = () => {
                     .eq('id', editId);
 
                 if (error) throw error;
-                alert('Team member updated successfully!');
+                setSuccessMessage('Team member updated successfully!');
             } else {
                 const { error } = await supabase
                     .from('fremor_team')
@@ -116,19 +122,21 @@ const TeamAdmin = () => {
                     }]);
 
                 if (error) throw error;
-                alert('Team member added successfully!');
+                setSuccessMessage('Team member added successfully!');
             }
 
-            // Reset form and modal
-            setFormData({ name: '', email: '', phone: '', password: '', role: 'All' });
-            setEditId(null);
-            setShowModal(false);
-            
-            // Refresh list
-            fetchTeam();
+            // Auto-close modal after 1.8s
+            setTimeout(() => {
+                setFormData({ name: '', email: '', phone: '', password: '', role: 'All' });
+                setEditId(null);
+                setShowModal(false);
+                setSuccessMessage('');
+                fetchTeam();
+            }, 1800);
+
         } catch (err) {
             console.error('Error saving team member:', err);
-            alert(`Error: ${err.message}`);
+            setErrorMessage(err.message || 'Failed to save team member.');
         } finally {
             setSaving(false);
         }
@@ -182,6 +190,8 @@ const TeamAdmin = () => {
                         onClick={() => {
                             setEditId(null);
                             setFormData({ name: '', email: '', phone: '', password: '', role: 'All' });
+                            setSuccessMessage('');
+                            setErrorMessage('');
                             setShowModal(true);
                         }}
                         style={{ background: '#2563eb', color: 'white', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', fontWeight: '500', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.2)' }}
@@ -312,95 +322,160 @@ const TeamAdmin = () => {
                             </button>
                         </div>
                         <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Full Name</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        required 
-                                        placeholder="e.g. Jane Doe"
-                                        style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                    />
+                            {successMessage ? (
+                                <div className="text-center py-5 px-3 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '280px' }}>
+                                    <div style={{
+                                        width: '64px',
+                                        height: '64px',
+                                        borderRadius: '50%',
+                                        background: '#eafaf1',
+                                        color: '#10b981',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '2rem',
+                                        marginBottom: '1.25rem',
+                                        boxShadow: '0 8px 16px rgba(16, 185, 129, 0.1)',
+                                        animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                    }}>
+                                        <i className="fa-solid fa-circle-check"></i>
+                                    </div>
+                                    <h4 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '0.5rem' }}>Success!</h4>
+                                    <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>{successMessage}</p>
+                                    
+                                    {/* Subtle progress indicator */}
+                                    <div style={{ width: '80px', height: '3px', background: '#f1f5f9', borderRadius: '2px', marginTop: '1.5rem', overflow: 'hidden' }}>
+                                        <div style={{
+                                            height: '100%',
+                                            background: '#10b981',
+                                            width: '0%',
+                                            animation: 'fillProgress 1.8s linear forwards'
+                                        }} />
+                                    </div>
+
+                                    <style>{`
+                                        @keyframes scaleIn {
+                                            0% { transform: scale(0); opacity: 0; }
+                                            100% { transform: scale(1); opacity: 1; }
+                                        }
+                                        @keyframes fillProgress {
+                                            0% { width: 0%; }
+                                            100% { width: 100%; }
+                                        }
+                                    `}</style>
                                 </div>
-                                <div className="mb-3">
-                                    <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Email Address</label>
-                                    <input 
-                                        type="email" 
-                                        className="form-control" 
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        required 
-                                        placeholder="e.g. jane@fremor.com"
-                                        style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Phone Number</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        placeholder="e.g. +91 9876543210"
-                                        style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                    />
-                                </div>
-                                 <div className="mb-4">
-                                     <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>{editId ? 'New Password (Optional)' : 'Password'}</label>
-                                     <input 
-                                         type="text" 
-                                         className="form-control" 
-                                         name="password"
-                                         value={formData.password}
-                                         onChange={handleInputChange}
-                                         required={!editId} 
-                                         placeholder={editId ? "Leave blank to keep existing password" : "Assign a secure password"}
-                                         style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                     />
-                                     <div className="form-text mt-2" style={{ fontSize: '0.8rem' }}>
-                                         {editId ? "Only fill this in if you want to reset the user's password." : "The team member will use this password to log in."}
+                            ) : (
+                                <form onSubmit={handleSubmit}>
+                                    {errorMessage && (
+                                        <div className="alert alert-danger d-flex align-items-center gap-2 mb-3" style={{ borderRadius: '8px', fontSize: '0.85rem' }}>
+                                            <i className="fa-solid fa-circle-exclamation"></i>
+                                            <div>{errorMessage}</div>
+                                        </div>
+                                    )}
+                                    <div className="mb-3">
+                                        <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Full Name</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            required 
+                                            placeholder="e.g. Jane Doe"
+                                            style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Email Address</label>
+                                        <input 
+                                            type="email" 
+                                            className="form-control" 
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            required 
+                                            placeholder="e.g. jane@fremor.com"
+                                            style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Phone Number</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. +91 9876543210"
+                                            style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                        />
+                                    </div>
+                                     <div className="mb-4">
+                                         <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>{editId ? 'New Password (Optional)' : 'Password'}</label>
+                                         <input 
+                                             type="text" 
+                                             className="form-control" 
+                                             name="password"
+                                             value={formData.password}
+                                             onChange={handleInputChange}
+                                             required={!editId} 
+                                             placeholder={editId ? "Leave blank to keep existing password" : "Assign a secure password"}
+                                             style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                         />
+                                         <div className="form-text mt-2" style={{ fontSize: '0.8rem' }}>
+                                             {editId ? "Only fill this in if you want to reset the user's password." : "The team member will use this password to log in."}
+                                         </div>
                                      </div>
-                                 </div>
-                                 <div className="mb-4">
-                                     <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Role</label>
-                                     <select 
-                                         className="form-select" 
-                                         name="role"
-                                         value={formData.role}
-                                         onChange={handleInputChange}
-                                         style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
-                                     >
-                                         <option value="All">All</option>
-                                         <option value="Blog Writer">Blog Writer</option>
-                                         <option value="Package Editor">Package Editor</option>
-                                         <option value="Customer Support">Customer Support</option>
-                                     </select>
-                                 </div>
-                                <div className="d-flex justify-content-end gap-2 mt-4">
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-light" 
-                                        onClick={() => setShowModal(false)}
-                                        style={{ borderRadius: '8px', fontWeight: '500', padding: '0.6rem 1.25rem' }}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button 
-                                        type="submit" 
-                                        className="btn btn-primary"
-                                        disabled={saving}
-                                        style={{ borderRadius: '8px', fontWeight: '500', padding: '0.6rem 1.25rem', background: '#2563eb', border: 'none' }}
-                                    >
-                                        {saving ? (editId ? 'Saving...' : 'Adding...') : (editId ? 'Save Changes' : 'Add Member')}
-                                    </button>
-                                </div>
-                            </form>
+                                     <div className="mb-4">
+                                         <label className="form-label" style={{ fontWeight: '600', color: '#475569', fontSize: '0.9rem' }}>Role</label>
+                                         <select 
+                                             className="form-select" 
+                                             name="role"
+                                             value={formData.role}
+                                             onChange={handleInputChange}
+                                             style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                                         >
+                                             <option value="All">All</option>
+                                             <option value="Blog Writer">Blog Writer</option>
+                                             <option value="Package Editor">Package Editor</option>
+                                             <option value="Customer Support">Customer Support</option>
+                                             <option value="Visa Support Executive">Visa Support Executive</option>
+                                         </select>
+                                     </div>
+                                    <div className="d-flex justify-content-end gap-2 mt-4">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-light" 
+                                            onClick={() => setShowModal(false)}
+                                            style={{ borderRadius: '8px', fontWeight: '500', padding: '0.6rem 1.25rem' }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            className="btn btn-primary d-flex align-items-center justify-content-center gap-2"
+                                            disabled={saving}
+                                            style={{ 
+                                                borderRadius: '8px', 
+                                                fontWeight: '500', 
+                                                padding: '0.6rem 1.5rem', 
+                                                background: '#2563eb', 
+                                                border: 'none',
+                                                minWidth: '130px'
+                                            }}
+                                        >
+                                            {saving ? (
+                                                <>
+                                                    <i className="fa-solid fa-spinner fa-spin"></i>
+                                                    {editId ? 'Saving...' : 'Adding...'}
+                                                </>
+                                            ) : (
+                                                editId ? 'Save Changes' : 'Add Member'
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
                         </div>
                     </div>
                 </div>

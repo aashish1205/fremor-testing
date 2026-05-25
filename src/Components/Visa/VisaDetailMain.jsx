@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { fetchVisaByCountryName, calculateVisaDeadline, createVisaEnquiry } from "../../services/visaService";
 import "./VisaDetail.css";
 
 // ─── OUR OWN EMAIL SERVER ─────────────────────────────────────────────────────
@@ -8,61 +9,14 @@ import "./VisaDetail.css";
 const API_URL = "/api/enquiry";
 // ─────────────────────────────────────────────────────────────────────────────
 
-const countryVisaData = {
-  "United Arab Emirates": {
-    code: "ae",
-    landmark: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&h=350&fit=crop",
-    visaType: "E-VISA",
-    price: "₹ 6,950",
-    serviceFee: "₹ 1,399",
-    processing: "5 Working Days",
-    visaDeadline: "01 Apr",
-    visasProcessed: "150k+",
-    documents: [
-      "First and last page of the passport",
-      "Photo with white background",
-      "Onward and Return Flight Ticket",
-      "Accommodation Voucher (if staying at a hotel)",
-      "Host's Tenancy Contract and Emirates ID (if staying with friends/family)",
-    ],
-    importantInfo: [
-      {
-        title: "Stay with Family or Friends",
-        desc: "Applicants must provide a copy of the host's tenancy contract and Emirates ID as proof of accommodation. In case the host owns the property, a copy of the Title Deed is required.",
-      },
-      {
-        title: "Minors Travel Consent",
-        desc: "It is recommended that minors must be accompanied by their parents or a legal guardian. It is mandatory for minors to travel with the parent with whom his/her visa application has been processed.",
-      },
-    ],
-    faqs: {
-      "Important Information": [
-        { q: "What is OK to Board?", a: "OK to Board is required by certain airlines if your passport issuing country is Bangladesh, China or Pakistan. You need to apply for OK to Board around 72 hours before your flight boarding time." },
-        { q: "Is the OK to Board fee included in the visa application fee?", a: "This fee is not included in the visa application fee. Fremor can help with this service at an additional cost." },
-        { q: "Which destinations can I visit with the UAE visa?", a: "The UAE visa grants entry to all 7 emirates: Abu Dhabi, Dubai, Sharjah, Ajman, Umm Al Quwain, Fujairah, and Ras Al Khaimah." },
-      ],
-      "Processing Time": [
-        { q: "How long does it take to get a UAE visa?", a: "The processing time for a UAE visa is typically 3-5 working days from the date of submission of all required documents." },
-        { q: "Can I get an urgent visa?", a: "Yes, express processing is available at an additional cost with a turnaround of 24-48 hours." },
-      ],
-      "Re-application": [
-        { q: "What if my visa gets rejected?", a: "In case of a rejection, you can re-apply after addressing the reasons for rejection. Our team will guide you through the process." },
-        { q: "Is there a fee for re-application?", a: "Yes, a fresh application fee will be applicable for re-application." },
-      ],
-      "Visa Extension": [
-        { q: "Can I extend my UAE visa?", a: "Yes, UAE visa can be extended for an additional 30 days. You need to apply for an extension before your current visa expires." },
-      ],
-    },
-  },
-};
-
 const defaultVisaData = {
   visaType: "VISA REQUIRED",
-  price: "₹ 4,500",
-  serviceFee: "₹ 999",
-  processing: "5-7 Working Days",
-  visaDeadline: "15 Apr",
-  visasProcessed: "10k+",
+  price: 4500,
+  service_fee: 999,
+  processing_time_text: "5-7 Working Days",
+  processing_days_max: 7,
+  processing_type: "working_days",
+  visas_processed: "10k+",
   documents: [
     "Valid Passport (minimum 6 months validity)",
     "Passport-size photograph with white background",
@@ -71,7 +25,7 @@ const defaultVisaData = {
     "Bank statement (last 3 months)",
     "Travel insurance",
   ],
-  importantInfo: [
+  important_info: [
     {
       title: "Passport Validity",
       desc: "Your passport must be valid for at least 6 months from the date of travel and must have at least 2 blank pages for visa stamping.",
@@ -131,12 +85,54 @@ export default function VisaDetailMain() {
   const [activeFaqTab, setActiveFaqTab] = useState("Important Information");
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [showReadMore, setShowReadMore] = useState(false);
+  const [dbVisa, setDbVisa] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Enquiry form state
   const [enquiryForm, setEnquiryForm] = useState({
     name: "", email: "", phone: "", travelDate: "", travellers: "1", message: "",
   });
   const [enquiryStatus, setEnquiryStatus] = useState("idle"); // idle | sending | success | error
+
+  // Fetch visa dynamically from Supabase
+  useEffect(() => {
+    setLoading(true);
+    fetchVisaByCountryName(countryName)
+      .then((data) => {
+        if (data) {
+          // Normalize FAQs
+          let groupedFaqs = {
+            "Important Information": [],
+            "Processing Time": [],
+            "Re-application": [],
+            "Visa Extension": []
+          };
+          
+          if (Array.isArray(data.faqs)) {
+            data.faqs.forEach(item => {
+              const cat = item.category || "Important Information";
+              if (!groupedFaqs[cat]) groupedFaqs[cat] = [];
+              groupedFaqs[cat].push({ q: item.q, a: item.a });
+            });
+          } else if (data.faqs && typeof data.faqs === 'object') {
+            groupedFaqs = data.faqs;
+          }
+          
+          setDbVisa({
+            ...data,
+            faqs: groupedFaqs
+          });
+        } else {
+          setDbVisa(null);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading visa detail:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [countryName]);
 
   const handleEnquiryChange = (e) => {
     setEnquiryForm({ ...enquiryForm, [e.target.name]: e.target.value });
@@ -147,6 +143,19 @@ export default function VisaDetailMain() {
     setEnquiryStatus("sending");
 
     try {
+      // 1. Save enquiry to Supabase database
+      await createVisaEnquiry({
+        name: enquiryForm.name,
+        email: enquiryForm.email,
+        phone: enquiryForm.phone,
+        country: countryName,
+        travel_date: enquiryForm.travelDate || null,
+        travellers: parseInt(enquiryForm.travellers) || 1,
+        message: enquiryForm.message,
+        status: 'Pending'
+      });
+
+      // 2. Trigger email server notification
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -162,16 +171,25 @@ export default function VisaDetailMain() {
         }),
       });
 
-      const data = await res.json();
-      if (data.success) {
-        setEnquiryStatus("success");
-        setEnquiryForm({ name: "", email: "", phone: "", travelDate: "", travellers: "1", message: "" });
-        setTimeout(() => setEnquiryStatus("idle"), 6000);
-      } else {
-        setEnquiryStatus("error");
-        setTimeout(() => setEnquiryStatus("idle"), 4000);
+      // Safe response parsing
+      try {
+        if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            await res.json();
+          }
+        }
+      } catch (jsonErr) {
+        console.warn("Failed to parse email server response:", jsonErr);
       }
-    } catch {
+
+      // Since the Supabase database write succeeded in step 1, the enquiry is saved,
+      // so we present a success message to the client.
+      setEnquiryStatus("success");
+      setEnquiryForm({ name: "", email: "", phone: "", travelDate: "", travellers: "1", message: "" });
+      setTimeout(() => setEnquiryStatus("idle"), 6000);
+    } catch (err) {
+      console.error("Enquiry submission failed:", err);
       setEnquiryStatus("error");
       setTimeout(() => setEnquiryStatus("idle"), 4000);
     }
@@ -196,11 +214,11 @@ export default function VisaDetailMain() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const visaData = countryVisaData[countryName] || {
+  const visaData = dbVisa || {
     ...defaultVisaData,
-    landmark: landmarkImages[countryName] || defaultLandmark,
+    landmark_image: landmarkImages[countryName] || defaultLandmark,
   };
-  const landmark = visaData.landmark || landmarkImages[countryName] || defaultLandmark;
+  const landmark = visaData.landmark_image || landmarkImages[countryName] || defaultLandmark;
 
   // Calendar helpers
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -310,7 +328,7 @@ export default function VisaDetailMain() {
   };
 
   const secondMonth = getNextMonth(calendarBaseMonth.year, calendarBaseMonth.month);
-  const faqTabs = Object.keys(visaData.faqs);
+  const faqTabs = Object.keys(defaultVisaData.faqs);
   const faqTabIcons = { "Important Information": "⚠️", "Processing Time": "⏱️", "Re-application": "🔄", "Visa Extension": "📋" };
 
   return (
@@ -395,133 +413,144 @@ export default function VisaDetailMain() {
       {/* ── MAIN CONTENT ── */}
       <div className="vd-content">
         <div className="vd-main">
-
-          {/* HERO */}
-          <div className="vd-hero">
-            <div className="vd-hero-top">
-              <img src={flagUrl} alt={countryName} className="vd-hero-flag" />
-              <div className="vd-hero-text">
-                <h1 className="vd-hero-country">{countryName}</h1>
-                <p className="vd-hero-sub">Apply today and get visa by {visaData.visaDeadline}</p>
+          {loading ? (
+            <div className="text-center py-5" style={{ minHeight: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
             </div>
-            <div className="vd-hero-img-wrap">
-              <img src={landmark} alt={countryName} className="vd-hero-img" />
-            </div>
-          </div>
-
-          {/* VISA PROCESS */}
-          <div className="vd-section">
-            <div className="vd-section-header">
-              <h2>Visa Process</h2>
-              <span className="vd-visa-type-badge">{visaData.visaType} ⓘ</span>
-            </div>
-            <p className="vd-process-sub">For Tourists</p>
-
-            <div className="vd-steps">
-              <div className="vd-step">
-                <div className="vd-step-icon">
-                  <span className="vd-step-num">📝</span>
-                  <div className="vd-step-line" />
+          ) : (
+            <>
+              {/* HERO */}
+              <div className="vd-hero">
+                <div className="vd-hero-top">
+                  <img src={flagUrl} alt={countryName} className="vd-hero-flag" />
+                  <div className="vd-hero-text">
+                    <h1 className="vd-hero-country">{countryName}</h1>
+                    <p className="vd-hero-sub">
+                      Apply today and get visa by {calculateVisaDeadline(visaData.processing_days_max, visaData.processing_type)}
+                    </p>
+                  </div>
                 </div>
-                <div className="vd-step-content">
-                  <h4>Start your Visa Application</h4>
-                  <p>Fill your travel details</p>
-                  <div className="vd-docs-box">
-                    <h5>Documents to Upload</h5>
-                    <ul>
-                      {visaData.documents.map((doc, i) => (
-                        <li key={i}>
-                          <span className="vd-doc-icon">📄</span>
-                          <span className="vd-doc-text">{doc}</span>
-                        </li>
-                      ))}
-                    </ul>
+                <div className="vd-hero-img-wrap">
+                  <img src={landmark} alt={countryName} className="vd-hero-img" />
+                </div>
+              </div>
+
+              {/* VISA PROCESS */}
+              <div className="vd-section">
+                <div className="vd-section-header">
+                  <h2>Visa Process</h2>
+                  <span className="vd-visa-type-badge">{visaData.visa_type || visaData.visaType} ⓘ</span>
+                </div>
+                <p className="vd-process-sub">For Tourists</p>
+
+                <div className="vd-steps">
+                  <div className="vd-step">
+                    <div className="vd-step-icon">
+                      <span className="vd-step-num">📝</span>
+                      <div className="vd-step-line" />
+                    </div>
+                    <div className="vd-step-content">
+                      <h4>Start your Visa Application</h4>
+                      <p>Fill your travel details</p>
+                      <div className="vd-docs-box">
+                        <h5>Documents to Upload</h5>
+                        <ul>
+                          {(defaultVisaData.documents || []).map((doc, i) => (
+                            <li key={i}>
+                              <span className="vd-doc-icon">📄</span>
+                              <span className="vd-doc-text">{doc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="vd-step">
+                    <div className="vd-step-icon">
+                      <span className="vd-step-num">💳</span>
+                      <div className="vd-step-line" />
+                    </div>
+                    <div className="vd-step-content">
+                      <h4>Pay Online</h4>
+                      <p>You can also upload your documents after booking. Our visa consultant will review them and reach out if required.</p>
+                    </div>
+                  </div>
+
+                  <div className="vd-step">
+                    <div className="vd-step-icon">
+                      <span className="vd-step-num">🏛️</span>
+                      <div className="vd-step-line" />
+                    </div>
+                    <div className="vd-step-content">
+                      <h4>Application Submission to Immigration</h4>
+                      <p>Applications with travel dates beyond 30 days are submitted closer to the travel date, as per the immigration norms.</p>
+                    </div>
+                  </div>
+
+                  <div className="vd-step">
+                    <div className="vd-step-icon">
+                      <span className="vd-step-num">✅</span>
+                    </div>
+                    <div className="vd-step-content">
+                      <h4>Get Visa Decision in {visaData.processing_time_text || visaData.processing || "5-7 Working Days"}</h4>
+                      <p>Track your visa status & receive your e-Visa on email.</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="vd-step">
-                <div className="vd-step-icon">
-                  <span className="vd-step-num">💳</span>
-                  <div className="vd-step-line" />
+              {/* IMPORTANT INFORMATION */}
+              <div className="vd-section">
+                <h2>Important Information</h2>
+                <div className="vd-info-list">
+                  {(defaultVisaData.important_info || []).slice(0, showReadMore ? undefined : 2).map((info, i) => (
+                    <div key={i} className="vd-info-item">
+                      <h4 className="vd-info-title">{info.title}</h4>
+                      <p>{info.desc}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="vd-step-content">
-                  <h4>Pay Online</h4>
-                  <p>You can also upload your documents after booking. Our visa consultant will review them and reach out if required.</p>
-                </div>
-              </div>
-
-              <div className="vd-step">
-                <div className="vd-step-icon">
-                  <span className="vd-step-num">🏛️</span>
-                  <div className="vd-step-line" />
-                </div>
-                <div className="vd-step-content">
-                  <h4>Application Submission to Immigration</h4>
-                  <p>Applications with travel dates beyond 30 days are submitted closer to the travel date, as per the immigration norms.</p>
-                </div>
-              </div>
-
-              <div className="vd-step">
-                <div className="vd-step-icon">
-                  <span className="vd-step-num">✅</span>
-                </div>
-                <div className="vd-step-content">
-                  <h4>Get Visa Decision in {visaData.processing}</h4>
-                  <p>Track your visa status & receive your e-Visa on email.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* IMPORTANT INFORMATION */}
-          <div className="vd-section">
-            <h2>Important Information</h2>
-            <div className="vd-info-list">
-              {visaData.importantInfo.slice(0, showReadMore ? undefined : 2).map((info, i) => (
-                <div key={i} className="vd-info-item">
-                  <h4 className="vd-info-title">{info.title}</h4>
-                  <p>{info.desc}</p>
-                </div>
-              ))}
-            </div>
-            {visaData.importantInfo.length > 2 && (
-              <button className="vd-read-more" onClick={() => setShowReadMore(!showReadMore)}>
-                {showReadMore ? "Show Less" : "Read More"}
-              </button>
-            )}
-          </div>
-
-          {/* FAQ */}
-          <div className="vd-section">
-            <h2>Frequently Asked Questions</h2>
-            <div className="vd-faq-tabs">
-              {faqTabs.map((tab) => (
-                <button
-                  key={tab}
-                  className={`vd-faq-tab ${activeFaqTab === tab ? "active" : ""}`}
-                  onClick={() => { setActiveFaqTab(tab); setExpandedFaq(null); }}
-                >
-                  <span className="vd-faq-tab-icon">{faqTabIcons[tab] || "📌"}</span>
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="vd-faq-list">
-              {(visaData.faqs[activeFaqTab] || []).map((faq, i) => (
-                <div key={i} className={`vd-faq-item ${expandedFaq === i ? "expanded" : ""}`}>
-                  <button className="vd-faq-question" onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}>
-                    <span>{i + 1}. {faq.q}</span>
-                    <span className="vd-faq-arrow">{expandedFaq === i ? "▲" : "▼"}</span>
+                {(defaultVisaData.important_info || []).length > 2 && (
+                  <button className="vd-read-more" onClick={() => setShowReadMore(!showReadMore)}>
+                    {showReadMore ? "Show Less" : "Read More"}
                   </button>
-                  {expandedFaq === i && (
-                    <div className="vd-faq-answer"><p>{faq.a}</p></div>
-                  )}
+                )}
+              </div>
+
+              {/* FAQ */}
+              <div className="vd-section">
+                <h2>Frequently Asked Questions</h2>
+                <div className="vd-faq-tabs">
+                  {faqTabs.map((tab) => (
+                    <button
+                      key={tab}
+                      className={`vd-faq-tab ${activeFaqTab === tab ? "active" : ""}`}
+                      onClick={() => { setActiveFaqTab(tab); setExpandedFaq(null); }}
+                    >
+                      <span className="vd-faq-tab-icon">{faqTabIcons[tab] || "📌"}</span>
+                      {tab}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="vd-faq-list">
+                  {(defaultVisaData.faqs[activeFaqTab] || []).map((faq, i) => (
+                    <div key={i} className={`vd-faq-item ${expandedFaq === i ? "expanded" : ""}`}>
+                      <button className="vd-faq-question" onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}>
+                        <span>{i + 1}. {faq.q}</span>
+                        <span className="vd-faq-arrow">{expandedFaq === i ? "▲" : "▼"}</span>
+                      </button>
+                      {expandedFaq === i && (
+                        <div className="vd-faq-answer"><p>{faq.a}</p></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* ── SIDEBAR ── */}

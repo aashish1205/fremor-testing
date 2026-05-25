@@ -1,75 +1,26 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchFeaturedVisas, calculateVisaDeadline } from "../../services/visaService";
 import "./VisaPageSections.css";
 
-const mostVisited = [
-  {
-    name: "United Arab Emirates",
-    flag: "https://flagcdn.com/w40/ae.png",
-    visa: "E-VISA",
-    date: "28 Feb",
-    desc: "Quick & Easy Process",
-    processed: "100k+ Visas Processed",
-    price: "₹ 7,000",
-    fee: "+ ₹1,399 service fees",
-  },
-  {
-    name: "Thailand",
-    flag: "https://flagcdn.com/w40/th.png",
-    visa: "DAC",
-    date: "24 Feb",
-    desc: "Mandatory for Indians",
-    processed: "20k+ DACs Processed",
-    price: "₹ 0",
-    fee: "+ ₹199 service fees",
-  },
-  {
-    name: "Vietnam",
-    flag: "https://flagcdn.com/w40/vn.png",
-    visa: "E-VISA",
-    date: "02 Mar",
-    desc: "Quick & Easy Process",
-    processed: "20k+ Visas Processed",
-    price: "₹ 2,300",
-    fee: "+ ₹899 service fees",
-  },
-  {
-    name: "Indonesia",
-    flag: "https://flagcdn.com/w40/id.png",
-    visa: "EVOA",
-    date: "24 Feb",
-    desc: "Quick & Easy Process",
-    processed: "15k+ Visas Processed",
-    price: "₹ 2,800",
-    fee: "+ ₹899 service fees",
-  },
-];
-
-const europe = [
-  {
-    name: "France",
-    flag: "https://flagcdn.com/w320/fr.png",
-    date: "01 Mar",
-  },
-  {
-    name: "Spain",
-    flag: "https://flagcdn.com/w320/es.png",
-    date: "01 Mar",
-  },
-  {
-    name: "Finland",
-    flag: "https://flagcdn.com/w320/fi.png",
-    date: "05 Mar",
-  },
-  {
-    name: "Germany",
-    flag: "https://flagcdn.com/w320/de.png",
-    date: "27 Feb",
-  },
-];
 export default function VisaPageSections() {
+  const [mostVisited, setMostVisited] = useState([]);
+  const [loading, setLoading] = useState(true);
   const sliderRef = useRef();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchFeaturedVisas()
+      .then((data) => {
+        setMostVisited(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load featured visas:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const goToDetail = (name, flag) => {
     const params = new URLSearchParams({ country: name, flag });
@@ -99,34 +50,44 @@ export default function VisaPageSections() {
         </div>
 
         <div className="country-slider" ref={sliderRef}>
-          {mostVisited.map((c, i) => (
-            <div className="country-card" key={i} onClick={() => goToDetail(c.name, c.flag)} style={{ cursor: 'pointer' }}>
-              <div className="card-top">
-                <img src={c.flag} alt="" />
-                <span className="visa-type">{c.visa}</span>
-              </div>
-
-              <h3>{c.name}</h3>
-
-              <p className="visa-deadline">
-                Get your visa by {c.date}
-              </p>
-
-              <p className="visa-sub">{c.desc}</p>
-              <p className="visa-sub">{c.processed}</p>
-
-              <div className="card-divider"></div>
-
-              <div className="price-row">
-                <span className="price">{c.price}</span>
-                <span className="fee">per adult {c.fee}</span>
-              </div>
-
-              <div className="voucher">
-                ₹ Get ₹250 Fremor Global Tours & Attractions Voucher
-              </div>
+          {loading ? (
+            <div className="text-center w-100 py-5">
+              <div className="spinner-border text-primary" role="status"></div>
             </div>
-          ))}
+          ) : mostVisited.length === 0 ? (
+            <div className="text-center w-100 py-5 text-muted">
+              No featured visas found.
+            </div>
+          ) : (
+            mostVisited.map((c, i) => (
+              <div className="country-card" key={i} onClick={() => goToDetail(c.country_name, c.flag_url)} style={{ cursor: 'pointer' }}>
+                <div className="card-top">
+                  <img src={c.flag_url} alt="" />
+                  <span className="visa-type">{c.visa_type}</span>
+                </div>
+
+                <h3>{c.country_name}</h3>
+
+                <p className="visa-deadline">
+                  Get your visa by {calculateVisaDeadline(c.processing_days_max, c.processing_type)}
+                </p>
+
+                <p className="visa-sub">{c.processing_time_text}</p>
+                <p className="visa-sub">{c.visas_processed} Visas Processed</p>
+
+                <div className="card-divider"></div>
+
+                <div className="price-row">
+                  <span className="price">₹{c.price}</span>
+                  <span className="fee">per adult + ₹{c.service_fee} service fees</span>
+                </div>
+
+                <div className="voucher">
+                  ₹ Get ₹250 Fremor Global Tours & Attractions Voucher
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

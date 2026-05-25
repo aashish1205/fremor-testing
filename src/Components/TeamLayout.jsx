@@ -27,6 +27,10 @@ const TeamLayout = ({ children, teamMember }) => {
                    normalized === '/team/instagram-gallery' ||
                    normalized === '/team/customer-video-reviews';
         }
+        if (role === 'Visa Support Executive') {
+            return normalized === '/team/visas' ||
+                   normalized === '/team/visa-enquiries';
+        }
         if (role === 'All') {
             return normalized !== '/team/dashboard';
         }
@@ -89,6 +93,26 @@ const TeamLayout = ({ children, teamMember }) => {
                         >
                             <i className="fa-solid fa-newspaper"></i>
                             Blogs
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/visas') && (
+                        <NavLink 
+                            to="/team/visas" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-passport"></i>
+                            Manage Visas
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/visa-enquiries') && (
+                        <NavLink 
+                            to="/team/visa-enquiries" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-clipboard-list"></i>
+                            Visa Enquiries
                         </NavLink>
                     )}
 

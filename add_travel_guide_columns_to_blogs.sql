@@ -1,0 +1,7 @@
+-- Add new travel guide columns to the blogs table
+ALTER TABLE public.blogs
+ADD COLUMN IF NOT EXISTS best_time VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS duration VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS budget VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS visa_info VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS tips JSONB DEFAULT '[]'::jsonb;

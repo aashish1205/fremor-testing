@@ -57,6 +57,8 @@ import TeamDashboard from './TeamDashboard'
 import TeamProtectedRoute from '../Components/TeamProtectedRoute'
 import FloatingEnquireWidget from '../Components/Forms/FloatingEnquireWidget'
 import FremorLoader from '../Components/Loader/loader'
+import VisaAdmin from './VisaAdmin'
+import VisaEnquiriesAdmin from './VisaEnquiriesAdmin'
 
 function RouterContent() {
   const location = useLocation()
@@ -133,6 +135,8 @@ function RouterContent() {
           <Route path="/admin/instagram-gallery" element={<AdminProtectedRoute><GalleryAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/customer-video-reviews" element={<AdminProtectedRoute><CustomerReviewsAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/team" element={<AdminProtectedRoute><TeamAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/visas" element={<AdminProtectedRoute><VisaAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/visa-enquiries" element={<AdminProtectedRoute><VisaEnquiriesAdmin /></AdminProtectedRoute>} />
           
           <Route path="/team/login" element={<TeamLogin />} />
           <Route path="/team/dashboard" element={<TeamProtectedRoute><TeamDashboard /></TeamProtectedRoute>} />
@@ -144,6 +148,8 @@ function RouterContent() {
           <Route path="/team/testimonials" element={<TeamProtectedRoute><TestimonialAdmin /></TeamProtectedRoute>} />
           <Route path="/team/instagram-gallery" element={<TeamProtectedRoute><GalleryAdmin /></TeamProtectedRoute>} />
           <Route path="/team/customer-video-reviews" element={<TeamProtectedRoute><CustomerReviewsAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/visas" element={<TeamProtectedRoute><VisaAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/visa-enquiries" element={<TeamProtectedRoute><VisaEnquiriesAdmin /></TeamProtectedRoute>} />
           
           <Route path="/terms" element={<Terms />} />
         </Routes>

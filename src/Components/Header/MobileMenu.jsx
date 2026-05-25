@@ -9,6 +9,7 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
     // Auth state
     const [user, setUser] = useState(null);
     const [userName, setUserName] = useState("");
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     // Toggle dropdown menu
     const toggleMenu = (index) => {
@@ -64,8 +65,15 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
 
     const handleLogout = async (e) => {
         e.preventDefault();
-        await supabase.auth.signOut();
-        onClose();
+        setIsLoggingOut(true);
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            setIsLoggingOut(false);
+            onClose();
+        }
     };
 
     const handleLoginClick = (e) => {
@@ -77,8 +85,64 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
     };
 
     return (
-        <div className={`th-menu-wrapper onepage-nav ${isOpen ? "th-body-visible" : ""}`}
-            style={{ visibility: isOpen ? "visible" : "hidden" }}>
+        <>
+            {isLoggingOut && (
+                <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(255, 255, 255, 0.75)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    zIndex: 999999,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    animation: "fadeIn 0.3s ease"
+                }}>
+                    <div style={{
+                        width: "55px",
+                        height: "55px",
+                        border: "4px solid rgba(231, 76, 60, 0.15)",
+                        borderTop: "4px solid var(--theme-color, #e74c3c)",
+                        borderRadius: "50%",
+                        animation: "spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+                        boxShadow: "0 10px 30px rgba(231, 76, 60, 0.1)",
+                        marginBottom: "20px"
+                    }} />
+                    <h4 style={{
+                        fontFamily: "var(--title-font, sans-serif)",
+                        fontWeight: 700,
+                        color: "#1b1b1b",
+                        fontSize: "18px",
+                        letterSpacing: "0.5px",
+                        margin: 0,
+                        textAlign: "center"
+                    }}>
+                        Signing Out...
+                    </h4>
+                    <p style={{
+                        fontSize: "13px",
+                        color: "#777",
+                        marginTop: "6px",
+                        marginBottom: 0
+                    }}>
+                        Securing your session
+                    </p>
+                    <style>{`
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                        @keyframes fadeIn {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+                    `}</style>
+                </div>
+            )}
+            <div className={`th-menu-wrapper onepage-nav ${isOpen ? "th-body-visible" : ""}`}
+                style={{ visibility: isOpen ? "visible" : "hidden" }}>
 
             <div className="th-menu-area text-center" style={{ overflowY: 'auto', maxHeight: '100vh' }}>
                 <button 
@@ -221,6 +285,7 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
                 </div>
             </div>
         </div>
+        </>
     );
 }
 

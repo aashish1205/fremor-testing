@@ -32,7 +32,12 @@ function BlogAdminPanel() {
         main_image: '',
         image_gallery: [],
         places_to_visit: [{ title: 'Example Place', description: 'Description of the place.' }],
-        activities: [{ title: 'Example Activity', description: 'Description of the activity.' }]
+        activities: [{ title: 'Example Activity', description: 'Description of the activity.' }],
+        best_time: '',
+        duration: '',
+        budget: '',
+        visa_info: '',
+        tips: ['']
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
@@ -99,7 +104,12 @@ function BlogAdminPanel() {
                 main_image: blog.main_image || '',
                 image_gallery: parseArraySafe(blog.image_gallery, []),
                 places_to_visit: parseArraySafe(blog.places_to_visit, [{ title: "Place 1", description: "Desc..." }]),
-                activities: parseArraySafe(blog.activities, [{ title: "Activity 1", description: "Desc..." }])
+                activities: parseArraySafe(blog.activities, [{ title: "Activity 1", description: "Desc..." }]),
+                best_time: blog.best_time || '',
+                duration: blog.duration || '',
+                budget: blog.budget || '',
+                visa_info: blog.visa_info || '',
+                tips: parseArraySafe(blog.tips, [''])
             });
         } else {
             setFormData({
@@ -112,7 +122,12 @@ function BlogAdminPanel() {
                 main_image: '',
                 image_gallery: [],
                 places_to_visit: [{ title: '', description: '' }],
-                activities: [{ title: '', description: '' }]
+                activities: [{ title: '', description: '' }],
+                best_time: '',
+                duration: '',
+                budget: '',
+                visa_info: '',
+                tips: ['']
             });
         }
         setPrimaryImageFile(null);
@@ -125,6 +140,21 @@ function BlogAdminPanel() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleTipChange = (index, value) => {
+        const newTips = [...formData.tips];
+        newTips[index] = value;
+        setFormData(prev => ({ ...prev, tips: newTips }));
+    };
+
+    const addTip = () => {
+        setFormData(prev => ({ ...prev, tips: [...prev.tips, ''] }));
+    };
+
+    const removeTip = (index) => {
+        const newTips = formData.tips.filter((_, i) => i !== index);
+        setFormData(prev => ({ ...prev, tips: newTips.length ? newTips : [''] }));
     };
 
     const handleStructuredArrayChange = (listName, index, field, value) => {
@@ -176,6 +206,8 @@ function BlogAdminPanel() {
 
             const cleanArray = arr => arr.filter(item => item.title.trim() !== '' || item.description.trim() !== '');
 
+            const cleanTips = arr => arr.filter(tip => tip.trim() !== '');
+
             const dataToSave = {
                 title: formData.title,
                 short_description: formData.short_description,
@@ -185,7 +217,12 @@ function BlogAdminPanel() {
                 main_image: finalImage,
                 image_gallery: currentGallery,
                 places_to_visit: cleanArray(formData.places_to_visit),
-                activities: cleanArray(formData.activities)
+                activities: cleanArray(formData.activities),
+                best_time: formData.best_time,
+                duration: formData.duration,
+                budget: formData.budget,
+                visa_info: formData.visa_info,
+                tips: cleanTips(formData.tips)
             };
 
             if (modalMode === 'add') {
@@ -346,6 +383,26 @@ function BlogAdminPanel() {
                                     <textarea name="content" value={formData.content} onChange={handleInputChange} className="form-control" rows="8" required placeholder="Write the main blog content here..."></textarea>
                                 </div>
                             </div>
+
+                            <h5 className="mt-4 text-primary border-bottom pb-2">Travel Guide Details (Optional)</h5>
+                            <div className="row mt-3">
+                                <div className="col-md-6 mb-3">
+                                    <label>Best Time to Visit</label>
+                                    <input type="text" name="best_time" value={formData.best_time} onChange={handleInputChange} className="form-control" placeholder="e.g. October to March" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Ideal Trip Duration</label>
+                                    <input type="text" name="duration" value={formData.duration} onChange={handleInputChange} className="form-control" placeholder="e.g. 6 Days / 5 Nights" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Estimated Budget</label>
+                                    <input type="text" name="budget" value={formData.budget} onChange={handleInputChange} className="form-control" placeholder="e.g. ₹30,000 - ₹45,000 per person" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Visa Status</label>
+                                    <input type="text" name="visa_info" value={formData.visa_info} onChange={handleInputChange} className="form-control" placeholder="e.g. E-Visa / Visa on Arrival" />
+                                </div>
+                            </div>
                             
                             <h5 className="mt-4 text-primary border-bottom pb-2">Media</h5>
                             <div className="row">
@@ -434,6 +491,27 @@ function BlogAdminPanel() {
                                 ))}
                                 <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => addStructuredItem('activities')}>
                                     <i className="fa-solid fa-plus mt-1"></i> Add Activity
+                                </button>
+                            </div>
+
+                            <h5 className="mt-4 text-primary border-bottom pb-2">Essential Travel Tips</h5>
+                            <div className="border rounded p-3 bg-light mb-4">
+                                {formData.tips.map((tip, index) => (
+                                    <div key={index} className="d-flex gap-2 mb-2 align-items-center">
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            placeholder="Enter travel tip/advice (e.g. Carry local cash, respect culture...)" 
+                                            value={tip} 
+                                            onChange={e => handleTipChange(index, e.target.value)} 
+                                        />
+                                        <button type="button" className="btn btn-sm btn-outline-danger" style={{minWidth: '38px', height: '38px'}} onClick={() => removeTip(index)}>
+                                            <i className="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+                                ))}
+                                <button type="button" className="btn btn-sm btn-outline-primary" onClick={addTip}>
+                                    <i className="fa-solid fa-plus mt-1"></i> Add Tip
                                 </button>
                             </div>
 

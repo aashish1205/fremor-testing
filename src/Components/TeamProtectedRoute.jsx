@@ -13,7 +13,7 @@ const TeamProtectedRoute = ({ children }) => {
             if (sessionData) {
                 try {
                     const member = JSON.parse(sessionData);
-                    const validRoles = ['All', 'Blog Writer', 'Package Editor', 'Customer Support', 'team_member'];
+                    const validRoles = ['All', 'Blog Writer', 'Package Editor', 'Customer Support', 'Visa Support Executive', 'team_member'];
                     if (member && (validRoles.includes(member.role) || !member.role)) {
                         setTeamMember(member);
                         setIsAuthenticated(true);
@@ -61,6 +61,10 @@ const TeamProtectedRoute = ({ children }) => {
                    normalized.startsWith('/team/instagram-gallery') ||
                    normalized.startsWith('/team/customer-video-reviews');
         }
+        if (role === 'Visa Support Executive') {
+            return normalized.startsWith('/team/visas') ||
+                   normalized.startsWith('/team/visa-enquiries');
+        }
         if (role === 'All') {
             return !normalized.startsWith('/team/dashboard');
         }
@@ -71,6 +75,7 @@ const TeamProtectedRoute = ({ children }) => {
         if (role === 'Blog Writer') return '/team/blogs';
         if (role === 'Package Editor') return '/team/destinations';
         if (role === 'Customer Support') return '/team/travellers';
+        if (role === 'Visa Support Executive') return '/team/visas';
         if (role === 'All') return '/team/travellers';
         return '/team/dashboard';
     };
