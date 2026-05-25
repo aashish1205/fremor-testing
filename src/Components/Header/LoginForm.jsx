@@ -117,15 +117,24 @@ function LoginForm({ isOpen, onClose }) {
     };
 
     const handleGoogleAuth = async () => {
+        console.log("handleGoogleAuth triggered");
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin
+                    redirectTo: window.location.origin,
+                    queryParams: {
+                        prompt: 'select_account',
+                        access_type: 'offline'
+                    }
                 }
             });
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase OAuth error details:", error);
+                throw error;
+            }
         } catch (error) {
+            console.error("Google Auth Error caught:", error);
             setErrorMsg(error.message);
         }
     };
