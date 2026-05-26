@@ -9,14 +9,14 @@ const CategoryOne = () => {
   const swiperRef = useRef(null);
 
   const categories = [
-    { id: 2, title: "Hiking", imgSrc: "/assets/img/tourcategory/hikinghome.jpg" },
-    { id: 3, title: "Trekking", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
-    { id: 4, title: "Camping", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
-    { id: 5, title: "River Rafting", imgSrc: "/assets/img/tourcategory/Walkinghome.jpg" },
-    { id: 6, title: "Scuba Diving", imgSrc: "/assets/img/tourcategory/Cruiseshome.jpg" },
-    { id: 7, title: "Bungee Jumping", imgSrc: "/assets/img/tourcategory/hikinghome.jpg" },
-    { id: 8, title: "Skiing", imgSrc: "/assets/img/tourcategory/birdshome.jpg" },
-    { id: 9, title: "Desert Safari", imgSrc: "/assets/img/tourcategory/wildlifehome.jpg" },
+    { id: 2, title: "Hiking", imgSrc: "/assets/img/tourcategory/hiking.png" },
+    { id: 3, title: "Trekking", imgSrc: "/assets/img/tourcategory/Trekking.png" },
+    { id: 4, title: "Camping", imgSrc: "/assets/img/tourcategory/Camping.jpeg" },
+    { id: 5, title: "River Rafting", imgSrc: "/assets/img/tourcategory/riverrafting.jpeg" },
+    { id: 6, title: "Scuba Diving", imgSrc: "/assets/img/tourcategory/Scubadivingimage.png" },
+    { id: 7, title: "Bungee Jumping", imgSrc: "/assets/img/tourcategory/bungeejumping.jpeg" },
+    { id: 8, title: "Skiing", imgSrc: "/assets/img/tourcategory/skiing.jpeg" },
+    { id: 9, title: "Desert Safari", imgSrc: "/assets/img/tourcategory/dsertsafari.jpeg" },
   ];
 
   useEffect(() => {

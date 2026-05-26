@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Modal from '../Gallery/Modal';
+import { fetchGalleryImages, getGalleryImageSrc } from '../../services/instagramGalleryService';
 
 function FooterThree() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalImage, setModalImage] = useState('');
+    const [galleryImages, setGalleryImages] = useState([]);
+
+    useEffect(() => {
+        const loadImages = async () => {
+            try {
+                const data = await fetchGalleryImages();
+                setGalleryImages(data.slice(0, 6)); // Display max 6 images in the footer
+            } catch (error) {
+                console.error("Error loading gallery images:", error);
+            }
+        };
+        loadImages();
+    }, []);
 
     // Function to open the modal with the selected image
     const openModal = (imageSrc, event) => {
@@ -161,91 +175,27 @@ function FooterThree() {
                         </div>
                         <div className="col-md-6 col-xl-auto">
                             <div className="widget footer-widget">
+                                <h3 className="widget_title">Instagram Post</h3>
                                 <div className="sidebar-gallery">
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_1.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_1.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_1.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_1.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_2.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_2.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_2.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_2.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_3.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_3.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_3.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_3.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_4.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_4.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_4.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_4.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_5.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_5.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_5.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_5.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
-                                    <div className="gallery-thumb">
-                                        <img
-                                            src="/assets/img/widget/gallery_2_6.jpg"
-                                            alt="Gallery"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_6.jpg', e)}
-                                        />
-                                        <Link
-                                            to="//assets/img/widget/gallery_2_6.jpg"
-                                            className="gallery-btn popup-image"
-                                            onClick={(e) => openModal('/assets/img/widget/gallery_2_6.jpg', e)}
-                                        >
-                                            <i className="fab fa-instagram" />
-                                        </Link>
-                                    </div>
+                                    {galleryImages.map((image) => (
+                                        <div className="gallery-thumb" key={image.id}>
+                                            <img
+                                                src={getGalleryImageSrc(image.image_url)}
+                                                alt="Gallery"
+                                                onClick={(e) => openModal(getGalleryImageSrc(image.image_url), e)}
+                                            />
+                                            <Link
+                                                to={getGalleryImageSrc(image.image_url)}
+                                                className="gallery-btn popup-image"
+                                                onClick={(e) => openModal(getGalleryImageSrc(image.image_url), e)}
+                                            >
+                                                <i className="fab fa-instagram" />
+                                            </Link>
+                                        </div>
+                                    ))}
+                                    {galleryImages.length === 0 && (
+                                        <p className="text-white">No images available.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
