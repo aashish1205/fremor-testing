@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import './EnquirePopupForm.css';
 
-export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) {
+export default function EnquirePopupForm({ isOpen, onClose, destinationTitle, initialAdults, initialChildren, inline = false, packageTier }) {
   const [formData, setFormData] = useState({
     fullName: '',
     emailAddress: '',
@@ -14,14 +14,14 @@ export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) 
     travelStartDate: '',
     travelEndDate: '',
     
-    noOfAdults: '1',
-    noOfChildren: '0',
+    noOfAdults: initialAdults || '1',
+    noOfChildren: initialChildren || '0',
     childrenAge: ''
   });
 
   const [status, setStatus] = useState('idle'); // idle, sending, success, error
 
-  if (!isOpen) return null;
+  if (!inline && !isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,9 +33,9 @@ export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) 
     setStatus('sending');
 
     try {
-      // 1. Send data to Supabase (assuming 'enquiries' table is created without strict RLS)
+      // 1. Send data to Supabase (assuming 'package_enquiries' table is created without strict RLS)
       const { error: dbError } = await supabase
-        .from('enquiries')
+        .from('package_enquiries')
         .insert([{
           destination_title: formData.destination,
           full_name: formData.fullName,
@@ -47,7 +47,8 @@ export default function EnquirePopupForm({ isOpen, onClose, destinationTitle }) 
           travel_end_date: formData.travelEndDate || null,
           no_of_adults: parseInt(formData.noOfAdults) || 1,
           no_of_children: parseInt(formData.noOfChildren) || 0,
-          children_age: formData.childrenAge
+          children_age: formData.childrenAge,
+          package_tier: packageTier || 'standard'
         }]);
 
       if (dbError) {
@@ -68,6 +69,7 @@ Departure: ${formData.departureCity}
 Travel Dates: ${formData.travelStartDate} to ${formData.travelEndDate}
 
 Passenger Details:
+Package Tier: ${packageTier || 'standard'}
 Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${formData.childrenAge})
       `;
 
@@ -89,7 +91,7 @@ Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${form
       setStatus('success');
       setTimeout(() => {
         setStatus('idle');
-        onClose(); // auto close on success
+        onClose?.(); // auto close on success if onClose callback is provided
       }, 4000);
 
     } catch (err) {
@@ -98,6 +100,97 @@ Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${form
       setTimeout(() => setStatus('idle'), 4000);
     }
   };
+
+  const formContent = (
+    <>
+      {status === 'success' ? (
+        <div className="alert alert-success text-center">
+          <h5><i className="fa-solid fa-circle-check"></i> Enquiry Submitted!</h5>
+          <p className="m-0">Thank you for enquiring about {formData.destination}. Our experts will contact you soon!</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          
+          {status === 'error' && (
+            <div className="alert alert-danger py-2">Something went wrong. Please try again.</div>
+          )}
+
+          <h5 className="text-secondary border-bottom pb-2 mb-3">1. Personal Details</h5>
+          <div className="row g-3 mb-4">
+            <div className="col-md-6">
+              <label className="form-label small">Full Name *</label>
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="form-control" required />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">Email Address *</label>
+              <input type="email" name="emailAddress" value={formData.emailAddress} onChange={handleChange} className="form-control" required />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">Contact Number *</label>
+              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="form-control" required />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">City of Residence</label>
+              <input type="text" name="cityOfResidence" value={formData.cityOfResidence} onChange={handleChange} className="form-control" />
+            </div>
+          </div>
+
+          <h5 className="text-secondary border-bottom pb-2 mb-3">2. Travel Details</h5>
+          <div className="row g-3 mb-4">
+            <div className="col-md-6">
+              <label className="form-label small">Destination</label>
+              <input type="text" name="destination" value={formData.destination} onChange={handleChange} className="form-control" />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">Departure City</label>
+              <input type="text" name="departureCity" value={formData.departureCity} onChange={handleChange} className="form-control" />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">Travel Start Date *</label>
+              <input type="date" name="travelStartDate" value={formData.travelStartDate} onChange={handleChange} className="form-control" required />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small">Travel End Date</label>
+              <input type="date" name="travelEndDate" value={formData.travelEndDate} onChange={handleChange} className="form-control" />
+            </div>
+          </div>
+
+          <h5 className="text-secondary border-bottom pb-2 mb-3">3. Passenger Details</h5>
+          <div className="row g-3 mb-4">
+            <div className="col-md-4">
+              <label className="form-label small">No. of Adults *</label>
+              <input type="number" name="noOfAdults" value={formData.noOfAdults} onChange={handleChange} className="form-control" min="1" required />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label small">No. of Children</label>
+              <input type="number" name="noOfChildren" value={formData.noOfChildren} onChange={handleChange} className="form-control" min="0" />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label small">Children Age(s)</label>
+              <input type="text" name="childrenAge" value={formData.childrenAge} onChange={handleChange} className="form-control" placeholder="e.g. 5, 8" />
+            </div>
+          </div>
+
+          <div className="d-grid mt-4">
+            <button type="submit" className="th-btn" disabled={status === 'sending'}>
+              {status === 'sending' ? 'Submitting...' : 'Submit Enquiry'}
+            </button>
+          </div>
+        </form>
+      )}
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="inline-enquiry-form-card">
+        <h4 className="border-bottom pb-3 mb-4 text-primary" style={{ fontSize: '18px', fontWeight: '700' }}>
+          <i className="fa-solid fa-paper-plane me-2"></i>Send Enquiry for this Price Estimate
+        </h4>
+        {formContent}
+      </div>
+    );
+  }
 
   return (
     <div className="enquire-modal-overlay">
@@ -110,81 +203,7 @@ Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${form
         </div>
         
         <div className="enquire-modal-body p-4">
-          {status === 'success' ? (
-            <div className="alert alert-success text-center">
-              <h5><i className="fa-solid fa-circle-check"></i> Enquiry Submitted!</h5>
-              <p className="m-0">Thank you for enquiring about {formData.destination}. Our experts will contact you soon!</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              
-              {status === 'error' && (
-                <div className="alert alert-danger py-2">Something went wrong. Please try again.</div>
-              )}
-
-              <h5 className="text-secondary border-bottom pb-2 mb-3">1. Personal Details</h5>
-              <div className="row g-3 mb-4">
-                <div className="col-md-6">
-                  <label className="form-label small">Full Name *</label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Email Address *</label>
-                  <input type="email" name="emailAddress" value={formData.emailAddress} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Contact Number *</label>
-                  <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">City of Residence</label>
-                  <input type="text" name="cityOfResidence" value={formData.cityOfResidence} onChange={handleChange} className="form-control" />
-                </div>
-              </div>
-
-              <h5 className="text-secondary border-bottom pb-2 mb-3">2. Travel Details</h5>
-              <div className="row g-3 mb-4">
-                <div className="col-md-6">
-                  <label className="form-label small">Destination</label>
-                  <input type="text" name="destination" value={formData.destination} onChange={handleChange} className="form-control" />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Departure City</label>
-                  <input type="text" name="departureCity" value={formData.departureCity} onChange={handleChange} className="form-control" />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Travel Start Date *</label>
-                  <input type="date" name="travelStartDate" value={formData.travelStartDate} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label small">Travel End Date</label>
-                  <input type="date" name="travelEndDate" value={formData.travelEndDate} onChange={handleChange} className="form-control" />
-                </div>
-              </div>
-
-              <h5 className="text-secondary border-bottom pb-2 mb-3">3. Passenger Details</h5>
-              <div className="row g-3 mb-4">
-                <div className="col-md-4">
-                  <label className="form-label small">No. of Adults *</label>
-                  <input type="number" name="noOfAdults" value={formData.noOfAdults} onChange={handleChange} className="form-control" min="1" required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label small">No. of Children</label>
-                  <input type="number" name="noOfChildren" value={formData.noOfChildren} onChange={handleChange} className="form-control" min="0" />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label small">Children Age(s)</label>
-                  <input type="text" name="childrenAge" value={formData.childrenAge} onChange={handleChange} className="form-control" placeholder="e.g. 5, 8" />
-                </div>
-              </div>
-
-              <div className="d-grid mt-4">
-                <button type="submit" className="th-btn" disabled={status === 'sending'}>
-                  {status === 'sending' ? 'Submitting...' : 'Submit Enquiry'}
-                </button>
-              </div>
-            </form>
-          )}
+          {formContent}
         </div>
       </div>
     </div>

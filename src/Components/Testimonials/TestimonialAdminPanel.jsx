@@ -10,6 +10,7 @@ import {
     getTestimonialImageSrc
 } from '../../services/testimonialService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
@@ -38,6 +39,8 @@ function TestimonialAdminPanel() {
     const [imagePreview, setImagePreview] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     // DataTable hook
     const { 
         searchTerm, 
@@ -47,7 +50,7 @@ function TestimonialAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(testimonials, ['name', 'designation', 'text']);
+    } = useDataTable(testimonials, ['name', 'designation', 'text'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         loadTestimonials();
@@ -202,7 +205,7 @@ function TestimonialAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <h2 className="m-0">Testimonials</h2>
                     <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: '0.9rem' }}>

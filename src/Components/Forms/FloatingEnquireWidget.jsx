@@ -8,12 +8,11 @@ export default function FloatingEnquireWidget() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
 
-  // Hide on cruise, admin, or team pages
-  if (
-    location.pathname.includes('/cruise') ||
-    location.pathname.startsWith('/admin') ||
-    location.pathname.startsWith('/team')
-  ) {
+  // Only show on home page, about us page, and magazine page
+  const allowedPaths = ['/', '/home-tour', '/home-agency', '/home-yacht', '/about', '/blog'];
+  const normalizedPath = location.pathname.replace(/\/$/, '') || '/';
+
+  if (!allowedPaths.includes(normalizedPath)) {
     return null;
   }
 

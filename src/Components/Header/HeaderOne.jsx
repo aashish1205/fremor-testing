@@ -78,8 +78,14 @@ function HeaderOne() {
             }
         });
 
+        const handleOpenLogin = () => {
+            setIsLoginFormOpen(true);
+        };
+        window.addEventListener('open-login-modal', handleOpenLogin);
+
         return () => {
             subscription.unsubscribe();
+            window.removeEventListener('open-login-modal', handleOpenLogin);
         };
     }, []);
 
@@ -288,10 +294,13 @@ function HeaderOne() {
                                                 </Link>
                                                 <ul className="sub-menu">
                                                     <li>
+                                                        <Link to="/destination/outbound">Global</Link>
+                                                    </li>
+                                                    <li>
                                                         <Link to="/destination/inbound">Inbound (India)</Link>
                                                     </li>
                                                     <li>
-                                                        <Link to="/destination/outbound">Outbound (International)</Link>
+                                                        <Link to="/destination/domestic">Domestic</Link>
                                                     </li>
                                                 </ul>
                                             </li>

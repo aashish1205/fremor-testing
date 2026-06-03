@@ -2,47 +2,50 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'destination-images'; // Reusing the existing bucket for convenience
 
-export async function fetchVisas() {
-    const { data, error } = await supabase
-        .from('visas')
-        .select('*')
-        .order('country_name', { ascending: true });
+const CACHE_KEY = 'fremor_visas_cache';
 
-    if (error) throw error;
-    return data;
+export async function fetchVisas() {
+    let allVisas = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            allVisas = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
+
+    if (!allVisas) {
+        const { data, error } = await supabase
+            .from('visas')
+            .select('*')
+            .order('country_name', { ascending: true });
+
+        if (error) throw error;
+        allVisas = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(allVisas));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return allVisas;
 }
 
 export async function fetchFeaturedVisas() {
-    const { data, error } = await supabase
-        .from('visas')
-        .select('*')
-        .eq('is_featured', true)
-        .order('country_name', { ascending: true });
-
-    if (error) throw error;
-    return data;
+    const visas = await fetchVisas();
+    return visas.filter(v => v.is_featured === true);
 }
 
 export async function fetchVisaByCountryName(countryName) {
-    const { data, error } = await supabase
-        .from('visas')
-        .select('*')
-        .ilike('country_name', countryName)
-        .maybeSingle();
-
-    if (error) throw error;
-    return data;
+    if (!countryName) return null;
+    const visas = await fetchVisas();
+    return visas.find(v => v.country_name.toLowerCase() === countryName.toLowerCase()) || null;
 }
 
 export async function fetchVisaById(id) {
-    const { data, error } = await supabase
-        .from('visas')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) throw error;
-    return data;
+    const visas = await fetchVisas();
+    return visas.find(v => String(v.id) === String(id)) || null;
 }
 
 export async function createVisa(visaData) {
@@ -53,6 +56,11 @@ export async function createVisa(visaData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -65,6 +73,11 @@ export async function updateVisa(id, visaData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -75,6 +88,11 @@ export async function deleteVisa(id) {
         .eq('id', id);
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return true;
 }
 
@@ -86,7 +104,7 @@ export async function uploadImage(file, folder = 'visa') {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 

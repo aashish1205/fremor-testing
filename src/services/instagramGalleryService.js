@@ -2,27 +2,66 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'instagram-gallery';
 
+const CACHE_KEY_ACTIVE = 'fremor_instagram_active_cache';
+const CACHE_KEY_ALL = 'fremor_instagram_all_cache';
+
 // ─── FETCH ALL GALLERY IMAGES (active only, ordered) ──────────────────
 export async function fetchGalleryImages() {
-    const { data, error } = await supabase
-        .from('instagram_gallery')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
+    let activeGallery = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY_ACTIVE);
+        if (cached) {
+            activeGallery = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!activeGallery) {
+        const { data, error } = await supabase
+            .from('instagram_gallery')
+            .select('*')
+            .eq('is_active', true)
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        activeGallery = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY_ACTIVE, JSON.stringify(activeGallery));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return activeGallery;
 }
 
 // ─── FETCH ALL GALLERY IMAGES (admin — includes inactive) ─────────────
 export async function fetchAllGalleryImages() {
-    const { data, error } = await supabase
-        .from('instagram_gallery')
-        .select('*')
-        .order('display_order', { ascending: true });
+    let allGallery = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY_ALL);
+        if (cached) {
+            allGallery = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!allGallery) {
+        const { data, error } = await supabase
+            .from('instagram_gallery')
+            .select('*')
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        allGallery = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY_ALL, JSON.stringify(allGallery));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return allGallery;
 }
 
 // ─── CREATE NEW GALLERY IMAGE ─────────────────────────────────────────
@@ -37,6 +76,7 @@ export async function createGalleryImage(imageData) {
         console.error('Gallery Insert Error:', error);
         throw error;
     }
+    clearGalleryCache();
     return data;
 }
 
@@ -50,6 +90,7 @@ export async function updateGalleryImage(id, imageData) {
         .single();
 
     if (error) throw error;
+    clearGalleryCache();
     return data;
 }
 
@@ -61,6 +102,7 @@ export async function deleteGalleryImage(id) {
         .eq('id', id);
 
     if (error) throw error;
+    clearGalleryCache();
     return true;
 }
 
@@ -74,6 +116,7 @@ export async function toggleGalleryImageActive(id, isActive) {
         .single();
 
     if (error) throw error;
+    clearGalleryCache();
     return data;
 }
 
@@ -87,7 +130,17 @@ export async function updateDisplayOrder(id, newOrder) {
         .single();
 
     if (error) throw error;
+    clearGalleryCache();
     return data;
+}
+
+function clearGalleryCache() {
+    try {
+        sessionStorage.removeItem(CACHE_KEY_ACTIVE);
+        sessionStorage.removeItem(CACHE_KEY_ALL);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage:', e);
+    }
 }
 
 // ─── UPLOAD IMAGE TO SUPABASE STORAGE ─────────────────────────────────
@@ -98,7 +151,7 @@ export async function uploadGalleryFile(file) {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 

@@ -183,8 +183,9 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
                                 style={{ height: "0px", overflow: "hidden", transition: "height 0.3s ease-in-out" }}
                             >
                                 <li><Link to="/destination" onClick={onClose}>All Tours</Link></li>
+                                <li><Link to="/destination/outbound" onClick={onClose}>Global</Link></li>
                                 <li><Link to="/destination/inbound" onClick={onClose}>Inbound (India)</Link></li>
-                                <li><Link to="/destination/outbound" onClick={onClose}>Outbound (International)</Link></li>
+                                <li><Link to="/destination/domestic" onClick={onClose}>Domestic</Link></li>
                             </ul>
                         </li>
 

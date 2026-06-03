@@ -1,18 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
-export const useDataTable = (data, searchKeys, itemsPerPage = 10) => {
-    const [searchTerm, setSearchTerm] = useState('');
+export const useDataTable = (data, searchKeys, itemsPerPage = 10, externalSearchTerm = null, setExternalSearchTerm = null) => {
+    const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
+    const activeSearchTerm = externalSearchTerm !== null ? externalSearchTerm : localSearchTerm;
+
     const filteredData = useMemo(() => {
-        if (!searchTerm) return data || [];
+        if (!activeSearchTerm) return data || [];
         return (data || []).filter(item => 
             searchKeys.some(key => {
                 const val = item[key];
-                return val !== undefined && val !== null && val.toString().toLowerCase().includes(searchTerm.toLowerCase());
+                return val !== undefined && val !== null && val.toString().toLowerCase().includes(activeSearchTerm.toLowerCase());
             })
         );
-    }, [data, searchTerm, searchKeys]);
+    }, [data, activeSearchTerm, searchKeys]);
 
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     
@@ -26,13 +28,22 @@ export const useDataTable = (data, searchKeys, itemsPerPage = 10) => {
         return filteredData.slice(start, start + itemsPerPage);
     }, [filteredData, currentPage, itemsPerPage]);
 
+    // Reset to page 1 on any search change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeSearchTerm]);
+
     const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1); // Reset to first page on new search
+        const val = e.target.value;
+        if (setExternalSearchTerm) {
+            setExternalSearchTerm(val);
+        } else {
+            setLocalSearchTerm(val);
+        }
     };
 
     return {
-        searchTerm,
+        searchTerm: activeSearchTerm,
         handleSearch,
         currentPage,
         setCurrentPage,

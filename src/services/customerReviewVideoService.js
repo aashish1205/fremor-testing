@@ -109,7 +109,10 @@ export const uploadCustomerVideo = async (file) => {
 
         const { error: uploadError } = await supabase.storage
             .from('customer_videos')
-            .upload(filePath, file);
+            .upload(filePath, file, {
+                cacheControl: '31536000, public, immutable',
+                upsert: false
+            });
 
         if (uploadError) throw uploadError;
 

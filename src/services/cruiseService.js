@@ -2,15 +2,35 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'cruises-images';
 
+const CACHE_KEY = 'fremor_cruises_cache';
+
 // ─── FETCH ALL CRUISES ───────────────────────────────────────────
 export async function fetchCruises() {
-    const { data, error } = await supabase
-        .from('cruises')
-        .select('*')
-        .order('created_at', { ascending: false });
+    let allCruises = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            allCruises = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!allCruises) {
+        const { data, error } = await supabase
+            .from('cruises')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allCruises = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(allCruises));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return allCruises;
 }
 
 // ─── FETCH SINGLE CRUISE BY ID ───────────────────────────────────
@@ -49,6 +69,11 @@ export async function createCruise(cruiseData) {
         console.error('Table Insert Error:', error);
         throw error;
     }
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -62,6 +87,11 @@ export async function updateCruise(id, cruiseData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -73,6 +103,11 @@ export async function deleteCruise(id) {
         .eq('id', id);
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return true;
 }
 
@@ -84,7 +119,7 @@ export async function uploadCruiseImage(file, folder = 'cruises') {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 
@@ -134,7 +169,7 @@ export async function uploadCruiseBrochure(file) {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 

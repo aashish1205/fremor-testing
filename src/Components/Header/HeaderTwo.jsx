@@ -24,9 +24,15 @@ function HeaderTwo() {
             }
         };
 
+        const handleOpenLogin = () => {
+            setIsLoginFormOpen(true);
+        };
+
         window.addEventListener("scroll", handleScroll);
+        window.addEventListener('open-login-modal', handleOpenLogin);
         return () => {
             window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener('open-login-modal', handleOpenLogin);
         };
     }, []);
     return (

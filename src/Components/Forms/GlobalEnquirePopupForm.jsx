@@ -34,12 +34,13 @@ export default function GlobalEnquirePopupForm({ isOpen, onClose }) {
 
     try {
       const { error: dbError } = await supabase
-        .from('enquiries')
+        .from('package_enquiries')
         .insert([{
           destination_title: formData.destination,
           full_name: formData.fullName,
           email_address: formData.emailAddress,
           contact_number: formData.contactNumber,
+          package_tier: 'standard'
         }]);
 
       if (dbError) console.error("Supabase Error:", dbError);

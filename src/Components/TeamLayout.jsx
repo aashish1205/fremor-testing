@@ -25,7 +25,8 @@ const TeamLayout = ({ children, teamMember }) => {
             return normalized === '/team/travellers' ||
                    normalized === '/team/testimonials' ||
                    normalized === '/team/instagram-gallery' ||
-                   normalized === '/team/customer-video-reviews';
+                   normalized === '/team/customer-video-reviews' ||
+                   normalized === '/team/package-enquiries';
         }
         if (role === 'Visa Support Executive') {
             return normalized === '/team/visas' ||
@@ -113,6 +114,16 @@ const TeamLayout = ({ children, teamMember }) => {
                         >
                             <i className="fa-solid fa-clipboard-list"></i>
                             Visa Enquiries
+                        </NavLink>
+                    )}
+
+                    {isTabAllowed(teamMember?.role, '/team/package-enquiries') && (
+                        <NavLink 
+                            to="/team/package-enquiries" 
+                            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <i className="fa-solid fa-rectangle-list"></i>
+                            Package Enquiries
                         </NavLink>
                     )}
 

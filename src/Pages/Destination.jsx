@@ -14,7 +14,13 @@ function Destination({ category: propCategory }) {
     return (
         <>
             <HeaderOne />
-            {category === 'Inbound' ? (
+            {category === 'Domestic' ? (
+                <VideoBanner 
+                    title="Domestic" 
+                    category="Domestic" 
+                    videoSrc="https://botchursnmplaerazpsb.supabase.co/storage/v1/object/public/Videos/videoplayback.webm" 
+                />
+            ) : category === 'Inbound' ? (
                 <VideoBanner 
                     title="Inbound (India)" 
                     category="Inbound" 
@@ -22,7 +28,7 @@ function Destination({ category: propCategory }) {
                 />
             ) : category === 'Outbound' ? (
                 <VideoBanner 
-                    title="Outbound (International)" 
+                    title="Global" 
                     category="Outbound" 
                     videoSrc="https://botchursnmplaerazpsb.supabase.co/storage/v1/object/public/destinationvideo/outbound/videoplayback%20(2).webm" 
                 />

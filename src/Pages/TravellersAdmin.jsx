@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDataTable } from '../hooks/useDataTable';
+import { useAdminSearch } from '../Components/AdminSearchContext';
 import AdminPagination from '../Components/Admin/AdminPagination';
 
 const TravellersAdmin = () => {
@@ -11,6 +12,8 @@ const TravellersAdmin = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     const { 
         searchTerm, 
         handleSearch, 
@@ -19,7 +22,7 @@ const TravellersAdmin = () => {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(users, ['first_name', 'last_name', 'email', 'phone', 'nationality']);
+    } = useDataTable(users, ['first_name', 'last_name', 'email', 'phone', 'nationality'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         fetchUsers();

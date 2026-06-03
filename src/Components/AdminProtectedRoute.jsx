@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import AdminLayout from './AdminLayout';
+import { AdminSearchProvider } from './AdminSearchContext';
 
 const AdminProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -47,7 +48,11 @@ const AdminProtectedRoute = ({ children }) => {
         return <Navigate to="/admin/login" replace />;
     }
 
-    return <AdminLayout email={adminEmail}>{children}</AdminLayout>;
+    return (
+        <AdminSearchProvider>
+            <AdminLayout email={adminEmail}>{children}</AdminLayout>
+        </AdminSearchProvider>
+    );
 };
 
 export default AdminProtectedRoute;

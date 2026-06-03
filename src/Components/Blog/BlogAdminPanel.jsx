@@ -9,6 +9,7 @@ import {
     getBlogImageSrc 
 } from '../../services/blogService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
@@ -45,6 +46,8 @@ function BlogAdminPanel() {
 
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     // DataTable hook
     const { 
         searchTerm, 
@@ -54,7 +57,7 @@ function BlogAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(blogs, ['title', 'category', 'author']);
+    } = useDataTable(blogs, ['title', 'category', 'author'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         loadBlogs();
@@ -270,7 +273,7 @@ function BlogAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h2 className="m-0">Manage Blogs (Fremor Magazine)</h2>
                 <div className="d-flex gap-3 align-items-center">
                     <div className="position-relative">

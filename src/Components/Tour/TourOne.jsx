@@ -5,6 +5,8 @@ import 'swiper/css/navigation'; // Import navigation styles
 import 'swiper/css/pagination'; // Import pagination styles
 import { Link } from 'react-router-dom';
 import { fetchDestinations, getImageSrc } from '../../services/destinationService';
+import DestinationCard from '../Destination/DestinationCard';
+
 
 function TourOne() {
   const [topDestinations, setTopDestinations] = useState([]);
@@ -71,55 +73,27 @@ function TourOne() {
                 const destinationLink = `/destination/${dest.id}`;
                 return (
                   <SwiperSlide key={dest.id}>
-                    <div className="tour-box th-ani gsap-cursor">
-                      <div className="tour-box_img global-img">
-                        <img 
-                          src={getImageSrc(dest.image)} 
-                          alt={dest.title} 
-                          style={{ width: '100%', height: '280px', objectFit: 'cover' }} 
-                        />
-                      </div>
-                      <div className="tour-content">
-                        <h3 className="box-title">
-                          <Link to={destinationLink}>{dest.title}</Link>
-                        </h3>
-                        <div className="tour-rating">
-                          <div className="star-rating" role="img" aria-label={`Rated ${dest.rating || 5.0} out of 5`}>
-                            <span style={{ width: `${(parseFloat(dest.rating || 5.0) / 5) * 100}%` }}>
-                              Rated <strong className="rating">{dest.rating || 5.0}</strong> out of 5
-                            </span>
-                          </div>
-                          <Link to={destinationLink} className="woocommerce-review-link">
-                            (<span className="count">{dest.rating || 5.0}</span> Rating)
-                          </Link>
-                        </div>
-                        <h4 className="tour-box_price">
-                          <span className="text-muted d-block" style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px', color: '#687176' }}>Starting from</span>
-                          <span className="currency">₹{dest.price || '0'}</span>/{(dest.price_unit && dest.price_unit.trim() !== '') ? dest.price_unit : 'Person'}
-                        </h4>
-                        <div className="tour-action" style={{ gap: '10px 15px', flexWrap: 'wrap' }}>
-                          {(dest.nights > 0 || dest.days > 0) ? (
-                            <span className="tour-duration" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0369a1', fontWeight: '700', fontSize: '13px' }}>
-                                    <i className="fa-solid fa-moon" style={{ fontSize: '12px' }}></i> {dest.nights} N
-                                </span>
-                                <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#cbd5e1' }}></span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontWeight: '700', fontSize: '13px' }}>
-                                    <i className="fa-solid fa-sun" style={{ fontSize: '12px' }}></i> {dest.days} D
-                                </span>
-                            </span>
-                          ) : (
-                            <span>
-                              <i className="fa-light fa-clock" />{(dest.duration && dest.duration.trim() !== '') ? dest.duration : 'Flexible'}
-                            </span>
-                          )}
-                          <Link to={destinationLink} className="th-btn style4 th-icon">
-                            View Details
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
+                    <DestinationCard
+                      destinationID={dest.id}
+                      destinationImage={dest.image}
+                      destinationTitle={dest.title}
+                      destinationPrice={dest.price}
+                      destinationDuration={dest.duration}
+                      destinationPriceUnit={dest.price_unit}
+                      destinationNights={dest.nights}
+                      destinationDays={dest.days}
+                      rating={dest.rating}
+                      ratingCount={dest.rating_count}
+                      originalPrice={dest.original_price}
+                      isRecommended={dest.is_recommended}
+                      badgeText={dest.badge_text}
+                      loyaltyPoints={dest.loyalty_points}
+                      inclusions={dest.inclusions}
+                      location={dest.location}
+                      itinerarySummary={dest.itinerary_summary}
+                    />
                   </SwiperSlide>
+
                 );
               })
             ) : (

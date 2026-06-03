@@ -3,11 +3,15 @@ import RouterPage from './Pages/RouterPage';
 import FremorLoader from './Components/Loader/loader';
 
 function App() {
-  const [showLoader, setShowLoader] = useState(true);
+  const hasShownBrand = sessionStorage.getItem('brandPreloaderShown');
+  const [showLoader, setShowLoader] = useState(!hasShownBrand);
 
   useEffect(() => {
+    if (hasShownBrand) return;
+
     const handleLoad = () => {
       setShowLoader(false);
+      sessionStorage.setItem('brandPreloaderShown', 'true');
     };
 
     if (document.readyState === 'complete') {
@@ -23,12 +27,12 @@ function App() {
         clearTimeout(fallback);
       };
     }
-  }, []);
+  }, [hasShownBrand]);
 
   return (
     <div className="App">
       <RouterPage />
-      <FremorLoader show={showLoader} />
+      {showLoader && <FremorLoader show={showLoader} />}
     </div>
   );
 }

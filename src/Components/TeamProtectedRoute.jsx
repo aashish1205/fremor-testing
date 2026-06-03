@@ -59,7 +59,8 @@ const TeamProtectedRoute = ({ children }) => {
             return normalized.startsWith('/team/travellers') ||
                    normalized.startsWith('/team/testimonials') ||
                    normalized.startsWith('/team/instagram-gallery') ||
-                   normalized.startsWith('/team/customer-video-reviews');
+                   normalized.startsWith('/team/customer-video-reviews') ||
+                   normalized.startsWith('/team/package-enquiries');
         }
         if (role === 'Visa Support Executive') {
             return normalized.startsWith('/team/visas') ||

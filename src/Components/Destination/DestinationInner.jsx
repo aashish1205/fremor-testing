@@ -17,8 +17,60 @@ function DestinationInner({ category: propCategory }) {
     const [recentBlogs, setRecentBlogs] = useState([]);
     const category = propCategory || searchParams.get('category');
     const packageType = searchParams.get('package_type');
+
+    // Filter states
+    const [selectedMinPrice, setSelectedMinPrice] = useState(0);
+    const [selectedMaxPrice, setSelectedMaxPrice] = useState(300000);
+    const [minPriceLimit, setMinPriceLimit] = useState(0);
+    const [maxPriceLimit, setMaxPriceLimit] = useState(300000);
+    const [selectedDurations, setSelectedDurations] = useState([]);
+    const [selectedAccommodations, setSelectedAccommodations] = useState([]);
+    const [activeSlider, setActiveSlider] = useState('min');
+
+    const handleMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0]?.clientX);
+        if (!clientX) return;
+        const clickX = clientX - rect.left;
+        const width = rect.width;
+        if (!width) return;
+        const clickPercent = (clickX / width) * 100;
+        
+        const limitDiff = maxPriceLimit - minPriceLimit;
+        const minPercent = limitDiff === 0 ? 0 : ((selectedMinPrice - minPriceLimit) / limitDiff) * 100;
+        const maxPercent = limitDiff === 0 ? 100 : ((selectedMaxPrice - minPriceLimit) / limitDiff) * 100;
+        
+        const distToMin = Math.abs(clickPercent - minPercent);
+        const distToMax = Math.abs(clickPercent - maxPercent);
+        
+        if (distToMin < distToMax) {
+            setActiveSlider('min');
+        } else {
+            setActiveSlider('max');
+        }
+    };
     
-    const postsPerPage = 9;
+    const postsPerPage = 12;
+
+    // Initialize price limits and reset active filters when master destinations list is loaded
+    useEffect(() => {
+        if (destinations.length > 0) {
+            const prices = destinations.map(d => d.price).filter(p => typeof p === 'number');
+            const minP = prices.length ? Math.min(...prices) : 0;
+            const maxP = prices.length ? Math.max(...prices) : 300000;
+            setMinPriceLimit(minP);
+            setMaxPriceLimit(maxP);
+            setSelectedMinPrice(minP);
+            setSelectedMaxPrice(maxP);
+            setSelectedDurations([]);
+            setSelectedAccommodations([]);
+        }
+    }, [destinations]);
+
+    // Reset page on filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedMinPrice, selectedMaxPrice, selectedDurations, selectedAccommodations]);
 
     // Fetch destinations on mount and when filters change
     useEffect(() => {
@@ -73,13 +125,71 @@ function DestinationInner({ category: propCategory }) {
         }
     };
 
-    const totalPages = Math.ceil(destinations.length / postsPerPage);
+    // Filtered destinations list
+    const displayedDestinations = destinations.filter(dest => {
+        // Price Filter (only apply if adjusted from default limits)
+        const price = dest.price || 0;
+        const isPriceAdjusted = selectedMinPrice !== minPriceLimit || selectedMaxPrice !== maxPriceLimit;
+        if (isPriceAdjusted) {
+            if (price < selectedMinPrice || price > selectedMaxPrice) return false;
+        }
+
+        // Duration Filter
+        if (selectedDurations.length > 0) {
+            const nights = dest.nights || 0;
+            if (!selectedDurations.includes(nights)) return false;
+        }
+
+        // Accommodation Filter
+        if (selectedAccommodations.length > 0) {
+            const acc = dest.accommodation_type || '3 Star';
+            if (!selectedAccommodations.includes(acc)) return false;
+        }
+
+        return true;
+    });
+
+    const totalPages = Math.ceil(displayedDestinations.length / postsPerPage);
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = destinations.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = displayedDestinations.slice(indexOfFirstPost, indexOfLastPost);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    // Extract unique durations (nights) from loaded destinations
+    const uniqueNights = Array.from(new Set(destinations.map(d => d.nights || 0))).sort((a, b) => a - b);
+    
+    // Standard accommodations options
+    const accommodationOptions = ['2 Star', '3 Star', '4 Star', '5 Star'];
+
+    // Dynamic Counts calculations (Independent from other sidebar filters to reflect active catalog options)
+    const getDurationCount = (nightsVal) => {
+        return destinations.filter(dest => (dest.nights || 0) === nightsVal).length;
+    };
+
+    const getAccommodationCount = (accVal) => {
+        return destinations.filter(dest => {
+            const acc = dest.accommodation_type || '3 Star';
+            return acc === accVal;
+        }).length;
+    };
+
+    const handleDurationToggle = (nightsVal) => {
+        setSelectedDurations(prev => 
+            prev.includes(nightsVal) 
+                ? prev.filter(n => n !== nightsVal) 
+                : [...prev, nightsVal]
+        );
+    };
+
+    const handleAccommodationToggle = (accVal) => {
+        setSelectedAccommodations(prev => 
+            prev.includes(accVal) 
+                ? prev.filter(a => a !== accVal) 
+                : [...prev, accVal]
+        );
     };
 
     return (
@@ -177,18 +287,20 @@ function DestinationInner({ category: propCategory }) {
                         )}
 
                         {/* Empty State */}
-                        {!loading && !error && destinations.length === 0 && (
+                        {!loading && !error && (destinations.length === 0 || displayedDestinations.length === 0) && (
                             <div className="text-center py-5">
                                 <i className="fa-light fa-map-location-dot" style={{ fontSize: '4rem', color: '#ccc' }}></i>
                                 <h4 className="mt-3" style={{ color: '#999' }}>No destinations found</h4>
                                 <p style={{ color: '#aaa' }}>
-                                    {searchQuery ? 'Try a different search term.' : 'Destinations will appear here once added.'}
+                                    {destinations.length === 0 
+                                        ? (searchQuery ? 'Try a different search term.' : 'Destinations will appear here once added.')
+                                        : 'No destinations match your active refine search filters.'}
                                 </p>
                             </div>
                         )}
 
                         {/* Content */}
-                        {!loading && !error && destinations.length > 0 && (
+                        {!loading && !error && displayedDestinations.length > 0 && (
                             <div className="tab-content" id="nav-tabContent">
                                 <div className={`tab-pane fade ${activeTab === 'tab-grid' ? 'show active' : ''}`} id="tab-grid" role="tabpanel"
                                 >
@@ -199,11 +311,20 @@ function DestinationInner({ category: propCategory }) {
                                                     destinationID={data.id}
                                                     destinationImage={data.image}
                                                     destinationTitle={data.title}
-                                                    destinationPrice={`₹${data.price}`}
+                                                    destinationPrice={data.price}
                                                     destinationDuration={data.duration}
                                                     destinationPriceUnit={data.price_unit}
                                                     destinationNights={data.nights}
                                                     destinationDays={data.days}
+                                                    rating={data.rating}
+                                                    ratingCount={data.rating_count}
+                                                    originalPrice={data.original_price}
+                                                    isRecommended={data.is_recommended}
+                                                    badgeText={data.badge_text}
+                                                    loyaltyPoints={data.loyalty_points}
+                                                    inclusions={data.inclusions}
+                                                    location={data.location}
+                                                    itinerarySummary={data.itinerary_summary}
                                                 />
                                             </div>
                                         ))}
@@ -259,28 +380,121 @@ function DestinationInner({ category: propCategory }) {
                     </div>
                     <div className="col-xxl-3 col-lg-4">
                         <aside className="sidebar-area style2">
-                            <div className="widget widget_categories  ">
-                                <h3 className="widget_title">Categories</h3>
-                                <ul>
-                                    <li>
-                                        <Link to="/destination?package_type=Standard">
-                                            <i className="fa-solid fa-box text-primary me-2"></i>
-                                            Standard Package
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/destination?package_type=Premium">
-                                            <i className="fa-solid fa-gem text-info me-2"></i>
-                                            Premium Package
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/destination?package_type=Luxury">
-                                            <i className="fa-solid fa-crown text-warning me-2"></i>
-                                            Luxury Package
-                                        </Link>
-                                    </li>
-                                </ul>
+                            <div className="widget refine-search-widget">
+                                <h3 className="widget_title" style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '12px', marginBottom: '20px' }}>Refine Search</h3>
+                                
+                                {/* 1. Price Per Person */}
+                                <div className="filter-section mb-4">
+                                    <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Price Per Person</h4>
+                                    <div className="price-slider-container px-1">
+                                        <div 
+                                            className="double-range-slider position-relative" 
+                                            style={{ height: '24px', cursor: 'pointer' }}
+                                            onMouseMove={handleMouseMove}
+                                            onTouchMove={handleMouseMove}
+                                        >
+                                            <input
+                                                type="range"
+                                                min={minPriceLimit}
+                                                max={maxPriceLimit}
+                                                step={100}
+                                                value={selectedMinPrice}
+                                                onChange={(e) => {
+                                                    const val = Math.min(Number(e.target.value), selectedMaxPrice - 100);
+                                                    setSelectedMinPrice(val);
+                                                }}
+                                                className="thumb thumb--left"
+                                                style={{ zIndex: activeSlider === 'min' ? '5' : '3' }}
+                                            />
+                                            <input
+                                                type="range"
+                                                min={minPriceLimit}
+                                                max={maxPriceLimit}
+                                                step={100}
+                                                value={selectedMaxPrice}
+                                                onChange={(e) => {
+                                                    const val = Math.max(Number(e.target.value), selectedMinPrice + 100);
+                                                    setSelectedMaxPrice(val);
+                                                }}
+                                                className="thumb thumb--right"
+                                                style={{ zIndex: activeSlider === 'max' ? '5' : '3' }}
+                                            />
+                                            <div className="slider-track" />
+                                            <div className="slider-range" style={{ 
+                                                left: minPriceLimit === maxPriceLimit ? '0%' : `${((selectedMinPrice - minPriceLimit) / (maxPriceLimit - minPriceLimit)) * 100}%`,
+                                                width: minPriceLimit === maxPriceLimit ? '100%' : `${((selectedMaxPrice - selectedMinPrice) / (maxPriceLimit - minPriceLimit)) * 100}%`
+                                            }} />
+                                        </div>
+                                        <div className="d-flex justify-content-between mt-1 text-dark fw-bold" style={{ fontSize: '14px' }}>
+                                            <span>₹{selectedMinPrice.toLocaleString()}</span>
+                                            <span>₹{selectedMaxPrice.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 2. Duration */}
+                                <div className="filter-section mb-4 border-top pt-3">
+                                    <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Duration</h4>
+                                    <div className="filter-options">
+                                        {uniqueNights.map(nightsVal => {
+                                            const count = getDurationCount(nightsVal);
+                                            const label = `${nightsVal}N`;
+                                            const isChecked = selectedDurations.includes(nightsVal);
+                                            const chkId = `duration-chk-${nightsVal}`;
+                                            return (
+                                                <div key={nightsVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
+                                                    <div className="d-flex align-items-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id={chkId}
+                                                            checked={isChecked}
+                                                            onChange={() => handleDurationToggle(nightsVal)}
+                                                            className="filter-checkbox"
+                                                            style={{ cursor: 'pointer' }}
+                                                        />
+                                                        <label htmlFor={chkId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
+                                                            {label}
+                                                        </label>
+                                                    </div>
+                                                    <span className="text-muted small">({count})</span>
+                                                </div>
+                                            );
+                                        })}
+                                        {uniqueNights.length === 0 && (
+                                            <p className="text-muted small mb-0">No durations available</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* 3. Accommodation Type */}
+                                <div className="filter-section border-top pt-3">
+                                    <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Accommodation Type</h4>
+                                    <div className="filter-options">
+                                        {accommodationOptions.map(accVal => {
+                                            const count = getAccommodationCount(accVal);
+                                            const isChecked = selectedAccommodations.includes(accVal);
+                                            const accId = `accommodation-chk-${accVal.replace(/\s+/g, '-')}`;
+                                            return (
+                                                <div key={accVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
+                                                    <div className="d-flex align-items-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id={accId}
+                                                            checked={isChecked}
+                                                            onChange={() => handleAccommodationToggle(accVal)}
+                                                            className="filter-checkbox"
+                                                            style={{ cursor: 'pointer' }}
+                                                        />
+                                                        <label htmlFor={accId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
+                                                            {accVal} Hotels
+                                                        </label>
+                                                    </div>
+                                                    <span className="text-muted small">({count})</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
                             
                             <CallbackCard />

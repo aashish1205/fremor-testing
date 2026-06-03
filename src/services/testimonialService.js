@@ -2,29 +2,68 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'testimonials';
 
+const CACHE_KEY_ACTIVE = 'fremor_testimonials_active_cache';
+const CACHE_KEY_ALL = 'fremor_testimonials_all_cache';
+
 // ─── FETCH ACTIVE TESTIMONIALS (For Frontend) ─────────────────────────
 export async function fetchTestimonials() {
-    const { data, error } = await supabase
-        .from('testimonials')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: false });
+    let activeTestimonials = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY_ACTIVE);
+        if (cached) {
+            activeTestimonials = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!activeTestimonials) {
+        const { data, error } = await supabase
+            .from('testimonials')
+            .select('*')
+            .eq('is_active', true)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        activeTestimonials = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY_ACTIVE, JSON.stringify(activeTestimonials));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return activeTestimonials;
 }
 
 // ─── FETCH ALL TESTIMONIALS (For Admin Panel) ─────────────────────────
 export async function fetchAllTestimonials() {
-    const { data, error } = await supabase
-        .from('testimonials')
-        .select('*')
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: false });
+    let allTestimonials = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY_ALL);
+        if (cached) {
+            allTestimonials = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!allTestimonials) {
+        const { data, error } = await supabase
+            .from('testimonials')
+            .select('*')
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allTestimonials = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY_ALL, JSON.stringify(allTestimonials));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return allTestimonials;
 }
 
 // ─── CREATE NEW TESTIMONIAL ───────────────────────────────────────────
@@ -39,6 +78,7 @@ export async function createTestimonial(testimonialData) {
         console.error('Testimonial Insert Error:', error);
         throw error;
     }
+    clearTestimonialCache();
     return data;
 }
 
@@ -52,6 +92,7 @@ export async function updateTestimonial(id, testimonialData) {
         .single();
 
     if (error) throw error;
+    clearTestimonialCache();
     return data;
 }
 
@@ -63,6 +104,7 @@ export async function deleteTestimonial(id) {
         .eq('id', id);
 
     if (error) throw error;
+    clearTestimonialCache();
     return true;
 }
 
@@ -76,7 +118,17 @@ export async function toggleTestimonialActive(id, isActive) {
         .single();
 
     if (error) throw error;
+    clearTestimonialCache();
     return data;
+}
+
+function clearTestimonialCache() {
+    try {
+        sessionStorage.removeItem(CACHE_KEY_ACTIVE);
+        sessionStorage.removeItem(CACHE_KEY_ALL);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage:', e);
+    }
 }
 
 // ─── UPLOAD IMAGE TO SUPABASE STORAGE ─────────────────────────────────
@@ -89,7 +141,7 @@ export async function uploadTestimonialImage(file) {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 

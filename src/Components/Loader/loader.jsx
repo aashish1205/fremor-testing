@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const FremorLoader = ({ show }) => {
+const FremorLoader = ({ show, isPlain = false }) => {
   const [progress, setProgress] = useState(0);
   const [shouldRender, setShouldRender] = useState(show);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -107,6 +107,40 @@ const FremorLoader = ({ show }) => {
       transition: 'left 0.08s linear, transform 0.08s linear'
     };
   };
+
+  if (isPlain) {
+    if (!show) return null;
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 99999
+      }}>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '4px solid rgba(12, 72, 111, 0.1)',
+          borderTop: '4px solid #0c486f',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   if (!shouldRender) return null;
 

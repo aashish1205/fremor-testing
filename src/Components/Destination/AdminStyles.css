@@ -6,19 +6,66 @@
     margin-bottom: 50px;
 }
 
-.admin-header {
+.admin-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
     border-bottom: 1px solid #eee;
     padding-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.admin-header h2 {
+.admin-panel-header h2 {
     margin: 0;
     font-size: 24px;
     color: #1f2230;
+}
+
+/* Ensure controls container inside header stays in one line and behaves responsively */
+.admin-panel-header > div {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* Set specific, compact widths to prevent stretching */
+.admin-panel-header input {
+    width: 200px !important;
+    max-width: 200px !important;
+    flex-shrink: 0 !important;
+}
+
+.admin-panel-header select {
+    width: 140px !important;
+    max-width: 140px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Prevent buttons inside header from shrinking or wrapping text */
+.admin-panel-header button,
+.admin-panel-header button.th-btn,
+.admin-panel-header .th-btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .admin-panel-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+    
+    .admin-panel-header > div {
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
 }
 
 .admin-table-container {

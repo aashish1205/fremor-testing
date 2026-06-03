@@ -59,17 +59,32 @@ import FloatingEnquireWidget from '../Components/Forms/FloatingEnquireWidget'
 import FremorLoader from '../Components/Loader/loader'
 import VisaAdmin from './VisaAdmin'
 import VisaEnquiriesAdmin from './VisaEnquiriesAdmin'
+import PackageEnquiriesAdmin from './PackageEnquiriesAdmin'
 
 function RouterContent() {
   const location = useLocation()
   const [showLoader, setShowLoader] = useState(false)
   const isFirstMount = useRef(true)
+  const prevPathname = useRef(location.pathname)
 
   useEffect(() => {
+    const prevPath = prevPathname.current
+    const currentPath = location.pathname
+    prevPathname.current = currentPath
+
     if (isFirstMount.current) {
       isFirstMount.current = false
       return
     }
+
+    // Skip loader transitions if navigating within the same dashboard section
+    const isAdminTransition = prevPath.startsWith('/admin') && currentPath.startsWith('/admin')
+    const isTeamTransition = prevPath.startsWith('/team') && currentPath.startsWith('/team')
+
+    if (isAdminTransition || isTeamTransition) {
+      return
+    }
+
     setShowLoader(true)
     const timer = setTimeout(() => {
       setShowLoader(false)
@@ -79,7 +94,7 @@ function RouterContent() {
 
   return (
     <>
-      <FremorLoader show={showLoader} />
+      <FremorLoader show={showLoader} isPlain={true} />
       <div style={{ opacity: showLoader ? 0 : 1, transition: 'opacity 0.3s ease' }}>
         <LoadTop />
         <FloatingEnquireWidget />
@@ -90,6 +105,7 @@ function RouterContent() {
           <Route path="/home-yacht" element={<HomeFour />}></Route>
           <Route path="/about" element={<About />}></Route>
           <Route path="/destination" element={<Destination />}></Route>
+          <Route path="/destination/domestic" element={<Destination category="Domestic" />} />
           <Route path="/destination/inbound" element={<Destination category="Inbound" />} />
           <Route path="/destination/outbound" element={<Destination category="Outbound" />} />
           <Route path="/destination/:id" element={<DestinationDetails />} />
@@ -137,6 +153,7 @@ function RouterContent() {
           <Route path="/admin/team" element={<AdminProtectedRoute><TeamAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/visas" element={<AdminProtectedRoute><VisaAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/visa-enquiries" element={<AdminProtectedRoute><VisaEnquiriesAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/package-enquiries" element={<AdminProtectedRoute><PackageEnquiriesAdmin /></AdminProtectedRoute>} />
           
           <Route path="/team/login" element={<TeamLogin />} />
           <Route path="/team/dashboard" element={<TeamProtectedRoute><TeamDashboard /></TeamProtectedRoute>} />
@@ -150,6 +167,7 @@ function RouterContent() {
           <Route path="/team/customer-video-reviews" element={<TeamProtectedRoute><CustomerReviewsAdmin /></TeamProtectedRoute>} />
           <Route path="/team/visas" element={<TeamProtectedRoute><VisaAdmin /></TeamProtectedRoute>} />
           <Route path="/team/visa-enquiries" element={<TeamProtectedRoute><VisaEnquiriesAdmin /></TeamProtectedRoute>} />
+          <Route path="/team/package-enquiries" element={<TeamProtectedRoute><PackageEnquiriesAdmin /></TeamProtectedRoute>} />
           
           <Route path="/terms" element={<Terms />} />
         </Routes>

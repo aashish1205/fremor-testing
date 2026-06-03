@@ -394,7 +394,7 @@ function BannerOne() {
             </div>
 
             {/* Overlapping Section */}
-            <div className="overlap-wrapper">
+            {/*<div className="overlap-wrapper">
                 <div className="search-bar-wrapper">
                     <i className="fa-regular fa-magnifying-glass"></i>
                     <input type="text" placeholder="Search countries, cities" />
@@ -416,10 +416,10 @@ function BannerOne() {
                         ))}
                     </div>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Marquee */}
-            <div className="marquee-container">
+           {/*} <div className="marquee-container">
                 <div className="marquee-content">
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
@@ -429,16 +429,16 @@ function BannerOne() {
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
-                    {/* Duplicate for seamless looping */}
+                    
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
                     <span>#StartTheTripFromHome</span>
                 </div>
-            </div>
+            </div> */}
 
             {/* Mobile Plan with Trippie Floating Button (visible on all screens but matches the mobile design) */}
-            <div className="fab-trippie">
+           {/* <div className="fab-trippie">
                 <div style={{
                     width: '30px',
                     height: '30px',
@@ -453,7 +453,7 @@ function BannerOne() {
                     <i className="fa-solid fa-play"></i>
                 </div>
                 Plan with Fremor
-            </div>
+            </div>*/}
         </div>
     );
 }

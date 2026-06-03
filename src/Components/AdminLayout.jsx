@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAdminSearch } from './AdminSearchContext';
 import './AdminLayout.css';
 
 const AdminLayout = ({ children, email }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
+    useEffect(() => {
+        // Reset search term whenever user navigates between dashboard sections
+        setGlobalSearchTerm('');
+    }, [location.pathname, setGlobalSearchTerm]);
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
@@ -133,6 +140,14 @@ const AdminLayout = ({ children, email }) => {
                         Visa Enquiries
                     </NavLink>
 
+                    <NavLink 
+                        to="/admin/package-enquiries" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-rectangle-list"></i>
+                        Package Enquiries
+                    </NavLink>
+
                     
 
                     <NavLink 
@@ -193,7 +208,12 @@ const AdminLayout = ({ children, email }) => {
                 <header className="admin-header">
                     <div className="admin-header-search">
                         <i className="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" placeholder="Search across dashboard..." />
+                        <input 
+                            type="text" 
+                            placeholder="Search across dashboard..." 
+                            value={globalSearchTerm}
+                            onChange={(e) => setGlobalSearchTerm(e.target.value)}
+                        />
                     </div>
 
                     <div className="admin-header-right">

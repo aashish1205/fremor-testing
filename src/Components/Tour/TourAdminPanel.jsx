@@ -9,6 +9,7 @@ import {
     getTourImageSrc 
 } from '../../services/tourService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
@@ -45,6 +46,8 @@ function TourAdminPanel() {
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     // DataTable hook
     const { 
         searchTerm, 
@@ -54,7 +57,7 @@ function TourAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(tours, ['title', 'price']);
+    } = useDataTable(tours, ['title', 'price'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         loadTours();
@@ -293,7 +296,7 @@ function TourAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h2 className="m-0">Manage Advanced Tours</h2>
                 <div className="d-flex gap-3 align-items-center">
                     <div className="position-relative">

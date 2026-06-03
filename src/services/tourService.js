@@ -2,27 +2,41 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'destinationdetails_images';
 
+const CACHE_KEY = 'fremor_tours_cache';
+
 // ─── FETCH ALL TOURS ──────────────────────────────────────────────────
 export async function fetchTours() {
-    const { data, error } = await supabase
-        .from('tours')
-        .select('*')
-        .order('created_at', { ascending: false });
+    let allTours = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            allTours = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
+    }
 
-    if (error) throw error;
-    return data;
+    if (!allTours) {
+        const { data, error } = await supabase
+            .from('tours')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allTours = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(allTours));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+    return allTours;
 }
 
 // ─── FETCH SINGLE TOUR BY ID ──────────────────────────────────────────
 export async function fetchTourById(id) {
-    const { data, error } = await supabase
-        .from('tours')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) throw error;
-    return data;
+    const tours = await fetchTours();
+    return tours.find(t => String(t.id) === String(id)) || null;
 }
 
 // ─── SEARCH TOURS BY TITLE ────────────────────────────────────────────
@@ -46,6 +60,11 @@ export async function createTour(tourData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -59,6 +78,11 @@ export async function updateTour(id, tourData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -70,6 +94,11 @@ export async function deleteTour(id) {
         .eq('id', id);
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return true;
 }
 
@@ -81,7 +110,7 @@ export async function uploadTourImage(file, folder = 'tours') {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    fetchVisaEnquiries, 
-    updateVisaEnquiryStatus, 
-    deleteVisaEnquiry 
-} from '../../services/visaService';
+    fetchPackageEnquiries, 
+    updatePackageEnquiryStatus, 
+    deletePackageEnquiry 
+} from '../../services/destinationService';
 import { useDataTable } from '../../hooks/useDataTable';
 import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 
-export default function VisaEnquiriesAdminPanel() {
+export default function PackageEnquiriesAdminPanel() {
     const [enquiries, setEnquiries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -26,7 +26,13 @@ export default function VisaEnquiriesAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(enquiries, ['name', 'email', 'phone', 'country', 'message', 'status'], 10, globalSearchTerm, setGlobalSearchTerm);
+    } = useDataTable(
+        enquiries, 
+        ['full_name', 'email_address', 'contact_number', 'destination_title', 'departure_city', 'city_of_residence', 'status'], 
+        10, 
+        globalSearchTerm, 
+        setGlobalSearchTerm
+    );
 
     useEffect(() => {
         loadEnquiries();
@@ -40,10 +46,10 @@ export default function VisaEnquiriesAdminPanel() {
     const loadEnquiries = async () => {
         try {
             setLoading(true);
-            const data = await fetchVisaEnquiries();
+            const data = await fetchPackageEnquiries();
             setEnquiries(data || []);
         } catch (err) {
-            console.error('Failed to load visa enquiries:', err);
+            console.error('Failed to load package enquiries:', err);
             setError('Failed to load enquiries from database.');
         } finally {
             setLoading(false);
@@ -52,7 +58,7 @@ export default function VisaEnquiriesAdminPanel() {
 
     const handleStatusChange = async (id, newStatus) => {
         try {
-            await updateVisaEnquiryStatus(id, newStatus);
+            await updatePackageEnquiryStatus(id, newStatus);
             showToast(`Status updated to "${newStatus}"`);
             
             // Update local state
@@ -72,7 +78,7 @@ export default function VisaEnquiriesAdminPanel() {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this enquiry? This action cannot be undone.')) return;
         try {
-            await deleteVisaEnquiry(id);
+            await deletePackageEnquiry(id);
             showToast('Enquiry deleted successfully!');
             setEnquiries(prev => prev.filter(item => item.id !== id));
             if (selectedEnquiry && selectedEnquiry.id === id) {
@@ -86,7 +92,7 @@ export default function VisaEnquiriesAdminPanel() {
 
     // Calculate metrics
     const totalCount = enquiries.length;
-    const pendingCount = enquiries.filter(e => e.status === 'Pending').length;
+    const pendingCount = enquiries.filter(e => e.status === 'Pending' || !e.status).length;
     const inProgressCount = enquiries.filter(e => e.status === 'In Progress').length;
     const completedCount = enquiries.filter(e => e.status === 'Completed').length;
 
@@ -140,9 +146,9 @@ export default function VisaEnquiriesAdminPanel() {
             <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
                     <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#0f172a', margin: '0 0 0.25rem 0' }}>
-                        Visa Enquiries
+                        Package Enquiries
                     </h2>
-                    <p style={{ color: '#64748b', margin: 0 }}>Review, search, and manage quick visa callback enquiries from users.</p>
+                    <p style={{ color: '#64748b', margin: 0 }}>Review, search, and manage custom tour package enquiries filled out by travellers.</p>
                 </div>
                 <div className="d-flex gap-3 align-items-center">
                     <div className="position-relative">
@@ -188,20 +194,21 @@ export default function VisaEnquiriesAdminPanel() {
                 {loading ? (
                     <div className="text-center py-5">
                         <i className="fa-solid fa-spinner fa-spin fa-2x text-primary mb-3"></i>
-                        <p>Loading enquiries...</p>
+                        <p>Loading package enquiries...</p>
                     </div>
                 ) : error ? (
                     <div className="alert alert-danger">{error}</div>
                 ) : enquiries.length === 0 ? (
-                    <div className="text-center py-5 text-muted">No visa enquiries found in the database.</div>
+                    <div className="text-center py-5 text-muted">No package enquiries found in the database.</div>
                 ) : (
                     <div className="table-responsive">
                         <table className="table table-hover align-middle" style={{ minWidth: '1000px' }}>
                             <thead>
                                 <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
                                     <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>CUSTOMER</th>
-                                    <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>VISA COUNTRY</th>
-                                    <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>TRAVEL DETAILS</th>
+                                    <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>TOUR PACKAGE</th>
+                                    <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>TRAVEL SCHEDULE</th>
+                                    <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>TIER & GUESTS</th>
                                     <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none' }}>SUBMITTED ON</th>
                                     <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none', textAlign: 'center' }}>STATUS</th>
                                     <th style={{ color: '#64748b', fontWeight: '600', fontSize: '0.85rem', padding: '1rem 0.5rem', border: 'none', textAlign: 'right' }}>ACTIONS</th>
@@ -210,41 +217,74 @@ export default function VisaEnquiriesAdminPanel() {
                             <tbody>
                                 {paginatedData.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="text-center py-4 text-muted">
+                                        <td colSpan="7" className="text-center py-4 text-muted">
                                             {searchTerm ? 'No enquiries found matching your search.' : 'No enquiries found.'}
                                         </td>
                                     </tr>
                                 ) : (
                                     paginatedData.map(e => (
                                         <tr key={e.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            {/* Customer name and phone/email */}
+                                            {/* Customer contact info */}
                                             <td style={{ padding: '1rem 0.5rem', border: 'none' }}>
                                                 <div>
-                                                    <div style={{ fontWeight: '600', color: '#0f172a' }}>{e.name}</div>
+                                                    <div style={{ fontWeight: '600', color: '#0f172a' }}>{e.full_name}</div>
                                                     <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
-                                                        <i className="fa-regular fa-envelope me-1"></i>{e.email}
+                                                        <i className="fa-regular fa-envelope me-1"></i>{e.email_address}
                                                     </div>
                                                     <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
-                                                        <i className="fa-solid fa-phone me-1"></i>{e.phone}
+                                                        <i className="fa-solid fa-phone me-1"></i>{e.contact_number || 'N/A'}
                                                     </div>
+                                                    {e.city_of_residence && (
+                                                        <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                                                            <i className="fa-solid fa-house-chimney me-1"></i>{e.city_of_residence}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
 
-                                            {/* Country */}
+                                            {/* Tour Package Title */}
                                             <td style={{ padding: '1rem 0.5rem', border: 'none' }}>
-                                                <div style={{ fontWeight: '600', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <i className="fa-solid fa-passport text-primary"></i>
-                                                    {e.country}
+                                                <div style={{ fontWeight: '600', color: '#0d496e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <i className="fa-solid fa-map-location-dot text-primary"></i>
+                                                    {e.destination_title}
                                                 </div>
                                             </td>
 
-                                            {/* Travel details */}
+                                            {/* Travel schedule */}
                                             <td style={{ padding: '1rem 0.5rem', border: 'none' }}>
-                                                <div style={{ fontSize: '0.9rem', color: '#334155' }}>
-                                                    <strong>Date:</strong> {formatDate(e.travel_date)}
+                                                <div style={{ fontSize: '0.88rem', color: '#334155' }}>
+                                                    <strong>From:</strong> {e.departure_city || 'N/A'}
                                                 </div>
                                                 <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
-                                                    <strong>Travellers:</strong> {e.travellers} {e.travellers === 1 ? 'Adult' : 'Adults'}
+                                                    <i className="fa-regular fa-calendar me-1"></i>
+                                                    {formatDate(e.travel_start_date)} - {formatDate(e.travel_end_date)}
+                                                </div>
+                                            </td>
+
+                                            {/* Guests and Tier */}
+                                            <td style={{ padding: '1rem 0.5rem', border: 'none' }}>
+                                                <span 
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        padding: '0.25em 0.6em',
+                                                        fontSize: '75%',
+                                                        fontWeight: '700',
+                                                        lineHeight: '1',
+                                                        textAlign: 'center',
+                                                        whiteSpace: 'nowrap',
+                                                        verticalAlign: 'baseline',
+                                                        borderRadius: '0.25rem',
+                                                        textTransform: 'capitalize',
+                                                        marginBottom: '0.25rem',
+                                                        backgroundColor: (e.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fffbeb' : (e.package_tier || 'standard').toLowerCase() === 'premium' ? '#eff6ff' : '#f1f5f9',
+                                                        color: (e.package_tier || 'standard').toLowerCase() === 'luxury' ? '#b45309' : (e.package_tier || 'standard').toLowerCase() === 'premium' ? '#1d4ed8' : '#475569',
+                                                        border: `1px solid ${(e.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fde68a' : (e.package_tier || 'standard').toLowerCase() === 'premium' ? '#bfdbfe' : '#cbd5e1'}`
+                                                    }}
+                                                >
+                                                    {e.package_tier || 'Standard'}
+                                                </span>
+                                                <div style={{ fontSize: '0.82rem', color: '#475569' }}>
+                                                    <strong>Adults:</strong> {e.no_of_adults || 1} • <strong>Kids:</strong> {e.no_of_children || 0}
                                                 </div>
                                             </td>
 
@@ -336,7 +376,7 @@ export default function VisaEnquiriesAdminPanel() {
                     <div style={{
                         background: 'white',
                         width: '100%',
-                        maxWidth: '550px',
+                        maxWidth: '600px',
                         borderRadius: '16px',
                         overflow: 'hidden',
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
@@ -345,7 +385,7 @@ export default function VisaEnquiriesAdminPanel() {
                         {/* Header */}
                         <div style={{ background: '#f8fafc', padding: '1.25rem 1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '700', color: '#0f172a' }}>
-                                Enquiry Details
+                                Tour Package Enquiry Details
                             </h3>
                             <button 
                                 onClick={() => setSelectedEnquiry(null)}
@@ -358,27 +398,60 @@ export default function VisaEnquiriesAdminPanel() {
                         </div>
 
                         {/* Body */}
-                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            {/* Customer profile */}
+                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', maxHeight: '75vh', overflowY: 'auto' }}>
+                            {/* Customer Profile info */}
                             <div>
-                                <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Customer Details</div>
+                                <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Customer Profile</div>
                                 <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                                    <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '1rem' }}>{selectedEnquiry.name}</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}><i className="fa-regular fa-envelope me-2 text-primary"></i>{selectedEnquiry.email}</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}><i className="fa-solid fa-phone me-2 text-primary"></i>{selectedEnquiry.phone}</div>
+                                    <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '1rem' }}>{selectedEnquiry.full_name}</div>
+                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                                        <i className="fa-regular fa-envelope me-2 text-primary" style={{ width: '16px' }}></i>{selectedEnquiry.email_address}
+                                    </div>
+                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                                        <i className="fa-solid fa-phone me-2 text-primary" style={{ width: '16px' }}></i>{selectedEnquiry.contact_number || 'Not provided'}
+                                    </div>
+                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                                        <i className="fa-solid fa-house-chimney me-2 text-primary" style={{ width: '16px' }}></i><strong>Resident City:</strong> {selectedEnquiry.city_of_residence || 'Not provided'}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Visa Process & Travel details */}
+                            {/* Tour Package & Status info */}
                             <div className="row g-3">
-                                <div className="col-6">
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destination</div>
-                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: '600', color: '#0f172a' }}>
-                                        <i className="fa-solid fa-passport me-2 text-primary"></i>{selectedEnquiry.country}
+                                <div className="col-12">
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Selected Tour Package</div>
+                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: '600', color: '#0d496e' }}>
+                                        <i className="fa-solid fa-map-location-dot me-2 text-primary"></i>{selectedEnquiry.destination_title}
                                     </div>
                                 </div>
+                                
                                 <div className="col-6">
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Status</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Package Tier</div>
+                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155', fontWeight: '600', textTransform: 'capitalize' }}>
+                                        <span 
+                                            style={{
+                                                display: 'inline-block',
+                                                padding: '0.35em 0.65em',
+                                                fontSize: '75%',
+                                                fontWeight: '700',
+                                                lineHeight: '1',
+                                                textAlign: 'center',
+                                                whiteSpace: 'nowrap',
+                                                verticalAlign: 'baseline',
+                                                borderRadius: '0.25rem',
+                                                textTransform: 'capitalize',
+                                                backgroundColor: (selectedEnquiry.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fffbeb' : (selectedEnquiry.package_tier || 'standard').toLowerCase() === 'premium' ? '#eff6ff' : '#f1f5f9',
+                                                color: (selectedEnquiry.package_tier || 'standard').toLowerCase() === 'luxury' ? '#b45309' : (selectedEnquiry.package_tier || 'standard').toLowerCase() === 'premium' ? '#1d4ed8' : '#475569',
+                                                border: `1px solid ${(selectedEnquiry.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fde68a' : (selectedEnquiry.package_tier || 'standard').toLowerCase() === 'premium' ? '#bfdbfe' : '#cbd5e1'}`
+                                            }}
+                                        >
+                                            {selectedEnquiry.package_tier || 'Standard'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="col-6">
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Update Status</div>
                                     <div>
                                         <select
                                             value={selectedEnquiry.status || 'Pending'}
@@ -410,35 +483,49 @@ export default function VisaEnquiriesAdminPanel() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="col-6">
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Travel Date</div>
-                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
-                                        <i className="fa-regular fa-calendar me-2 text-primary"></i>{formatDate(selectedEnquiry.travel_date)}
+                            </div>
+
+                            {/* Departure & Travel Dates */}
+                            <div className="row g-3">
+                                <div className="col-4">
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Departure City</div>
+                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155', fontWeight: '600' }}>
+                                        <i className="fa-solid fa-plane-departure me-2 text-primary"></i>{selectedEnquiry.departure_city || 'N/A'}
                                     </div>
                                 </div>
-                                <div className="col-6">
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Travellers</div>
+                                <div className="col-4">
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Start Date</div>
                                     <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
-                                        <i className="fa-solid fa-users me-2 text-primary"></i>{selectedEnquiry.travellers} {selectedEnquiry.travellers === 1 ? 'Adult' : 'Adults'}
+                                        <i className="fa-regular fa-calendar me-2 text-primary"></i>{formatDate(selectedEnquiry.travel_start_date)}
+                                    </div>
+                                </div>
+                                <div className="col-4">
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>End Date</div>
+                                    <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
+                                        <i className="fa-regular fa-calendar me-2 text-primary"></i>{formatDate(selectedEnquiry.travel_end_date)}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Message */}
+                            {/* Passengers info */}
                             <div>
-                                <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Message</div>
-                                <div style={{ 
-                                    background: '#f8fafc', 
-                                    padding: '1rem', 
-                                    borderRadius: '10px', 
-                                    color: '#334155', 
-                                    fontSize: '0.92rem', 
-                                    lineHeight: '1.6',
-                                    whiteSpace: 'pre-line',
-                                    maxHeight: '180px',
-                                    overflowY: 'auto'
-                                }}>
-                                    {selectedEnquiry.message || <em className="text-muted">No additional message provided.</em>}
+                                <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Passenger Configuration</div>
+                                <div className="row g-3">
+                                    <div className="col-4">
+                                        <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
+                                            <strong>Adults:</strong> {selectedEnquiry.no_of_adults || 1}
+                                        </div>
+                                    </div>
+                                    <div className="col-4">
+                                        <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
+                                            <strong>Children:</strong> {selectedEnquiry.no_of_children || 0}
+                                        </div>
+                                    </div>
+                                    <div className="col-4">
+                                        <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', color: '#334155' }}>
+                                            <strong>Kids Ages:</strong> {selectedEnquiry.children_age || 'N/A'}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

@@ -11,6 +11,7 @@ import {
     getImageSrc 
 } from '../../services/destinationService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import './AdminStyles.css';
 
@@ -33,29 +34,47 @@ function DestinationAdminPanel() {
         duration: '7 Days',
         location: '',
         rating: 4.8,
+        rating_count: 0,
+        original_price: '',
+        badge_text: 'Recommended',
+        is_recommended: false,
+        loyalty_points: 0,
+        inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
+        inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+        itinerary_summary: '',
+        itinerary_route: '',
+        tour_type: 'Group Tour',
+        terms_conditions: '',
         image: '',
         gallery_images: [],
         description_1: '',
         description_2: '',
         highlights_text: '',
         highlights_list: [''], // Array of strings (Legacy)
-        rich_highlights: [{ title: '', description: '', image: '' }], // Array of objects
+        rich_highlights: [{ title: '', description: '' }], // Array of objects
         basic_info_text: '',
         included_list: [''], // Array of strings
         excluded_list: [''], // Array of strings
-        itinerary: [{ day: "Day 01", activities: [''], image: '' }], // Array of objects
+        itinerary: [{ day: "Day 01", title: '', description: '', image: '' }], // Array of objects
         brochure_url: '',
         category: 'Inbound',
         package_type: 'Standard',
+        accommodation_type: '3 Star',
         nights: 0,
         days: 0
     });
+
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
-    const [brochureFile, setBrochureFile] = useState(null);
+    const [galleryImageFiles, setGalleryImageFiles] = useState([]);
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
+    // Filter state for accommodation type
+    const [filterAccommodation, setFilterAccommodation] = useState('All');
 
     // DataTable hook
     const { 
@@ -66,7 +85,13 @@ function DestinationAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(destinations, ['title', 'location', 'price']);
+    } = useDataTable(
+        destinations.filter(d => filterAccommodation === 'All' || (d.accommodation_type || '3 Star') === filterAccommodation), 
+        ['title', 'location', 'price'], 
+        10, 
+        globalSearchTerm, 
+        setGlobalSearchTerm
+    );
 
     useEffect(() => {
         loadDestinations();
@@ -101,20 +126,37 @@ function DestinationAdminPanel() {
                 duration: dest.duration || '7 Days',
                 location: dest.location || '',
                 rating: dest.rating || 4.8,
+                rating_count: dest.rating_count || 0,
+                original_price: dest.original_price || '',
+                badge_text: dest.badge_text || 'Recommended',
+                is_recommended: dest.is_recommended || false,
+                loyalty_points: dest.loyalty_points || 0,
+                inclusions: dest.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
+                inclusions_details: dest.inclusions_details || { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+                itinerary_summary: dest.itinerary_summary || '',
+                itinerary_route: dest.itinerary_route || '',
+                tour_type: dest.tour_type || 'Group Tour',
+                terms_conditions: dest.terms_conditions || '',
                 image: dest.image || '',
                 gallery_images: dest.gallery_images || [],
                 description_1: dest.description_1 || '',
                 description_2: dest.description_2 || '',
                 highlights_text: dest.highlights_text || '',
                 highlights_list: dest.highlights_list?.length ? dest.highlights_list : [''],
-                rich_highlights: dest.rich_highlights?.length ? dest.rich_highlights : [{ title: '', description: '', image: '' }],
+                rich_highlights: dest.rich_highlights?.length ? dest.rich_highlights.map(hl => ({ title: hl.title || '', description: hl.description || '' })) : [{ title: '', description: '' }],
                 basic_info_text: dest.basic_info_text || '',
                 included_list: dest.included_list?.length ? dest.included_list : [''],
                 excluded_list: dest.excluded_list?.length ? dest.excluded_list : [''],
-                itinerary: dest.itinerary?.length ? dest.itinerary : [{ day: "Day 01", activities: [''], image: '' }],
+                itinerary: dest.itinerary?.length ? dest.itinerary.map(item => ({
+                    day: item.day || '',
+                    title: item.title || (item.activities?.[0] || ''),
+                    description: item.description || (item.activities?.slice(1).join('\n') || item.activities?.join('\n') || ''),
+                    image: item.image || ''
+                })) : [{ day: "Day 01", title: '', description: '', image: '' }],
                 brochure_url: dest.brochure_url || '',
                 category: dest.category || 'Inbound',
                 package_type: dest.package_type || 'Standard',
+                accommodation_type: dest.accommodation_type || '3 Star',
                 nights: dest.nights || 0,
                 days: dest.days || 0
             });
@@ -127,26 +169,38 @@ function DestinationAdminPanel() {
                 duration: '7 Days',
                 location: '',
                 rating: 4.8,
+                rating_count: 0,
+                original_price: '',
+                badge_text: 'Recommended',
+                is_recommended: false,
+                loyalty_points: 0,
+                inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
+                inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+                itinerary_summary: '',
+                itinerary_route: '',
+                tour_type: 'Group Tour',
+                terms_conditions: '',
                 image: '',
                 gallery_images: [],
                 description_1: '',
                 description_2: '',
                 highlights_text: '',
                 highlights_list: [''],
-                rich_highlights: [{ title: '', description: '', image: '' }],
+                rich_highlights: [{ title: '', description: '' }],
                 basic_info_text: '',
                 included_list: [''],
                 excluded_list: [''],
-                itinerary: [{ day: "Day 01", activities: [''], image: '' }],
+                itinerary: [{ day: "Day 01", title: '', description: '', image: '' }],
                 brochure_url: '',
                 category: 'Inbound',
                 package_type: 'Standard',
+                accommodation_type: '3 Star',
                 nights: 0,
                 days: 0
             });
         }
         setPrimaryImageFile(null);
-        setBrochureFile(null);
+        setGalleryImageFiles([]);
         setIsModalOpen(true);
     };
 
@@ -185,14 +239,14 @@ function DestinationAdminPanel() {
     const addHighlight = () => {
         setFormData(prev => ({ 
             ...prev, 
-            rich_highlights: [...prev.rich_highlights, { title: '', description: '', image: '' }]  
+            rich_highlights: [...prev.rich_highlights, { title: '', description: '' }]  
         }));
     };
 
     const removeHighlight = (index) => {
         const newHighlights = [...formData.rich_highlights];
         newHighlights.splice(index, 1);
-        if (newHighlights.length === 0) newHighlights.push({ title: '', description: '', image: '' });
+        if (newHighlights.length === 0) newHighlights.push({ title: '', description: '' });
         setFormData(prev => ({ ...prev, rich_highlights: newHighlights }));
     };
 
@@ -203,47 +257,40 @@ function DestinationAdminPanel() {
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
-    const handleItineraryActivityChange = (dayIndex, actIndex, value) => {
-        const newItinerary = [...formData.itinerary];
-        newItinerary[dayIndex].activities[actIndex] = value;
-        setFormData(prev => ({ ...prev, itinerary: newItinerary }));
-    };
-
     const addItineraryDay = () => {
         const dayCount = formData.itinerary.length + 1;
         const newDayName = `Day ${dayCount.toString().padStart(2, '0')}`;
         setFormData(prev => ({ 
             ...prev, 
-            itinerary: [...prev.itinerary, { day: newDayName, activities: [''], image: '' }]  
+            itinerary: [...prev.itinerary, { day: newDayName, title: '', description: '', image: '' }]  
         }));
     };
 
     const removeItineraryDay = (dayIndex) => {
         const newItinerary = [...formData.itinerary];
         newItinerary.splice(dayIndex, 1);
-        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", activities: [''], image: '' });
-        setFormData(prev => ({ ...prev, itinerary: newItinerary }));
-    };
-
-    const addItineraryActivity = (dayIndex) => {
-        const newItinerary = [...formData.itinerary];
-        newItinerary[dayIndex].activities.push('');
-        setFormData(prev => ({ ...prev, itinerary: newItinerary }));
-    };
-
-    const removeItineraryActivity = (dayIndex, actIndex) => {
-        const newItinerary = [...formData.itinerary];
-        newItinerary[dayIndex].activities.splice(actIndex, 1);
-        if (newItinerary[dayIndex].activities.length === 0) newItinerary[dayIndex].activities.push('');
+        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", title: '', description: '', image: '' });
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
 
+
+    const handleRemoveExistingGalleryImage = (indexToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            gallery_images: prev.gallery_images.filter((_, idx) => idx !== indexToRemove)
+        }));
+    };
+
+    const handleRemovePendingGalleryFile = (indexToRemove) => {
+        setGalleryImageFiles(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             setIsSubmitting(true);
+            const cleanArray = arr => arr ? arr.filter(item => typeof item === 'string' && item.trim() !== '') : [];
             let finalImage = formData.image;
             let currentGallery = formData.gallery_images || [];
 
@@ -254,10 +301,17 @@ function DestinationAdminPanel() {
                 }
             }
 
+            // Handle gallery images upload
+            const newGalleryUrls = [];
+            for (let file of galleryImageFiles) {
+                const url = await uploadImage(file, 'destination');
+                newGalleryUrls.push(url);
+            }
+            const finalGallery = [...currentGallery, ...newGalleryUrls];
+
             let numericPrice = parseFloat(formData.price.toString().replace(/[^0-9.]/g, ''));
             let numericRating = parseFloat(formData.rating) || 4.8;
 
-            const cleanArray = arr => arr.filter(item => item.trim() !== '');
             const cleanItinerary = [];
             for (let day of formData.itinerary) {
                 if (day.day.trim() !== '') {
@@ -267,7 +321,8 @@ function DestinationAdminPanel() {
                     }
                     cleanItinerary.push({
                         day: day.day,
-                        activities: cleanArray(day.activities),
+                        title: day.title || '',
+                        description: day.description || '',
                         image: finalDayImage
                     });
                 }
@@ -276,14 +331,9 @@ function DestinationAdminPanel() {
             const cleanHighlights = [];
             for (let hl of formData.rich_highlights) {
                 if (hl.title.trim() !== '' || hl.description.trim() !== '') {
-                    let finalHlImage = hl.image || '';
-                    if (hl.pendingImageFile) {
-                        finalHlImage = await uploadImage(hl.pendingImageFile, 'destination');
-                    }
                     cleanHighlights.push({
                         title: hl.title,
-                        description: hl.description,
-                        image: finalHlImage
+                        description: hl.description
                     });
                 }
             }
@@ -295,8 +345,19 @@ function DestinationAdminPanel() {
                 duration: formData.duration,
                 location: formData.location,
                 rating: numericRating,
+                rating_count: parseInt(formData.rating_count) || 0,
+                original_price: parseFloat(formData.original_price) || 0,
+                badge_text: formData.badge_text || 'Recommended',
+                is_recommended: !!formData.is_recommended,
+                loyalty_points: parseInt(formData.loyalty_points) || 0,
+                inclusions: formData.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
+                inclusions_details: formData.inclusions_details || {},
+                itinerary_summary: formData.itinerary_summary || '',
+                itinerary_route: formData.itinerary_route || '',
+                tour_type: formData.tour_type || 'Group Tour',
+                terms_conditions: formData.terms_conditions || '',
                 image: finalImage,
-                gallery_images: currentGallery,
+                gallery_images: finalGallery,
                 description_1: formData.description_1,
                 description_2: formData.description_2,
                 highlights_text: formData.highlights_text,
@@ -309,18 +370,12 @@ function DestinationAdminPanel() {
                 brochure_url: formData.brochure_url,
                 category: formData.category,
                 package_type: formData.package_type,
+                accommodation_type: formData.accommodation_type || '3 Star',
                 nights: parseInt(formData.nights) || 0,
                 days: parseInt(formData.days) || 0
             };
 
-            // Handle brochure file upload
-            if (brochureFile) {
-                const brochureUrl = await uploadBrochure(brochureFile);
-                if (modalMode === 'edit' && formData.brochure_url) {
-                    await deleteBrochure(formData.brochure_url);
-                }
-                dataToSave.brochure_url = brochureUrl;
-            }
+            // Dynamic brochure PDF is now generated automatically on client side, no upload needed
 
             if (modalMode === 'add') {
                 await createDestination(dataToSave);
@@ -334,7 +389,8 @@ function DestinationAdminPanel() {
             loadDestinations();
         } catch (err) {
             console.error('Submission failed', err);
-            showToast('Failed to save destination.', 'error');
+            const errMsg = err.message || err.details || 'Failed to save destination.';
+            showToast(`Failed to save: ${errMsg}`, 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -385,7 +441,7 @@ function DestinationAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h2 className="m-0">Manage Dynamic Destinations</h2>
                 <div className="d-flex gap-3 align-items-center">
                     <div className="position-relative">
@@ -396,9 +452,21 @@ function DestinationAdminPanel() {
                             value={searchTerm}
                             onChange={handleSearch}
                             className="form-control ps-5"
-                            style={{ minWidth: '250px', borderRadius: '8px' }}
+                            style={{ width: '200px', borderRadius: '8px' }}
                         />
                     </div>
+                    <select
+                        value={filterAccommodation}
+                        onChange={(e) => setFilterAccommodation(e.target.value)}
+                        className="form-select border-secondary-subtle"
+                        style={{ width: '140px', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer' }}
+                    >
+                        <option value="All">All Hotels</option>
+                        <option value="2 Star">2 Star</option>
+                        <option value="3 Star">3 Star</option>
+                        <option value="4 Star">4 Star</option>
+                        <option value="5 Star">5 Star</option>
+                    </select>
                     <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
                         <i className="fa-solid fa-plus me-2"></i> Add Destination
                     </button>
@@ -420,6 +488,7 @@ function DestinationAdminPanel() {
                                 <th>Title</th>
                                 <th>Category</th>
                                 <th>Type</th>
+                                <th>Accommodation</th>
                                 <th>Location</th>
                                 <th>Price</th>
                                 <th>Actions</th>
@@ -442,13 +511,18 @@ function DestinationAdminPanel() {
                                         </td>
                                         <td><strong>{dest.title}</strong></td>
                                         <td>
-                                            <span style={{ fontWeight: '600', color: dest.category === 'Outbound' ? '#0d6efd' : '#198754' }}>
-                                                {dest.category || 'Inbound'}
+                                            <span style={{ fontWeight: '600', color: dest.category === 'Outbound' ? '#0d6efd' : dest.category === 'Domestic' ? '#fd7e14' : '#198754' }}>
+                                                {dest.category === 'Outbound' ? 'Global' : (dest.category || 'Inbound')}
                                             </span>
                                         </td>
                                         <td>
                                             <span className={`badge ${dest.package_type === 'Luxury' ? 'bg-warning text-dark' : dest.package_type === 'Premium' ? 'bg-info text-dark' : 'bg-secondary'}`}>
                                                 {dest.package_type || 'Standard'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className="badge bg-dark" style={{ fontSize: '11px' }}>
+                                                {dest.accommodation_type || '3 Star'}
                                             </span>
                                         </td>
                                         <td>{dest.location || '-'}</td>
@@ -494,18 +568,23 @@ function DestinationAdminPanel() {
                                     <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="form-control" required />
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <label>Location *</label>
+                                    <label>Location * (City/State/Country)</label>
                                     <input type="text" name="location" value={formData.location} onChange={handleInputChange} className="form-control" required />
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <label>Price * (Numeric)</label>
+                                    <label>Selling Price * (Numeric)</label>
                                     <input type="number" step="0.01" name="price" value={formData.price} onChange={handleInputChange} className="form-control" required />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Original Price (Strike-through, optional)</label>
+                                    <input type="number" step="0.01" name="original_price" value={formData.original_price} onChange={handleInputChange} className="form-control" />
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <label>Tour Category *</label>
                                     <select name="category" value={formData.category} onChange={handleInputChange} className="form-control" required>
+                                        <option value="Outbound">Global</option>
                                         <option value="Inbound">Inbound (India)</option>
-                                        <option value="Outbound">Outbound (International)</option>
+                                        <option value="Domestic">Domestic</option>
                                     </select>
                                 </div>
                                 <div className="col-md-6 mb-3">
@@ -514,6 +593,15 @@ function DestinationAdminPanel() {
                                         <option value="Standard">Standard Package</option>
                                         <option value="Premium">Premium Package</option>
                                         <option value="Luxury">Luxury Package</option>
+                                    </select>
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Accommodation Type *</label>
+                                    <select name="accommodation_type" value={formData.accommodation_type} onChange={handleInputChange} className="form-control" required>
+                                        <option value="2 Star">2 Star Hotel</option>
+                                        <option value="3 Star">3 Star Hotel</option>
+                                        <option value="4 Star">4 Star Hotel</option>
+                                        <option value="5 Star">5 Star Hotel</option>
                                     </select>
                                 </div>
                                 <div className="col-md-6 mb-3">
@@ -532,19 +620,218 @@ function DestinationAdminPanel() {
                                     <label>Days *</label>
                                     <input type="number" min="0" name="days" value={formData.days} onChange={handleInputChange} className="form-control" required />
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-3 mb-3">
                                     <label>Rating</label>
                                     <input type="number" step="0.1" max="5" name="rating" value={formData.rating} onChange={handleInputChange} className="form-control" />
                                 </div>
+                                <div className="col-md-3 mb-3">
+                                    <label>Rating Count</label>
+                                    <input type="number" name="rating_count" value={formData.rating_count} onChange={handleInputChange} className="form-control" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Loyalty Points Earned</label>
+                                    <input type="number" name="loyalty_points" value={formData.loyalty_points} onChange={handleInputChange} className="form-control" />
+                                </div>
+                                <div className="col-md-4 mb-3 d-flex align-items-center">
+                                    <div className="form-check pt-4">
+                                        <input 
+                                            type="checkbox" 
+                                            name="is_recommended" 
+                                            id="is_recommended"
+                                            checked={formData.is_recommended} 
+                                            onChange={(e) => setFormData(prev => ({ ...prev, is_recommended: e.target.checked }))} 
+                                            className="form-check-input" 
+                                        />
+                                        <label htmlFor="is_recommended" className="form-check-label fw-bold ms-2">Is Recommended Badge</label>
+                                    </div>
+                                </div>
+                                <div className="col-md-8 mb-3">
+                                    <label>Badge Text</label>
+                                    <input type="text" name="badge_text" value={formData.badge_text} onChange={handleInputChange} className="form-control" disabled={!formData.is_recommended} />
+                                </div>
+                                <div className="col-md-12 mb-3">
+                                    <label>Card Itinerary Summary (e.g. 3N Port Blair • 2N Havelock Island)</label>
+                                    <input type="text" name="itinerary_summary" value={formData.itinerary_summary} onChange={handleInputChange} className="form-control" placeholder="3N Port Blair • 2N Havelock Island" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>{"Details Page Route (e.g. Port Blair (3N) -> Havelock Island (2N))"}</label>
+                                    <input type="text" name="itinerary_route" value={formData.itinerary_route} onChange={handleInputChange} className="form-control" placeholder="Port Blair (3N) -> Havelock Island (2N)" />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label>Gallery Tour Type Badge (e.g. Group Tour, Honeymoon Special)</label>
+                                    <input type="text" name="tour_type" value={formData.tour_type} onChange={handleInputChange} className="form-control" placeholder="Group Tour" />
+                                </div>
+                                <div className="col-md-12 mb-3">
+                                    <label>Terms & Conditions (HTML supported)</label>
+                                    <textarea name="terms_conditions" value={formData.terms_conditions} onChange={handleInputChange} className="form-control" rows="5" placeholder="Custom cancellation, booking policies..."></textarea>
+                                </div>
                             </div>
+
+                            <h5 className="mt-4 text-primary border-bottom pb-2">Hover Card Inclusions</h5>
+                            <div className="row mt-3 mb-4">
+                                <div className="col-md-12">
+                                    <p className="text-muted small">Select the inclusions to show as icons when the card is hovered:</p>
+                                    <div className="d-flex flex-wrap gap-4">
+                                        {['hotel', 'sightseeing', 'meals', 'manager', 'flights', 'transfers', 'trains', 'cruises', 'activities', 'visa', 'highlights'].map((inc) => (
+                                            <div key={inc} className="form-check">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id={`inc-${inc}`}
+                                                    checked={formData.inclusions?.[inc] ?? false} 
+                                                    onChange={(e) => {
+                                                        const val = e.target.checked;
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            inclusions: {
+                                                                ...prev.inclusions,
+                                                                [inc]: val
+                                                            }
+                                                        }));
+                                                    }}
+                                                    className="form-check-input" 
+                                                />
+                                                <label htmlFor={`inc-${inc}`} className="form-check-label text-capitalize ms-2 fw-semibold">
+                                                    {inc === 'flights' ? 'Flights' : 
+                                                     inc === 'transfers' ? 'Transfers/Cabs' : 
+                                                     inc === 'manager' ? 'Tour Manager' : 
+                                                     inc}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 className="mt-4 text-primary border-bottom pb-2">Active Inclusions Details</h5>
+                            <p className="text-muted small">Provide details for the enabled inclusions. If you want to render details as a table (e.g. for hotels), use pipe separation: <code>City | Hotel Name | Stars | Nights</code> on each line.</p>
+                            <div className="row mt-3 mb-4">
+                                {['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'highlights'].map((inc) => {
+                                    const isEnabled = !!formData.inclusions?.[inc];
+                                    if (!isEnabled) return null;
+                                    
+                                    const placeholders = {
+                                        hotel: "e.g.\nPort Blair | S R Castle / Similar | ★★★ | 3 nights\nHavelock Island | Arina Island Resort Bergamont Hotels / Similar | ★★★ | 2 nights",
+                                        meals: "e.g. Daily Buffet Breakfast at all hotels\nCandle Light Dinner on Havelock beach",
+                                        sightseeing: "e.g. Cellular Jail Light & Sound Show\nCoral Safari Semi Submarine Ride\nRadhanagar Beach excursion",
+                                        transfers: "e.g. Airport Pick & Drop via Private AC Cab\nInter-island cruise transfers via Nautika/Makruzz\nPrivate sightseeing transfers",
+                                        manager: "e.g. Tour Guide assistance on spots\n24/7 dedicated local coordinator helpline",
+                                        flights: "e.g. Ex-Kolkata roundtrip economy airfare on Indigo Airlines included",
+                                        trains: "e.g. AC Train tickets booking from Delhi to Jaipur included",
+                                        cruises: "e.g. Cordelia Cruise ocean view cabin stay details",
+                                        activities: "e.g. Snorkeling, scuba diving session, and mountain trekking permits included",
+                                        visa: "e.g. Single entry tourist visa approval fees included",
+                                        highlights: "e.g. Welcome drinks on arrival\nFerry tickets & entry permits\nSnorkeling session complimentary"
+                                    };
+
+                                    return (
+                                        <div key={inc} className="col-md-6 mb-3">
+                                            <label className="text-capitalize fw-bold">
+                                                {inc === 'flights' ? 'Flights' : 
+                                                 inc === 'transfers' ? 'Transfers/Cabs' : 
+                                                 inc === 'manager' ? 'Tour Manager' : 
+                                                 inc} Details
+                                            </label>
+                                            <textarea 
+                                                name={`inclusions_details_${inc}`} 
+                                                value={formData.inclusions_details?.[inc] || ''} 
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        inclusions_details: {
+                                                            ...prev.inclusions_details,
+                                                            [inc]: val
+                                                        }
+                                                    }));
+                                                }} 
+                                                className="form-control" 
+                                                rows="3" 
+                                                placeholder={placeholders[inc]}
+                                            ></textarea>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
                             
                             <div className="form-group mb-4">
-                                <label>Cover Image</label>
+                                <label className="fw-bold text-dark">Cover Image</label>
                                 <input type="file" accept="image/*" onChange={(e) => {
                                     if(e.target.files && e.target.files[0]) setPrimaryImageFile(e.target.files[0])
-                                }} className="form-control" />
+                                }} className="form-control mb-2" />
+                                {primaryImageFile && (
+                                    <div className="mb-2">
+                                        <small className="text-primary d-block mb-1">New Cover Image Preview:</small>
+                                        <img src={URL.createObjectURL(primaryImageFile)} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} alt="New Cover Preview" />
+                                    </div>
+                                )}
                                 {formData.image && !primaryImageFile && (
-                                    <small className="text-muted d-block mt-1">Current: {formData.image.substring(0, 40)}...</small>
+                                    <div className="mb-2">
+                                        <small className="text-muted d-block mb-1">Current Cover Image:</small>
+                                        <img src={getImageSrc(formData.image)} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} alt="Current Cover" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="form-group mb-4 border p-3 rounded bg-light">
+                                <label className="fw-bold text-dark d-block mb-2">Package Gallery Images</label>
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    multiple 
+                                    onChange={(e) => {
+                                        if (e.target.files) {
+                                            const filesArray = Array.from(e.target.files);
+                                            setGalleryImageFiles(prev => [...prev, ...filesArray]);
+                                        }
+                                    }} 
+                                    className="form-control mb-3" 
+                                />
+                                
+                                {/* 1. Existing Gallery Images */}
+                                {formData.gallery_images && formData.gallery_images.length > 0 && (
+                                    <div className="mb-3">
+                                        <small className="text-muted d-block mb-2 fw-semibold">Currently Saved Gallery Photos (${formData.gallery_images.length}):</small>
+                                        <div className="d-flex flex-wrap gap-3">
+                                            {formData.gallery_images.map((imgUrl, idx) => (
+                                                <div key={idx} className="position-relative" style={{ width: '100px', height: '70px' }}>
+                                                    <img src={getImageSrc(imgUrl)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} alt="Gallery Image" />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleRemoveExistingGalleryImage(idx)}
+                                                        className="btn btn-danger p-0 d-flex align-items-center justify-content-center"
+                                                        style={{ position: 'absolute', top: '-5px', right: '-5px', width: '20px', height: '20px', borderRadius: '50%', fontSize: '12px', border: 'none', backgroundColor: '#dc3545', color: 'white' }}
+                                                        title="Remove Image"
+                                                    >
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {/* 2. New Gallery Images Pending Upload */}
+                                {galleryImageFiles.length > 0 && (
+                                    <div>
+                                        <small className="text-primary d-block mb-2 fw-semibold">New Gallery Photos Pending Upload (${galleryImageFiles.length}):</small>
+                                        <div className="d-flex flex-wrap gap-3">
+                                            {galleryImageFiles.map((file, idx) => (
+                                                <div key={idx} className="position-relative" style={{ width: '100px', height: '70px' }}>
+                                                    <img src={URL.createObjectURL(file)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} alt="Pending Gallery Image" />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleRemovePendingGalleryFile(idx)}
+                                                        className="btn btn-danger p-0 d-flex align-items-center justify-content-center"
+                                                        style={{ position: 'absolute', top: '-5px', right: '-5px', width: '20px', height: '20px', borderRadius: '50%', fontSize: '12px', border: 'none', backgroundColor: '#dc3545', color: 'white' }}
+                                                        title="Cancel Upload"
+                                                    >
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
 
@@ -579,24 +866,6 @@ function DestinationAdminPanel() {
                                             Remove Highlight
                                         </button>
                                     </div>
-                                    <div className="mb-2">
-                                        <label className="text-muted small">Highlight Image</label>
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            className="form-control form-control-sm"
-                                            onChange={(e) => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                    const file = e.target.files[0];
-                                                    const newHighlights = [...formData.rich_highlights];
-                                                    newHighlights[hlIndex].pendingImageFile = file;
-                                                    setFormData(prev => ({ ...prev, rich_highlights: newHighlights }));
-                                                }
-                                            }}
-                                        />
-                                        {hl.pendingImageFile && <small className="text-primary d-block mt-1">Pending: {hl.pendingImageFile.name}</small>}
-                                        {!hl.pendingImageFile && hl.image && <small className="text-muted d-block mt-1">Current: {hl.image.substring(0, 30)}...</small>}
-                                    </div>
                                     <div className="mt-2">
                                         <label className="text-muted small mb-1">Highlight Description</label>
                                         <textarea 
@@ -629,56 +898,73 @@ function DestinationAdminPanel() {
 
                             <h5 className="mt-5 text-primary border-bottom pb-2 mb-3">Destination Itinerary</h5>
                             {formData.itinerary.map((dayObj, dayIndex) => (
-                                <div key={dayIndex} className="card mb-3 shadow-sm border-0 bg-light p-3">
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <input 
-                                            type="text" 
-                                            value={dayObj.day} 
-                                            onChange={(e) => handleItineraryDayChange(dayIndex, 'day', e.target.value)} 
-                                            className="form-control w-50 fw-bold border-0 bg-white"
-                                            placeholder="Day Title e.g., Day 01"
-                                        />
-                                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItineraryDay(dayIndex)}>
-                                            Remove Day
-                                        </button>
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="text-muted small">Day Image</label>
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            className="form-control form-control-sm"
-                                            onChange={(e) => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                    const file = e.target.files[0];
-                                                    const newItinerary = [...formData.itinerary];
-                                                    newItinerary[dayIndex].pendingImageFile = file;
-                                                    setFormData(prev => ({ ...prev, itinerary: newItinerary }));
-                                                }
-                                            }}
-                                        />
-                                        {dayObj.pendingImageFile && <small className="text-primary d-block mt-1">Pending: {dayObj.pendingImageFile.name}</small>}
-                                        {!dayObj.pendingImageFile && dayObj.image && <small className="text-muted d-block mt-1">Current: {dayObj.image.substring(0, 30)}...</small>}
-                                    </div>
-                                    <div className="ps-3 border-start border-3 border-primary mt-2">
-                                        <label className="text-muted small mb-2">Day Activities / Timeline</label>
-                                        {dayObj.activities.map((act, actIndex) => (
-                                            <div key={actIndex} className="input-group mb-2 input-group-sm">
-                                                <input 
-                                                    type="text" 
-                                                    value={act} 
-                                                    onChange={(e) => handleItineraryActivityChange(dayIndex, actIndex, e.target.value)} 
-                                                    className="form-control bg-white"
-                                                    placeholder="Activity description..."
-                                                />
-                                                <button type="button" className="btn btn-outline-secondary" onClick={() => removeItineraryActivity(dayIndex, actIndex)}>
-                                                    <i className="fa-solid fa-minus"></i>
+                                <div key={dayIndex} className="card mb-4 shadow-sm border-0 bg-light p-3">
+                                    <div className="row g-3">
+                                        <div className="col-md-3">
+                                            <label className="text-muted small fw-bold">Day Label</label>
+                                            <input 
+                                                type="text" 
+                                                value={dayObj.day} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'day', e.target.value)} 
+                                                className="form-control fw-bold"
+                                                placeholder="e.g. Day 1"
+                                            />
+                                        </div>
+                                        <div className="col-md-9">
+                                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                                <label className="text-muted small fw-bold">Day Title / Plan Name</label>
+                                                <button type="button" className="btn btn-sm btn-outline-danger py-0 px-2" onClick={() => removeItineraryDay(dayIndex)}>
+                                                    Remove Day
                                                 </button>
                                             </div>
-                                        ))}
-                                        <button type="button" className="btn btn-sm btn-link text-decoration-none p-0 mt-1" onClick={() => addItineraryActivity(dayIndex)}>
-                                            + Add Activity
-                                        </button>
+                                            <input 
+                                                type="text" 
+                                                value={dayObj.title || ''} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'title', e.target.value)} 
+                                                className="form-control"
+                                                placeholder="e.g., Arrive Port Blair – Cellular Jail – Light & Sound Show"
+                                            />
+                                        </div>
+                                        
+                                        <div className="col-md-12">
+                                            <label className="text-muted small fw-bold">Day Description / Details</label>
+                                            <textarea 
+                                                value={dayObj.description || ''} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'description', e.target.value)} 
+                                                className="form-control"
+                                                rows="3"
+                                                placeholder="Detailed description of activities, visits, and schedule for this day..."
+                                            />
+                                        </div>
+                                        
+                                        <div className="col-md-12">
+                                            <label className="text-muted small fw-bold">Day Image</label>
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="form-control form-control-sm mb-2"
+                                                onChange={(e) => {
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        const file = e.target.files[0];
+                                                        const newItinerary = [...formData.itinerary];
+                                                        newItinerary[dayIndex].pendingImageFile = file;
+                                                        setFormData(prev => ({ ...prev, itinerary: newItinerary }));
+                                                    }
+                                                }}
+                                            />
+                                            {dayObj.pendingImageFile && (
+                                                <div className="mb-2">
+                                                    <small className="text-primary d-block mb-1">New Day Image Preview:</small>
+                                                    <img src={URL.createObjectURL(dayObj.pendingImageFile)} style={{ width: '100px', height: '65px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} alt="New Day Preview" />
+                                                </div>
+                                            )}
+                                            {!dayObj.pendingImageFile && dayObj.image && (
+                                                <div className="mb-2">
+                                                    <small className="text-muted d-block mb-1">Current Day Image:</small>
+                                                    <img src={getImageSrc(dayObj.image)} style={{ width: '100px', height: '65px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} alt="Current Day" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -686,34 +972,7 @@ function DestinationAdminPanel() {
                                 <i className="fa-solid fa-plus me-1"></i> Add New Itinerary Day
                             </button>
 
-                            <h5 className="mt-2 text-primary border-bottom pb-2">Package Brochure (PDF)</h5>
-                            <div className="form-group mb-4 mt-3">
-                                <label>Upload Brochure PDF</label>
-                                <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => {
-                                    if(e.target.files && e.target.files[0]) setBrochureFile(e.target.files[0])
-                                }} className="form-control" />
-                                {formData.brochure_url && !brochureFile && (
-                                    <div className="mt-2 d-flex align-items-center gap-2">
-                                        <i className="fa-solid fa-file-pdf text-danger" style={{fontSize: '20px'}}></i>
-                                        <small className="text-muted">Current brochure uploaded</small>
-                                        <a href={formData.brochure_url} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary ms-2">
-                                            <i className="fa-solid fa-eye me-1"></i>View
-                                        </a>
-                                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setFormData(prev => ({...prev, brochure_url: ''}))}>
-                                            <i className="fa-solid fa-times me-1"></i>Remove
-                                        </button>
-                                    </div>
-                                )}
-                                {brochureFile && (
-                                    <div className="mt-2 d-flex align-items-center gap-2">
-                                        <i className="fa-solid fa-file-pdf text-primary" style={{fontSize: '20px'}}></i>
-                                        <small className="text-primary">New: {brochureFile.name}</small>
-                                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setBrochureFile(null)}>
-                                            <i className="fa-solid fa-times"></i>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+{/* Package brochure is now dynamically generated in real-time, no upload required */}
 
                             <div className="admin-modal-footer sticky-bottom bg-white pt-3 border-top mt-4 p-3">
                                 <button type="button" className="btn btn-secondary me-2" onClick={handleCloseModal}>Cancel</button>

@@ -24,11 +24,11 @@ const CategoryOne = () => {
 
     const swiperInstance = swiperRef.current.swiper;
 
-    // ✅ Start autoplay properly
+    //  Start autoplay properly
     if (swiperInstance && swiperInstance.autoplay) {
       swiperInstance.autoplay.start();
     }
-    // ✅ Custom pagination with numbers
+    //  Custom pagination with numbers
     if (swiperInstance.pagination) {
       swiperInstance.pagination.renderBullet = function (index, className) {
         let formattedNumber = index + 1 < 10 ? "0" + (index + 1) : index + 1;

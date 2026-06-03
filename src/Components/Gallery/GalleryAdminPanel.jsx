@@ -10,6 +10,7 @@ import {
     getGalleryImageSrc
 } from '../../services/instagramGalleryService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
@@ -36,6 +37,8 @@ function GalleryAdminPanel() {
     const [imagePreview, setImagePreview] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     // DataTable hook
     const { 
         searchTerm, 
@@ -45,7 +48,7 @@ function GalleryAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(images, ['caption']);
+    } = useDataTable(images, ['caption'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         loadImages();
@@ -187,7 +190,7 @@ function GalleryAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <h2 className="m-0">Instagram Gallery</h2>
                     <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: '0.9rem' }}>

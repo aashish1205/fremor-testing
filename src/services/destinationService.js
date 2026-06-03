@@ -2,24 +2,43 @@ import { supabase } from '../supabaseClient';
 
 const BUCKET_NAME = 'destination-images';
 
+const CACHE_KEY = 'fremor_destinations_cache';
+
 // ─── FETCH ALL DESTINATIONS ───────────────────────────────────────────
 export async function fetchDestinations(category = null, packageType = null) {
-    let query = supabase
-        .from('destinations')
-        .select('*');
-        
-    if (category) {
-        query = query.eq('category', category);
+    let allDestinations = null;
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            allDestinations = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('Error reading from sessionStorage:', e);
     }
-    
-    if (packageType) {
-        query = query.eq('package_type', packageType);
-    }
-        
-    const { data, error } = await query.order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data;
+    if (!allDestinations) {
+        const { data, error } = await supabase
+            .from('destinations')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allDestinations = data;
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(allDestinations));
+        } catch (e) {
+            console.warn('Error writing to sessionStorage:', e);
+        }
+    }
+
+    let filtered = [...allDestinations];
+    if (category) {
+        filtered = filtered.filter(d => d.category === category);
+    }
+    if (packageType) {
+        filtered = filtered.filter(d => d.package_type === packageType);
+    }
+    return filtered;
 }
 
 // ─── FETCH SINGLE DESTINATION BY ID ───────────────────────────────────
@@ -55,6 +74,11 @@ export async function createDestination(destinationData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -68,6 +92,11 @@ export async function updateDestination(id, destinationData) {
         .single();
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return data;
 }
 
@@ -79,6 +108,11 @@ export async function deleteDestination(id) {
         .eq('id', id);
 
     if (error) throw error;
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+        console.warn('Error clearing sessionStorage cache:', e);
+    }
     return true;
 }
 
@@ -90,7 +124,7 @@ export async function uploadImage(file, folder = 'tour') {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 
@@ -129,7 +163,7 @@ export async function uploadBrochure(file) {
     const { data, error } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
-            cacheControl: '3600',
+            cacheControl: '31536000, public, immutable',
             upsert: false,
         });
 
@@ -173,5 +207,38 @@ export function getBannerSrc(bannerPath) {
         return bannerPath;
     }
     return `/assets/img/destination/${bannerPath}`;
+}
+
+// ─── TOUR PACKAGE ENQUIRIES CRUD ──────────────────────────────────────
+export async function fetchPackageEnquiries() {
+    const { data, error } = await supabase
+        .from('package_enquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
+export async function updatePackageEnquiryStatus(id, status) {
+    const { data, error } = await supabase
+        .from('package_enquiries')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function deletePackageEnquiry(id) {
+    const { error } = await supabase
+        .from('package_enquiries')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+    return true;
 }
 

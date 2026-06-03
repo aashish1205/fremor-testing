@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useDataTable } from '../hooks/useDataTable';
+import { useAdminSearch } from '../Components/AdminSearchContext';
 import AdminPagination from '../Components/Admin/AdminPagination';
 
 const TeamAdmin = () => {
@@ -22,6 +23,8 @@ const TeamAdmin = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     const { 
         searchTerm, 
         handleSearch, 
@@ -30,7 +33,7 @@ const TeamAdmin = () => {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(team, ['name', 'email', 'phone', 'created_by']);
+    } = useDataTable(team, ['name', 'email', 'phone', 'created_by'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         fetchTeam();

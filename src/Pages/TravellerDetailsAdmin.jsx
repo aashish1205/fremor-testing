@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { getUserWishlist } from '../services/wishlistService';
 
 const TravellerDetailsAdmin = () => {
     const { id } = useParams();
@@ -14,6 +15,9 @@ const TravellerDetailsAdmin = () => {
 
     const [enquiries, setEnquiries] = useState([]);
     const [enquiriesLoading, setEnquiriesLoading] = useState(false);
+
+    const [wishlist, setWishlist] = useState([]);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
 
     useEffect(() => {
         fetchUserDetails();
@@ -35,7 +39,7 @@ const TravellerDetailsAdmin = () => {
             if (userData?.email) {
                 setEnquiriesLoading(true);
                 const { data: enqData, error: enqError } = await supabase
-                    .from('enquiries')
+                    .from('package_enquiries')
                     .select('*')
                     .eq('email_address', userData.email)
                     .order('created_at', { ascending: false });
@@ -43,12 +47,18 @@ const TravellerDetailsAdmin = () => {
                 if (enqError) throw enqError;
                 setEnquiries(enqData || []);
             }
+
+            // Fetch wishlist
+            setWishlistLoading(true);
+            const wishlistData = await getUserWishlist(id);
+            setWishlist(wishlistData || []);
         } catch (err) {
             console.error('Error fetching user details:', err);
             setError('Failed to fetch user details.');
         } finally {
             setLoading(false);
             setEnquiriesLoading(false);
+            setWishlistLoading(false);
         }
     };
 
@@ -168,13 +178,71 @@ const TravellerDetailsAdmin = () => {
                                                 {formatDate(enq.created_at)}
                                             </span>
                                         </div>
-                                        <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+                                        <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center' }}>
                                             <div><i className="fa-regular fa-calendar me-1"></i> {formatDate(enq.travel_start_date)} to {formatDate(enq.travel_end_date)}</div>
                                             <div><i className="fa-solid fa-users me-1"></i> {enq.no_of_adults} Adults, {enq.no_of_children} Children</div>
+                                            <div>
+                                                <span 
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        padding: '0.25em 0.6em',
+                                                        fontSize: '75%',
+                                                        fontWeight: '700',
+                                                        lineHeight: '1',
+                                                        textAlign: 'center',
+                                                        whiteSpace: 'nowrap',
+                                                        verticalAlign: 'baseline',
+                                                        borderRadius: '0.25rem',
+                                                        textTransform: 'capitalize',
+                                                        backgroundColor: (enq.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fffbeb' : (enq.package_tier || 'standard').toLowerCase() === 'premium' ? '#eff6ff' : '#f1f5f9',
+                                                        color: (enq.package_tier || 'standard').toLowerCase() === 'luxury' ? '#b45309' : (enq.package_tier || 'standard').toLowerCase() === 'premium' ? '#1d4ed8' : '#475569',
+                                                        border: `1px solid ${(enq.package_tier || 'standard').toLowerCase() === 'luxury' ? '#fde68a' : (enq.package_tier || 'standard').toLowerCase() === 'premium' ? '#bfdbfe' : '#cbd5e1'}`
+                                                    }}
+                                                >
+                                                    {enq.package_tier || 'Standard'}
+                                                </span>
+                                            </div>
                                             {enq.contact_number && <div><i className="fa-solid fa-phone me-1"></i> {enq.contact_number}</div>}
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Wishlist */}
+                    <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e2e8f0', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                        <h5 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                            <i className="fa-solid fa-heart text-danger me-2"></i>Wishlisted Packages
+                        </h5>
+                        
+                        {wishlistLoading ? (
+                            <div className="text-center py-3 text-muted"><i className="fa-solid fa-spinner fa-spin me-2"></i>Loading wishlist...</div>
+                        ) : wishlist.length === 0 ? (
+                            <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>
+                                <i className="fa-regular fa-heart mb-2" style={{ fontSize: '1.5rem', color: '#cbd5e1' }}></i>
+                                <div>No packages in wishlist.</div>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {wishlist.map(item => {
+                                    const dest = item.destinations;
+                                    if (!dest) return null;
+                                    return (
+                                        <div key={item.id} style={{ border: '1px solid #f1f5f9', padding: '1rem', borderRadius: '8px', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <div style={{ fontWeight: '600', color: '#0f172a' }}>{dest.title}</div>
+                                                <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.25rem' }}>
+                                                    {dest.nights > 0 ? `${dest.nights} Nights / ` : ''}{dest.days} Days
+                                                    {dest.price && ` • Starting from ₹ ${parseFloat(dest.price).toLocaleString('en-IN')}`}
+                                                </div>
+                                            </div>
+                                            <span style={{ fontSize: '0.75rem', background: '#fee2e2', color: '#ef4444', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: '600' }}>
+                                                Added {formatDate(item.created_at)}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

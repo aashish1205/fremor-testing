@@ -11,6 +11,7 @@ import {
     getCruiseImageSrc 
 } from '../../services/cruiseService';
 import { useDataTable } from '../../hooks/useDataTable';
+import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
 
@@ -49,6 +50,8 @@ function CruiseAdminPanel() {
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
     // DataTable hook
     const { 
         searchTerm, 
@@ -58,7 +61,7 @@ function CruiseAdminPanel() {
         totalPages, 
         paginatedData,
         totalItems
-    } = useDataTable(cruises, ['title', 'type', 'length', 'capacity']);
+    } = useDataTable(cruises, ['title', 'type', 'length', 'capacity'], 10, globalSearchTerm, setGlobalSearchTerm);
 
     useEffect(() => {
         loadCruises();
@@ -322,7 +325,7 @@ function CruiseAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h2 className="m-0">Manage Cruises</h2>
                 <div className="d-flex gap-3 align-items-center">
                     <div className="position-relative">
