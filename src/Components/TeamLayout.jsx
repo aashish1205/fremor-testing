@@ -1,9 +1,17 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useAdminSearch } from './AdminSearchContext';
 import './AdminLayout.css';
 
 const TeamLayout = ({ children, teamMember }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { globalSearchTerm, setGlobalSearchTerm } = useAdminSearch();
+
+    useEffect(() => {
+        // Reset search term whenever user navigates between dashboard sections
+        setGlobalSearchTerm('');
+    }, [location.pathname, setGlobalSearchTerm]);
 
     const handleLogout = () => {
         localStorage.removeItem('team_session');
@@ -165,7 +173,12 @@ const TeamLayout = ({ children, teamMember }) => {
                 <header className="admin-header">
                     <div className="admin-header-search">
                         <i className="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" placeholder="Search team resources..." />
+                        <input 
+                            type="text" 
+                            placeholder="Search team resources..." 
+                            value={globalSearchTerm}
+                            onChange={(e) => setGlobalSearchTerm(e.target.value)}
+                        />
                     </div>
 
                     <div className="admin-header-right">

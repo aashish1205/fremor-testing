@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import TeamLayout from './TeamLayout';
+import { AdminSearchProvider } from './AdminSearchContext';
 
 const TeamProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -87,7 +88,11 @@ const TeamProtectedRoute = ({ children }) => {
         return <Navigate to={fallback} replace />;
     }
 
-    return <TeamLayout teamMember={teamMember}>{children}</TeamLayout>;
+    return (
+        <AdminSearchProvider>
+            <TeamLayout teamMember={teamMember}>{children}</TeamLayout>
+        </AdminSearchProvider>
+    );
 };
 
 export default TeamProtectedRoute;
