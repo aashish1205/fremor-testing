@@ -194,7 +194,7 @@ function RecentlyBookedItineraries() {
                     left: -4px;
                     right: -4px;
                     bottom: -2px;
-                    border: 2px solid #10b981;
+                    border: 2px solid #FFB114;
                     border-radius: 60% 40% 55% 45% / 40% 50% 40% 60%;
                     transform: rotate(-1.5deg);
                     pointer-events: none;
@@ -203,14 +203,14 @@ function RecentlyBookedItineraries() {
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
-                    background-color: #ecfdf5;
-                    border: 1px solid #a7f3d0;
+                    background-color: #f0f9ff;
+                    border: 1px solid #bae6fd;
                     border-radius: 30px;
                     padding: 8px 16px;
                     font-size: 13.5px;
                     font-weight: 700;
-                    color: #065f46;
-                    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.05);
+                    color: #0d496e;
+                    box-shadow: 0 2px 4px rgba(13, 73, 110, 0.05);
                 }
                 .rb-controls-row {
                     display: flex;
@@ -298,9 +298,9 @@ function RecentlyBookedItineraries() {
                     background-color: #f1f5f9;
                 }
                 .rb-price-pill.active {
-                    background-color: #e0e7ff;
-                    border-color: #c7d2fe;
-                    color: #4f46e5;
+                    background-color: #0d496e;
+                    border-color: #0d496e;
+                    color: #ffffff;
                 }
                 .rb-nav-arrows {
                     display: flex;
@@ -310,19 +310,21 @@ function RecentlyBookedItineraries() {
                     width: 44px;
                     height: 44px;
                     border-radius: 50%;
-                    background-color: #fef3c7;
-                    color: #b45309;
-                    border: none;
+                    background-color: #f0f9ff;
+                    color: #0d496e;
+                    border: 1px solid #e2e8f0;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 18px;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.08);
+                    box-shadow: 0 2px 8px rgba(13, 73, 110, 0.05);
                 }
                 .rb-nav-btn:hover {
-                    background-color: #fde68a;
+                    background-color: #0d496e;
+                    color: #ffffff;
+                    border-color: #0d496e;
                     transform: scale(1.05);
                 }
                 .rb-nav-btn:active {
@@ -468,7 +470,7 @@ function RecentlyBookedItineraries() {
                     margin-top: 4px;
                 }
                 .rb-btn-details {
-                    background-color: #10b981;
+                    background-color: #0d496e;
                     color: #ffffff !important;
                     font-weight: 700;
                     font-size: 13.5px;
@@ -478,11 +480,12 @@ function RecentlyBookedItineraries() {
                     transition: all 0.3s ease;
                     border: none;
                     cursor: pointer;
-                    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+                    box-shadow: 0 2px 6px rgba(13, 73, 110, 0.15);
                 }
                 .rb-btn-details:hover {
-                    background-color: #059669;
-                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+                    background-color: #FFB114;
+                    color: #113d48 !important;
+                    box-shadow: 0 4px 12px rgba(255, 177, 20, 0.25);
                     transform: translateY(-1px);
                 }
                 .rb-btn-details:active {

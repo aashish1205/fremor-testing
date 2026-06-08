@@ -6,6 +6,159 @@ import { supabase } from '../../supabaseClient';
 import { generatePackagePDF } from '../../utils/pdfGenerator';
 import { checkIfWishlisted, addToWishlist, removeFromWishlist } from '../../services/wishlistService';
 
+const detectBaseCity = (dayObj, prevCity) => {
+    const dayText = (dayObj.day || '').toLowerCase();
+    const titleText = (dayObj.title || '').toLowerCase();
+    const descText = (dayObj.description || '').toLowerCase();
+
+    const knownCities = [
+        'tokyo', 'kyoto', 'osaka', 
+        'habarana', 'sigiriya', 'kandy', 'bentota', 'galle', 'colombo',
+        'kuta', 'ubud', 'seminyak', 'nusa dua', 'sanur',
+        'varanasi', 'prayagraj', 'ayodhya', 'lucknow',
+        'phuket', 'krabi', 'bangkok', 'pattaya',
+        'moscow', 'st. petersburg', 'saint petersburg',
+        'thimphu', 'paro', 'punakha',
+        'port blair', 'havelock', 'neil island', 'andaman'
+    ];
+
+    if (dayText.includes('→') || dayText.includes('->') || dayText.includes('to')) {
+        const parts = dayText.split(/[→\->]|\bto\b/);
+        const destinationPart = parts[parts.length - 1].trim();
+        for (const city of knownCities) {
+            if (destinationPart.includes(city)) {
+                return city.charAt(0).toUpperCase() + city.slice(1);
+            }
+        }
+    }
+
+    const combined = `${titleText} ${descText}`;
+    if (combined.includes('transfer to') || combined.includes('check-in at') || combined.includes('stay in') || combined.includes('hotel in')) {
+        for (const city of knownCities) {
+            if (combined.includes(city)) {
+                return city.charAt(0).toUpperCase() + city.slice(1);
+            }
+        }
+    }
+
+    const searchString = `${dayText} ${titleText}`;
+    for (const city of knownCities) {
+        if (searchString.includes(city)) {
+            if (city === 'galle' && searchString.includes('excursion') && prevCity === 'Bentota') {
+                return 'Bentota';
+            }
+            if (city === 'sigiriya' && prevCity === 'Habarana') {
+                return 'Habarana';
+            }
+            return city.charAt(0).toUpperCase() + city.slice(1);
+        }
+    }
+
+    return prevCity || 'Main Stay';
+};
+
+const groupItinerary = (itineraryList) => {
+    if (!itineraryList || itineraryList.length === 0) return [];
+    
+    const groups = [];
+    let currentGroup = null;
+    let prevCity = '';
+
+    itineraryList.forEach((dayObj, index) => {
+        const baseCity = detectBaseCity(dayObj, prevCity);
+        prevCity = baseCity;
+
+        if (!currentGroup || currentGroup.city !== baseCity) {
+            if (currentGroup) {
+                groups.push(currentGroup);
+            }
+            currentGroup = {
+                city: baseCity,
+                days: []
+            };
+        }
+        currentGroup.days.push(dayObj);
+    });
+
+    if (currentGroup) {
+        groups.push(currentGroup);
+    }
+    
+    return groups;
+};
+
+const getSegmentsForDay = (dayObj) => {
+    const title = dayObj.title || '';
+    const desc = dayObj.description || '';
+    let points = desc.split(/[\n•\r]/).map(p => p.trim()).filter(p => p.length > 0);
+    
+    if (points.length === 0) {
+        points = [title];
+    }
+
+    if (points.length === 1) {
+        let icon = 'fa-umbrella-beach';
+        const txt = points[0].toLowerCase();
+        if (txt.includes('arrival') || txt.includes('airport') || txt.includes('flight') || txt.includes('depart')) icon = 'fa-plane';
+        else if (txt.includes('cruise') || txt.includes('boat') || txt.includes('island')) icon = 'fa-ship';
+        else if (txt.includes('drive') || txt.includes('transfer') || txt.includes('car')) icon = 'fa-car';
+        else if (txt.includes('hotel') || txt.includes('stay') || txt.includes('overnight') || txt.includes('resort')) icon = 'fa-hotel';
+        else if (txt.includes('safari') || txt.includes('temple') || txt.includes('fort') || txt.includes('visit') || txt.includes('explore') || txt.includes('sightseeing')) icon = 'fa-binoculars';
+        
+        return [
+            { type: 'FULL DAY', text: points[0], icon }
+        ];
+    }
+
+    const morningPoints = [];
+    const eveningPoints = [];
+
+    points.forEach(p => {
+        const lp = p.toLowerCase();
+        if (lp.includes('morning') || lp.includes('arrival') || lp.includes('check-in') || lp.includes('breakfast') || lp.includes('meet &') || lp.includes('transfer to hotel')) {
+            morningPoints.push(p);
+        } else if (lp.includes('evening') || lp.includes('leisure') || lp.includes('relaxation') || lp.includes('dinner') || lp.includes('night') || lp.includes('rest')) {
+            eveningPoints.push(p);
+        } else {
+            if (morningPoints.length <= eveningPoints.length) {
+                morningPoints.push(p);
+            } else {
+                eveningPoints.push(p);
+            }
+        }
+    });
+
+    const segments = [];
+    if (morningPoints.length > 0) {
+        let icon = 'fa-cloud-sun-rain';
+        const txt = morningPoints.join(' • ').toLowerCase();
+        if (txt.includes('arrival') || txt.includes('airport') || txt.includes('flight')) icon = 'fa-plane';
+        else if (txt.includes('transfer') || txt.includes('drive') || txt.includes('car')) icon = 'fa-car';
+        else if (txt.includes('hotel') || txt.includes('stay') || txt.includes('resort')) icon = 'fa-hotel';
+        
+        segments.push({
+            type: eveningPoints.length > 0 ? 'MORNING' : 'FULL DAY',
+            text: morningPoints.join(' • '),
+            icon
+        });
+    }
+
+    if (eveningPoints.length > 0) {
+        let icon = 'fa-moon';
+        const txt = eveningPoints.join(' • ').toLowerCase();
+        if (txt.includes('leisure') || txt.includes('relax') || txt.includes('free time')) icon = 'fa-umbrella-beach';
+        else if (txt.includes('dinner') || txt.includes('food') || txt.includes('lunch')) icon = 'fa-utensils';
+        
+        segments.push({
+            type: 'NOON TO EVENING',
+            text: eveningPoints.join(' • '),
+            icon
+        });
+    }
+
+    return segments;
+};
+
 function DestinationDetailsMain() {
     const { id } = useParams();
     const [destinationPost, setDestinationPost] = useState(null);
@@ -700,42 +853,68 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                                         Itinerary Schedule
                                     </h3>
                                     {itinerary.length > 0 ? (
-                                        <div className="itinerary-accordion-container">
+                                        <div className="itinerary-accordion-container" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
                                             {itinerary.map((dayObj, index) => {
                                                 const isExpanded = !!expandedDays[index];
                                                 const dayTitle = dayObj.title || (dayObj.activities?.[0] || 'Daily Plan');
                                                 const dayDescription = dayObj.description || (dayObj.activities?.length > 1 ? dayObj.activities.slice(1).join('\n') : dayObj.activities?.join('\n') || '');
+                                                
+                                                // Icon for the next day transition
+                                                let transitionIcon = 'fa-route';
+                                                if (index < itinerary.length - 1) {
+                                                    const nextDay = itinerary[index + 1];
+                                                    const nextCombined = `${nextDay.title || ''} ${nextDay.description || ''}`.toLowerCase();
+                                                    if (nextCombined.includes('flight') || nextCombined.includes('airport') || nextCombined.includes('arrival') || nextCombined.includes('depart')) {
+                                                        transitionIcon = 'fa-plane';
+                                                    } else if (nextCombined.includes('transfer') || nextCombined.includes('drive') || nextCombined.includes('ride') || nextCombined.includes('train') || nextCombined.includes('car')) {
+                                                        transitionIcon = 'fa-car-side';
+                                                    } else if (nextCombined.includes('check-in') || nextCombined.includes('stay') || nextCombined.includes('hotel') || nextCombined.includes('overnight')) {
+                                                        transitionIcon = 'fa-hotel';
+                                                    } else if (nextCombined.includes('safari') || nextCombined.includes('visit') || nextCombined.includes('sightseeing') || nextCombined.includes('explore') || nextCombined.includes('tour') || nextCombined.includes('excursion') || nextCombined.includes('beach')) {
+                                                        transitionIcon = 'fa-binoculars';
+                                                    }
+                                                }
+
                                                 return (
-                                                    <div 
-                                                        key={index} 
-                                                        className={`itinerary-day-card ${isExpanded ? 'expanded' : ''}`}
-                                                    >
-                                                        <button 
-                                                            className="itinerary-day-header"
-                                                            onClick={() => toggleDay(index)}
-                                                        >
-                                                            <div className="itinerary-day-header-left">
-                                                                <span className="itinerary-day-badge">{dayObj.day}</span>
-                                                                <h4 className="itinerary-day-title">{dayTitle}</h4>
-                                                            </div>
-                                                            <div className="itinerary-day-toggle-icon">
-                                                                <i className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`}></i>
-                                                            </div>
-                                                        </button>
-                                                        
-                                                        {isExpanded && (
-                                                            <div className="itinerary-day-content">
-                                                                {dayObj.image && (
-                                                                    <div className="itinerary-day-img-wrapper">
-                                                                        <img src={getImageSrc(dayObj.image)} alt={dayObj.day} />
+                                                    <React.Fragment key={index}>
+                                                        <div className={`itinerary-day-card ${isExpanded ? 'expanded' : ''}`}>
+                                                            <button 
+                                                                className="itinerary-day-header"
+                                                                onClick={() => toggleDay(index)}
+                                                            >
+                                                                <div className="itinerary-day-header-left">
+                                                                    <span className="itinerary-day-badge">{dayObj.day}</span>
+                                                                    <h4 className="itinerary-day-title">{dayTitle}</h4>
+                                                                </div>
+                                                                <div className="itinerary-day-toggle-icon">
+                                                                    <i className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`}></i>
+                                                                </div>
+                                                            </button>
+                                                            
+                                                            {isExpanded && (
+                                                                <div className="itinerary-day-content">
+                                                                    {dayObj.image && (
+                                                                        <div className="itinerary-day-img-wrapper">
+                                                                            <img src={getImageSrc(dayObj.image)} alt={dayObj.day} />
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="itinerary-day-desc" style={{ whiteSpace: 'pre-line' }}>
+                                                                        {dayDescription}
                                                                     </div>
-                                                                )}
-                                                                <div className="itinerary-day-desc" style={{ whiteSpace: 'pre-line' }}>
-                                                                    {dayDescription}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Transition connector line between days */}
+                                                        {index < itinerary.length - 1 && (
+                                                            <div className="itinerary-group-connector" style={{ margin: '4px 0', height: '50px' }}>
+                                                                <div className="connector-curve-line" style={{ borderLeft: '3.5px dashed #cbd5e1' }}></div>
+                                                                <div className="connector-transfer-badge" title="Next Day Route" style={{ border: '3.5px solid #ffffff' }}>
+                                                                    <i className={`fa-solid ${transitionIcon}`}></i>
                                                                 </div>
                                                             </div>
                                                         )}
-                                                    </div>
+                                                    </React.Fragment>
                                                 );
                                             })}
                                         </div>

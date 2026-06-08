@@ -194,15 +194,15 @@ Adults: ${formData.noOfAdults}, Children: ${formData.noOfChildren} (Ages: ${form
 
   return (
     <div className="enquire-modal-overlay">
-      <div className="enquire-modal-content">
-        <div className="enquire-modal-header py-3 px-4 bg-primary text-white d-flex justify-content-between align-items-center">
-          <h4 className="m-0 text-white">Enquire Now</h4>
+      <div className="enquire-modal-content" style={{ maxWidth: '750px' }}>
+        <div className="enquire-modal-header py-2 px-3 py-sm-3 px-sm-4 bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 className="m-0 text-white enquire-modal-title">Enquire Now</h4>
           <button onClick={onClose} className="btn text-white fs-5 p-0" aria-label="Close" style={{ border: 'none', background: 'transparent' }}>
             <i className="fa-solid fa-times"></i>
           </button>
         </div>
         
-        <div className="enquire-modal-body p-4">
+        <div className="enquire-modal-body p-3 p-sm-4">
           {formContent}
         </div>
       </div>

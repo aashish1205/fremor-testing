@@ -5,15 +5,17 @@ const BUCKET_NAME = 'destination-images';
 const CACHE_KEY = 'fremor_destinations_cache';
 
 // ─── FETCH ALL DESTINATIONS ───────────────────────────────────────────
-export async function fetchDestinations(category = null, packageType = null) {
+export async function fetchDestinations(category = null, packageType = null, bypassCache = true) {
     let allDestinations = null;
-    try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-            allDestinations = JSON.parse(cached);
+    if (!bypassCache) {
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                allDestinations = JSON.parse(cached);
+            }
+        } catch (e) {
+            console.warn('Error reading from sessionStorage:', e);
         }
-    } catch (e) {
-        console.warn('Error reading from sessionStorage:', e);
     }
 
     if (!allDestinations) {
@@ -33,10 +35,10 @@ export async function fetchDestinations(category = null, packageType = null) {
 
     let filtered = [...allDestinations];
     if (category) {
-        filtered = filtered.filter(d => d.category === category);
+        filtered = filtered.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
     }
     if (packageType) {
-        filtered = filtered.filter(d => d.package_type === packageType);
+        filtered = filtered.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
     }
     return filtered;
 }

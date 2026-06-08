@@ -5,6 +5,7 @@ import RecentlyBookedItineraries from '../Components/Destination/RecentlyBookedI
 import Booking from '../Components/Booking/Booking'
 import CategoryOne from '../Components/Category/CategoryOne'
 import DestinationOne from '../Components/Destination/DestinationOne'
+import PackagesByDuration from '../Components/Destination/PackagesByDuration'
 import AboutOne from '../Components/About/AboutOne'
 import TourOne from '../Components/Tour/TourOne'
 import GalleryOne from '../Components/Gallery/GalleryOne'
@@ -27,9 +28,10 @@ function HomeOne() {
             <BannerOne />
             <RecentlyBookedItineraries />
             {/* <BookingSection/> */}
-            <CategoryOne />
             <DestinationOne />
-            <TourOne />
+            <CategoryOne />
+            <PackagesByDuration />
+             <TourOne />
             <AboutOne />
            
             <GalleryOne />

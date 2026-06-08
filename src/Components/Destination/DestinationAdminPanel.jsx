@@ -28,6 +28,7 @@ function DestinationAdminPanel() {
     const [sectionBadge, setSectionBadge] = useState('143+ trips booked last week');
     const [isSavingSettings, setIsSavingSettings] = useState(false);
     const [togglePackages, setTogglePackages] = useState([]);
+    const [toggleSearchQuery, setToggleSearchQuery] = useState('');
     const [isSavingToggles, setIsSavingToggles] = useState(false);
     
     // Modal states
@@ -549,6 +550,10 @@ function DestinationAdminPanel() {
         </div>
     );
 
+    const filteredTogglePackages = togglePackages.filter(pkg => 
+        pkg.title?.toLowerCase().includes(toggleSearchQuery.toLowerCase())
+    );
+
     return (
         <div className="admin-panel-container">
             {toast.show && (
@@ -758,7 +763,35 @@ function DestinationAdminPanel() {
                         </h4>
                         <p className="text-muted small">Toggle which packages show up in the "Recently Booked Itineraries" homepage section and edit their booking metadata directly. Remember to save changes at the bottom.</p>
                         
-                        <div className="table-responsive mt-3" style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                        {/* Search Input for Toggles */}
+                        <div className="d-flex justify-content-between align-items-center mb-3 mt-3 flex-wrap gap-2">
+                            <div className="position-relative" style={{ minWidth: '320px' }}>
+                                <i className="fa-solid fa-magnifying-glass position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Search packages by title..." 
+                                    value={toggleSearchQuery}
+                                    onChange={(e) => setToggleSearchQuery(e.target.value)}
+                                    className="form-control ps-5"
+                                    style={{ borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                />
+                                {toggleSearchQuery && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => setToggleSearchQuery('')}
+                                        className="position-absolute border-0 bg-transparent"
+                                        style={{ top: '50%', right: '12px', transform: 'translateY(-50%)', color: '#94a3b8', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+                                )}
+                            </div>
+                            <div className="text-muted small fw-semibold">
+                                Showing {filteredTogglePackages.length} of {togglePackages.length} packages
+                            </div>
+                        </div>
+
+                        <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                             <table className="admin-table align-middle m-0" style={{ minWidth: '700px' }}>
                                 <thead className="sticky-top bg-light" style={{ zIndex: '2' }}>
                                     <tr>
@@ -770,12 +803,14 @@ function DestinationAdminPanel() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {togglePackages.length === 0 ? (
+                                    {filteredTogglePackages.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" className="text-center py-4 text-muted">No tour packages found.</td>
+                                            <td colSpan="5" className="text-center py-4 text-muted">
+                                                {toggleSearchQuery ? 'No tour packages match your search.' : 'No tour packages found.'}
+                                            </td>
                                         </tr>
                                     ) : (
-                                        togglePackages.map((pkg, idx) => (
+                                        filteredTogglePackages.map((pkg, idx) => (
                                             <tr key={pkg.id}>
                                                 <td>
                                                     <div className="admin-img-thumb truncate-img">
@@ -784,16 +819,27 @@ function DestinationAdminPanel() {
                                                 </td>
                                                 <td><strong>{pkg.title}</strong></td>
                                                 <td className="text-center">
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={pkg.show_recently_booked} 
-                                                        onChange={(e) => {
-                                                            const val = e.target.checked;
-                                                            setTogglePackages(prev => prev.map(p => p.id === pkg.id ? { ...p, show_recently_booked: val } : p));
-                                                        }}
-                                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                                                    />
-                                                </td>
+                                                     <button
+                                                         type="button"
+                                                         className={`btn btn-sm ${pkg.show_recently_booked ? 'btn-success' : 'btn-outline-secondary'}`}
+                                                         onClick={() => {
+                                                             setTogglePackages(prev => prev.map(p => p.id === pkg.id ? { ...p, show_recently_booked: !p.show_recently_booked } : p));
+                                                         }}
+                                                         style={{
+                                                             borderRadius: '20px',
+                                                             padding: '5px 12px',
+                                                             fontSize: '11px',
+                                                             fontWeight: '600',
+                                                             minWidth: '80px',
+                                                             backgroundColor: pkg.show_recently_booked ? '#10b981' : 'transparent',
+                                                             borderColor: pkg.show_recently_booked ? '#10b981' : '#cbd5e1',
+                                                             color: pkg.show_recently_booked ? '#ffffff' : '#64748b',
+                                                             transition: 'all 0.15s ease'
+                                                         }}
+                                                     >
+                                                         {pkg.show_recently_booked ? 'Active' : 'Inactive'}
+                                                     </button>
+                                                 </td>
                                                 <td>
                                                     <input 
                                                         type="text" 

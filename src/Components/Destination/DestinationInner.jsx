@@ -25,7 +25,9 @@ function DestinationInner({ category: propCategory }) {
     const [maxPriceLimit, setMaxPriceLimit] = useState(300000);
     const [selectedDurations, setSelectedDurations] = useState([]);
     const [selectedAccommodations, setSelectedAccommodations] = useState([]);
+    const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
     const [activeSlider, setActiveSlider] = useState('min');
+    const [showAllDurations, setShowAllDurations] = useState(false);
 
     const handleMouseMove = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -64,21 +66,24 @@ function DestinationInner({ category: propCategory }) {
             setSelectedMaxPrice(maxP);
             setSelectedDurations([]);
             setSelectedAccommodations([]);
+            setSelectedPackageTypes([]);
         }
     }, [destinations]);
 
     // Reset page on filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedMinPrice, selectedMaxPrice, selectedDurations, selectedAccommodations]);
+    }, [selectedMinPrice, selectedMaxPrice, selectedDurations, selectedAccommodations, selectedPackageTypes]);
+
+    const urlSearchQuery = searchParams.get('search') || '';
 
     // Fetch destinations on mount and when filters change
     useEffect(() => {
         loadDestinations();
         loadRecentBlogs();
-        // Reset to first page when category or package_type changes
+        // Reset to first page when category, package_type or search query changes
         setCurrentPage(1);
-    }, [category, packageType]);
+    }, [category, packageType, urlSearchQuery]);
 
     const loadRecentBlogs = async () => {
         try {
@@ -93,7 +98,23 @@ function DestinationInner({ category: propCategory }) {
         try {
             setLoading(true);
             setError(null);
-            const data = await fetchDestinations(category, packageType);
+            
+            const searchParamVal = searchParams.get('search') || '';
+            setSearchQuery(searchParamVal);
+
+            let data;
+            if (searchParamVal.trim() !== '') {
+                data = await searchDestinations(searchParamVal);
+                // Also apply category/packageType filters to search results if present
+                if (category) {
+                    data = data.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
+                }
+                if (packageType) {
+                    data = data.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
+                }
+            } else {
+                data = await fetchDestinations(category, packageType);
+            }
             setDestinations(data);
         } catch (err) {
             console.error('Error fetching destinations:', err);
@@ -111,10 +132,17 @@ function DestinationInner({ category: propCategory }) {
             setError(null);
             setCurrentPage(1);
             if (searchQuery.trim() === '') {
-                const data = await fetchDestinations();
+                const data = await fetchDestinations(category, packageType);
                 setDestinations(data);
             } else {
-                const data = await searchDestinations(searchQuery);
+                let data = await searchDestinations(searchQuery);
+                // Also apply category/packageType filters to search results if present
+                if (category) {
+                    data = data.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
+                }
+                if (packageType) {
+                    data = data.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
+                }
                 setDestinations(data);
             }
         } catch (err) {
@@ -144,6 +172,13 @@ function DestinationInner({ category: propCategory }) {
         if (selectedAccommodations.length > 0) {
             const acc = dest.accommodation_type || '3 Star';
             if (!selectedAccommodations.includes(acc)) return false;
+        }
+
+        // Package Type (Category Type) Filter
+        if (selectedPackageTypes.length > 0) {
+            const type = (dest.package_type || 'Standard').toLowerCase();
+            const selectedLower = selectedPackageTypes.map(t => t.toLowerCase());
+            if (!selectedLower.includes(type)) return false;
         }
 
         return true;
@@ -189,6 +224,21 @@ function DestinationInner({ category: propCategory }) {
             prev.includes(accVal) 
                 ? prev.filter(a => a !== accVal) 
                 : [...prev, accVal]
+        );
+    };
+
+    const getPackageTypeCount = (typeVal) => {
+        return destinations.filter(dest => {
+            const type = dest.package_type || 'Standard';
+            return type.toLowerCase() === typeVal.toLowerCase();
+        }).length;
+    };
+
+    const handlePackageTypeToggle = (typeVal) => {
+        setSelectedPackageTypes(prev => 
+            prev.includes(typeVal) 
+                ? prev.filter(t => t !== typeVal) 
+                : [...prev, typeVal]
         );
     };
 
@@ -436,33 +486,66 @@ function DestinationInner({ category: propCategory }) {
                                 <div className="filter-section mb-4 border-top pt-3">
                                     <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Duration</h4>
                                     <div className="filter-options">
-                                        {uniqueNights.map(nightsVal => {
-                                            const count = getDurationCount(nightsVal);
-                                            const label = `${nightsVal}N`;
-                                            const isChecked = selectedDurations.includes(nightsVal);
-                                            const chkId = `duration-chk-${nightsVal}`;
+                                        {(() => {
+                                            const activeDurations = uniqueNights.filter(nightsVal => getDurationCount(nightsVal) > 0);
+                                            const displayedDurations = showAllDurations ? activeDurations : activeDurations.slice(0, 3);
+                                            
                                             return (
-                                                <div key={nightsVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
-                                                    <div className="d-flex align-items-center">
-                                                        <input 
-                                                            type="checkbox" 
-                                                            id={chkId}
-                                                            checked={isChecked}
-                                                            onChange={() => handleDurationToggle(nightsVal)}
-                                                            className="filter-checkbox"
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
-                                                        <label htmlFor={chkId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
-                                                            {label}
-                                                        </label>
-                                                    </div>
-                                                    <span className="text-muted small">({count})</span>
-                                                </div>
+                                                <>
+                                                    {displayedDurations.map(nightsVal => {
+                                                        const count = getDurationCount(nightsVal);
+                                                        const label = `${nightsVal}N`;
+                                                        const isChecked = selectedDurations.includes(nightsVal);
+                                                        const chkId = `duration-chk-${nightsVal}`;
+                                                        return (
+                                                            <div key={nightsVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
+                                                                <div className="d-flex align-items-center">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        id={chkId}
+                                                                        checked={isChecked}
+                                                                        onChange={() => handleDurationToggle(nightsVal)}
+                                                                        className="filter-checkbox"
+                                                                        style={{ cursor: 'pointer' }}
+                                                                    />
+                                                                    <label htmlFor={chkId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
+                                                                        {label}
+                                                                    </label>
+                                                                </div>
+                                                                <span className="text-muted small">({count})</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {activeDurations.length === 0 && (
+                                                        <p className="text-muted small mb-0">No durations available</p>
+                                                    )}
+                                                    {activeDurations.length > 3 && (
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setShowAllDurations(!showAllDurations)} 
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                color: '#0d496e',
+                                                                fontWeight: '700',
+                                                                fontSize: '14px',
+                                                                padding: '0',
+                                                                marginTop: '8px',
+                                                                cursor: 'pointer',
+                                                                transition: 'color 0.3s ease',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}
+                                                            onMouseEnter={(e) => e.target.style.color = '#FFB114'}
+                                                            onMouseLeave={(e) => e.target.style.color = '#0d496e'}
+                                                        >
+                                                            {showAllDurations ? 'Show Less' : `+ Show More (${activeDurations.length - 3} more)`}
+                                                        </button>
+                                                    )}
+                                                </>
                                             );
-                                        })}
-                                        {uniqueNights.length === 0 && (
-                                            <p className="text-muted small mb-0">No durations available</p>
-                                        )}
+                                        })()}
                                     </div>
                                 </div>
 
@@ -470,31 +553,77 @@ function DestinationInner({ category: propCategory }) {
                                 <div className="filter-section border-top pt-3">
                                     <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Accommodation Type</h4>
                                     <div className="filter-options">
-                                        {accommodationOptions.map(accVal => {
-                                            const count = getAccommodationCount(accVal);
-                                            const isChecked = selectedAccommodations.includes(accVal);
-                                            const accId = `accommodation-chk-${accVal.replace(/\s+/g, '-')}`;
+                                        {(() => {
+                                            const activeAccommodations = accommodationOptions.filter(accVal => getAccommodationCount(accVal) > 0);
                                             return (
-                                                <div key={accVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
-                                                    <div className="d-flex align-items-center">
-                                                        <input 
-                                                            type="checkbox" 
-                                                            id={accId}
-                                                            checked={isChecked}
-                                                            onChange={() => handleAccommodationToggle(accVal)}
-                                                            className="filter-checkbox"
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
-                                                        <label htmlFor={accId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
-                                                            {accVal} Hotels
-                                                        </label>
-                                                    </div>
-                                                    <span className="text-muted small">({count})</span>
-                                                </div>
+                                                <>
+                                                    {activeAccommodations.map(accVal => {
+                                                        const count = getAccommodationCount(accVal);
+                                                        const isChecked = selectedAccommodations.includes(accVal);
+                                                        const accId = `accommodation-chk-${accVal.replace(/\s+/g, '-')}`;
+                                                        return (
+                                                            <div key={accVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
+                                                                <div className="d-flex align-items-center">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        id={accId}
+                                                                        checked={isChecked}
+                                                                        onChange={() => handleAccommodationToggle(accVal)}
+                                                                        className="filter-checkbox"
+                                                                        style={{ cursor: 'pointer' }}
+                                                                    />
+                                                                    <label htmlFor={accId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
+                                                                        {accVal} Hotels
+                                                                    </label>
+                                                                </div>
+                                                                <span className="text-muted small">({count})</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {activeAccommodations.length === 0 && (
+                                                        <p className="text-muted small mb-0">No accommodation types available</p>
+                                                    )}
+                                                </>
                                             );
-                                        })}
+                                        })()}
                                     </div>
                                 </div>
+
+                                {/* 4. Category Type (Package Type) */}
+                                {(() => {
+                                    const activePackageTypes = ['Standard', 'Premium', 'Luxury'].filter(typeVal => getPackageTypeCount(typeVal) > 0);
+                                    if (activePackageTypes.length === 0) return null;
+                                    return (
+                                        <div className="filter-section border-top pt-3 mt-3">
+                                            <h4 className="filter-title fw-bold mb-3" style={{ fontSize: '16px', color: '#1e293b' }}>Category Type</h4>
+                                            <div className="filter-options">
+                                                {activePackageTypes.map(typeVal => {
+                                                    const count = getPackageTypeCount(typeVal);
+                                                    const isChecked = selectedPackageTypes.includes(typeVal);
+                                                    const chkId = `package-type-chk-${typeVal.toLowerCase()}`;
+                                                    return (
+                                                        <div key={typeVal} className="filter-checkbox-item d-flex align-items-center justify-content-between mb-2">
+                                                            <div className="d-flex align-items-center">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    id={chkId}
+                                                                    checked={isChecked}
+                                                                    onChange={() => handlePackageTypeToggle(typeVal)}
+                                                                    className="filter-checkbox"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                />
+                                                                <label htmlFor={chkId} className="mb-0 cursor-pointer fw-semibold text-secondary-emphasis" style={{ fontSize: '15px' }}>
+                                                                    {typeVal} Package
+                                                                </label>
+                                                            </div>
+                                                            <span className="text-muted small">({count})</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                             
                             <CallbackCard />

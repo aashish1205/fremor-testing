@@ -13,6 +13,182 @@ const preloadImage = (src) => {
     });
 };
 
+const detectBaseCity = (dayObj, prevCity) => {
+    const dayText = (dayObj.day || '').toLowerCase();
+    const titleText = (dayObj.title || '').toLowerCase();
+    const descText = (dayObj.description || '').toLowerCase();
+
+    const knownCities = [
+        'tokyo', 'kyoto', 'osaka', 
+        'habarana', 'sigiriya', 'kandy', 'bentota', 'galle', 'colombo',
+        'kuta', 'ubud', 'seminyak', 'nusa dua', 'sanur',
+        'varanasi', 'prayagraj', 'ayodhya', 'lucknow',
+        'phuket', 'krabi', 'bangkok', 'pattaya',
+        'moscow', 'st. petersburg', 'saint petersburg',
+        'thimphu', 'paro', 'punakha',
+        'port blair', 'havelock', 'neil island', 'andaman'
+    ];
+
+    if (dayText.includes('→') || dayText.includes('->') || dayText.includes('to')) {
+        const parts = dayText.split(/[→\->]|\bto\b/);
+        const destinationPart = parts[parts.length - 1].trim();
+        for (const city of knownCities) {
+            if (destinationPart.includes(city)) {
+                return city.charAt(0).toUpperCase() + city.slice(1);
+            }
+        }
+    }
+
+    const combined = `${titleText} ${descText}`;
+    if (combined.includes('transfer to') || combined.includes('check-in at') || combined.includes('stay in') || combined.includes('hotel in')) {
+        for (const city of knownCities) {
+            if (combined.includes(city)) {
+                return city.charAt(0).toUpperCase() + city.slice(1);
+            }
+        }
+    }
+
+    const searchString = `${dayText} ${titleText}`;
+    for (const city of knownCities) {
+        if (searchString.includes(city)) {
+            if (city === 'galle' && searchString.includes('excursion') && prevCity === 'Bentota') {
+                return 'Bentota';
+            }
+            if (city === 'sigiriya' && prevCity === 'Habarana') {
+                return 'Habarana';
+            }
+            return city.charAt(0).toUpperCase() + city.slice(1);
+        }
+    }
+
+    return prevCity || 'Main Stay';
+};
+
+const groupItinerary = (itineraryList) => {
+    if (!itineraryList || itineraryList.length === 0) return [];
+    
+    const groups = [];
+    let currentGroup = null;
+    let prevCity = '';
+
+    itineraryList.forEach((dayObj, index) => {
+        const baseCity = detectBaseCity(dayObj, prevCity);
+        prevCity = baseCity;
+
+        if (!currentGroup || currentGroup.city !== baseCity) {
+            if (currentGroup) {
+                groups.push(currentGroup);
+            }
+            currentGroup = {
+                city: baseCity,
+                days: []
+            };
+        }
+        currentGroup.days.push(dayObj);
+    });
+
+    if (currentGroup) {
+        groups.push(currentGroup);
+    }
+    
+    return groups;
+};
+
+const getSegmentsForDay = (dayObj) => {
+    const title = dayObj.title || '';
+    const desc = dayObj.description || '';
+    let points = desc.split(/[\n•\r]/).map(p => p.trim()).filter(p => p.length > 0);
+    
+    if (points.length === 0) {
+        points = [title];
+    }
+
+    if (points.length === 1) {
+        let icon = 'fa-umbrella-beach';
+        const txt = points[0].toLowerCase();
+        if (txt.includes('arrival') || txt.includes('airport') || txt.includes('flight') || txt.includes('depart')) icon = 'fa-plane';
+        else if (txt.includes('cruise') || txt.includes('boat') || txt.includes('island')) icon = 'fa-ship';
+        else if (txt.includes('drive') || txt.includes('transfer') || txt.includes('car')) icon = 'fa-car';
+        else if (txt.includes('hotel') || txt.includes('stay') || txt.includes('overnight') || txt.includes('resort')) icon = 'fa-hotel';
+        else if (txt.includes('safari') || txt.includes('temple') || txt.includes('fort') || txt.includes('visit') || txt.includes('explore') || txt.includes('sightseeing')) icon = 'fa-binoculars';
+        
+        return [
+            { type: 'FULL DAY', text: points[0], icon }
+        ];
+    }
+
+    const morningPoints = [];
+    const eveningPoints = [];
+
+    points.forEach(p => {
+        const lp = p.toLowerCase();
+        if (lp.includes('morning') || lp.includes('arrival') || lp.includes('check-in') || lp.includes('breakfast') || lp.includes('meet &') || lp.includes('transfer to hotel')) {
+            morningPoints.push(p);
+        } else if (lp.includes('evening') || lp.includes('leisure') || lp.includes('relaxation') || lp.includes('dinner') || lp.includes('night') || lp.includes('rest')) {
+            eveningPoints.push(p);
+        } else {
+            if (morningPoints.length <= eveningPoints.length) {
+                morningPoints.push(p);
+            } else {
+                eveningPoints.push(p);
+            }
+        }
+    });
+
+    const segments = [];
+    if (morningPoints.length > 0) {
+        let icon = 'fa-cloud-sun-rain';
+        const txt = morningPoints.join(' • ').toLowerCase();
+        if (txt.includes('arrival') || txt.includes('airport') || txt.includes('flight')) icon = 'fa-plane';
+        else if (txt.includes('transfer') || txt.includes('drive') || txt.includes('car')) icon = 'fa-car';
+        else if (txt.includes('hotel') || txt.includes('stay') || txt.includes('resort')) icon = 'fa-hotel';
+        
+        segments.push({
+            type: eveningPoints.length > 0 ? 'MORNING' : 'FULL DAY',
+            text: morningPoints.join(' • '),
+            icon
+        });
+    }
+
+    if (eveningPoints.length > 0) {
+        let icon = 'fa-moon';
+        const txt = eveningPoints.join(' • ').toLowerCase();
+        if (txt.includes('leisure') || txt.includes('relax') || txt.includes('free time')) icon = 'fa-umbrella-beach';
+        else if (txt.includes('dinner') || txt.includes('food') || txt.includes('lunch')) icon = 'fa-utensils';
+        
+        segments.push({
+            type: 'NOON TO EVENING',
+            text: eveningPoints.join(' • '),
+            icon
+        });
+    }
+
+    return segments;
+};
+
+const getSegmentSVG = (text) => {
+    const txt = text.toLowerCase();
+    if (txt.includes('arrival') || txt.includes('airport') || txt.includes('flight') || txt.includes('depart')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>`;
+    }
+    if (txt.includes('hotel') || txt.includes('stay') || txt.includes('overnight') || txt.includes('check-in') || txt.includes('check-out') || txt.includes('resort')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+    }
+    if (txt.includes('drive') || txt.includes('transfer') || txt.includes('ride') || txt.includes('journey') || txt.includes('car')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>`;
+    }
+    if (txt.includes('safari') || txt.includes('temple') || txt.includes('fort') || txt.includes('visit') || txt.includes('explore') || txt.includes('sightseeing') || txt.includes('tour') || txt.includes('excursion') || txt.includes('beach')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    }
+    if (txt.includes('leisure') || txt.includes('relax') || txt.includes('free time') || txt.includes('pool') || txt.includes('shopping')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`;
+    }
+    if (txt.includes('dinner') || txt.includes('lunch') || txt.includes('breakfast') || txt.includes('meals') || txt.includes('food')) {
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`;
+    }
+    return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0d496e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>`;
+};
+
 export const generatePackagePDF = async (destinationPost) => {
     if (!destinationPost) return null;
 
@@ -80,7 +256,7 @@ export const generatePackagePDF = async (destinationPost) => {
         const dayDescription = dayObj.description || (dayObj.activities?.length > 1 ? dayObj.activities.slice(1).join('\n') : dayObj.activities?.join('\n') || 'Activities to be updated.');
         
         return `
-            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #f8fafc; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 12px;">
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box;">
                 <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
                     <span style="background: #0d496e; color: white; font-weight: 800; font-size: 11px; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 4px rgba(13,73,110,0.15);">
                         ${dayObj.day}
@@ -107,13 +283,76 @@ export const generatePackagePDF = async (destinationPost) => {
         `;
     };
 
+    const getTransitionIconName = (nextDayObj) => {
+        if (!nextDayObj) return 'fa-route';
+        const nextCombined = `${nextDayObj.title || ''} ${nextDayObj.description || ''}`.toLowerCase();
+        if (nextCombined.includes('flight') || nextCombined.includes('airport') || nextCombined.includes('arrival') || nextCombined.includes('depart')) {
+            return 'fa-plane';
+        } else if (nextCombined.includes('transfer') || nextCombined.includes('drive') || nextCombined.includes('ride') || nextCombined.includes('train') || nextCombined.includes('car')) {
+            return 'fa-car-side';
+        } else if (nextCombined.includes('check-in') || nextCombined.includes('stay') || nextCombined.includes('hotel') || nextCombined.includes('overnight')) {
+            return 'fa-hotel';
+        } else if (nextCombined.includes('safari') || nextCombined.includes('visit') || nextCombined.includes('sightseeing') || nextCombined.includes('explore') || nextCombined.includes('tour') || nextCombined.includes('excursion') || nextCombined.includes('beach')) {
+            return 'fa-binoculars';
+        }
+        return 'fa-route';
+    };
+
+    const getTransitionSVG = (iconName) => {
+        if (iconName === 'fa-plane') {
+            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>`;
+        }
+        if (iconName === 'fa-hotel') {
+            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+        }
+        if (iconName === 'fa-car-side') {
+            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>`;
+        }
+        if (iconName === 'fa-binoculars') {
+            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        }
+        // fa-route
+        return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>`;
+    };
+
+    const renderTransitionConnector = (nextDayObj) => {
+        const iconName = getTransitionIconName(nextDayObj);
+        const svgString = getTransitionSVG(iconName);
+        return `
+            <div style="display: flex; justify-content: center; align-items: center; position: relative; height: 38px; width: 100%; margin: 2px 0;">
+                <div style="position: absolute; top: 0; bottom: 0; left: 50%; width: 2.5px; border-left: 2.5px dashed #cbd5e1; transform: translateX(-50%); z-index: 1;"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; border-radius: 50%; background: #0d496e; color: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 2; border: 3px solid #ffffff; box-shadow: 0 1.5px 3px rgba(0,0,0,0.1); font-size: 9px;">
+                    ${svgString}
+                </div>
+            </div>
+        `;
+    };
+
     // Build Itinerary Pages HTML dynamically
     let itineraryPagesHTML = '';
-    for (let i = 0; i < itinerary.length; i += 2) {
-        const day1 = itineraryWithPreloadedImages[i];
-        const day2 = itineraryWithPreloadedImages[i + 1];
+    for (let i = 0; i < itineraryWithPreloadedImages.length; i += 2) {
+        const day1Index = i;
+        const day2Index = i + 1;
+        const day1 = itineraryWithPreloadedImages[day1Index];
+        const day2 = day2Index < itineraryWithPreloadedImages.length ? itineraryWithPreloadedImages[day2Index] : null;
+        
         const pageNum = 2 + Math.floor(i / 2);
         
+        const showTopConnector = day1Index > 0;
+        
+        let itineraryContentHTML = '';
+        
+        if (showTopConnector) {
+            itineraryContentHTML += renderTransitionConnector(day1);
+        }
+        
+        itineraryContentHTML += renderDayBlock(day1);
+        
+        if (day2) {
+            itineraryContentHTML += renderTransitionConnector(day2);
+            itineraryContentHTML += renderDayBlock(day2);
+        }
+
         itineraryPagesHTML += `
             <div class="pdf-page" style="width: 794px; height: 1122px; padding: 45px; box-sizing: border-box; background: white; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 2px solid #e2e8f0; position: relative;">
                 <div>
@@ -124,11 +363,7 @@ export const generatePackagePDF = async (destinationPost) => {
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 24px;">
-                        <!-- Day 1 -->
-                        ${renderDayBlock(day1)}
-                        
-                        <!-- Day 2 -->
-                        ${day2 ? renderDayBlock(day2) : ''}
+                        ${itineraryContentHTML}
                     </div>
                 </div>
 

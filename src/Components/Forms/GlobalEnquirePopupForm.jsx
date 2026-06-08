@@ -81,20 +81,20 @@ Destination: ${formData.destination}
   };
 
   return (
-    <div className="enquire-modal-overlay" style={{ zIndex: 9999 }}>
-      <div className="enquire-modal-content" style={{ maxWidth: '600px', borderRadius: '16px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div className="enquire-modal-header py-3 px-4 bg-white border-bottom d-flex justify-content-between align-items-center">
+    <div className="enquire-modal-overlay">
+      <div className="enquire-modal-content" style={{ maxWidth: '600px' }}>
+        <div className="enquire-modal-header py-2 px-3 py-sm-3 px-sm-4 border-bottom d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-3">
-             <div style={{
-                width: '45px', height: '45px', borderRadius: '50%', 
+             <div className="enquire-header-icon-wrap" style={{
+                borderRadius: '50%', 
                 background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px', flexShrink: 0
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0
              }}>
                 <i className="fa-solid fa-map-location-dot"></i>
              </div>
              <div>
-               <h4 className="m-0 text-white" style={{ fontSize: '1.25rem', fontWeight: '700' }}>Planning your destination?</h4>
-               <p className="m-0 text-white" style={{ fontSize: '0.85rem' }}>Let our destination experts guide you through the top routes and book the one that suits you best. Please confirm your details.</p>
+               <h4 className="m-0 text-white enquire-modal-title">Planning your destination?</h4>
+               <p className="m-0 text-white enquire-modal-desc">Let our destination experts guide you through the top routes and book the one that suits you best. Please confirm your details.</p>
              </div>
           </div>
           <button onClick={onClose} className="btn text-white fs-5 p-0 ms-2" aria-label="Close" style={{ border: 'none', background: 'transparent' }}>
@@ -102,7 +102,7 @@ Destination: ${formData.destination}
           </button>
         </div>
         
-        <div className="enquire-modal-body p-4 bg-white">
+        <div className="enquire-modal-body p-3 p-sm-4 bg-white">
           {status === 'success' ? (
             <div className="alert alert-success text-center">
               <h5><i className="fa-solid fa-circle-check"></i> Request Submitted!</h5>
@@ -135,15 +135,15 @@ Destination: ${formData.destination}
                 <input type="email" name="emailAddress" value={formData.emailAddress} onChange={handleChange} className="form-control py-2" placeholder="Email id" required />
               </div>
 
-              <div className="form-check mb-4 d-flex align-items-center gap-2">
-                <input className="form-check-input mt-0" type="checkbox" name="agreedToTerms" id="termsCheck" checked={formData.agreedToTerms} onChange={handleChange} required style={{ cursor: 'pointer' }} />
-                <label className="form-check-label text-muted small" htmlFor="termsCheck" style={{ cursor: 'pointer' }}>
+              <div className="form-check mb-3 d-flex align-items-start gap-2">
+                <input className="form-check-input mt-1" type="checkbox" name="agreedToTerms" id="termsCheck" checked={formData.agreedToTerms} onChange={handleChange} required style={{ cursor: 'pointer', flexShrink: 0 }} />
+                <label className="form-check-label text-muted small" htmlFor="termsCheck" style={{ cursor: 'pointer', lineHeight: '1.25' }}>
                   I have read and agree to the <a href="/terms" target="_blank" className="text-primary text-decoration-none">User Agreement</a> & <a href="/terms" target="_blank" className="text-primary text-decoration-none">Privacy Policy</a>.
                 </label>
               </div>
 
               <div className="d-grid">
-                <button type="submit" className="btn btn-primary py-2 fw-bold text-white" style={{ borderRadius: '8px', background: '#0d6efd', border: 'none' }} disabled={status === 'sending'}>
+                <button type="submit" className="enquire-submit-btn" disabled={status === 'sending'}>
                   {status === 'sending' ? 'Submitting...' : 'Submit'}
                 </button>
               </div>

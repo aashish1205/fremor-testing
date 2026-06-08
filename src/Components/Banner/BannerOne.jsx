@@ -1,7 +1,39 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchDestinations, getImageSrc } from '../../services/destinationService';
 
 function BannerOne() {
+    const navigate = useNavigate();
+
+    // Auto-typing animation state
+    const searchPlaceholders = [
+        "Bali, India",
+        "Switzerland",
+        "Paris, France",
+        "Kyoto, Japan",
+        "Maldives",
+        "New York, USA",
+        "Singapore",
+        "London, UK",
+        "Dubai, UAE"
+    ];
+    const [placeholderText, setPlaceholderText] = useState("");
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Dynamic search suggestion state
+    const [allDestinations, setAllDestinations] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
+    const [searchVal, setSearchVal] = useState("");
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    
+    const heroSearchRef = useRef(null);
+    const stickySearchRef = useRef(null);
+
+    // Sticky search position state
+    const [isStickySearch, setIsStickySearch] = useState(false);
+    const [navbarHeight, setNavbarHeight] = useState(80);
+
     useEffect(() => {
         // Function to add animation classes
         const animationProperties = () => {
@@ -18,6 +50,109 @@ function BannerOne() {
 
         animationProperties();
     }, []);
+
+    // Placeholder Typing Animation Effect
+    useEffect(() => {
+        let timer;
+        const currentWord = searchPlaceholders[placeholderIndex];
+        
+        if (isDeleting) {
+            timer = setTimeout(() => {
+                setPlaceholderText(prev => prev.slice(0, -1));
+            }, 55);
+        } else {
+            timer = setTimeout(() => {
+                setPlaceholderText(prev => currentWord.slice(0, prev.length + 1));
+            }, 105);
+        }
+
+        if (!isDeleting && placeholderText === currentWord) {
+            timer = setTimeout(() => {
+                setIsDeleting(true);
+            }, 2000);
+        } else if (isDeleting && placeholderText === "") {
+            setIsDeleting(false);
+            setPlaceholderIndex(prev => (prev + 1) % searchPlaceholders.length);
+        }
+
+        return () => clearTimeout(timer);
+    }, [placeholderText, isDeleting, placeholderIndex]);
+
+    // Fetch destinations for search autocomplete suggestions
+    useEffect(() => {
+        const loadDests = async () => {
+            try {
+                const data = await fetchDestinations();
+                setAllDestinations(data || []);
+            } catch (err) {
+                console.error("Failed to load destinations for search suggestions:", err);
+            }
+        };
+        loadDests();
+    }, []);
+
+    // Listen to scroll to determine stickiness of search box
+    useEffect(() => {
+        const updateHeaderHeight = () => {
+            const headerSticky = document.querySelector('.sticky-wrapper');
+            if (headerSticky) {
+                setNavbarHeight(headerSticky.offsetHeight || 80);
+            }
+        };
+
+        const handleScroll = () => {
+            setIsStickySearch(window.scrollY > 450);
+            updateHeaderHeight();
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("resize", updateHeaderHeight);
+        
+        updateHeaderHeight();
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", updateHeaderHeight);
+        };
+    }, []);
+
+    // Click outside to close dropdowns
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (
+                (heroSearchRef.current && !heroSearchRef.current.contains(e.target)) &&
+                (stickySearchRef.current && !stickySearchRef.current.contains(e.target))
+            ) {
+                setShowSuggestions(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleInputChange = (e) => {
+        const val = e.target.value;
+        setSearchVal(val);
+        setShowSuggestions(true);
+        
+        if (val.trim() === "") {
+            setSuggestions([]);
+        } else {
+            const query = val.toLowerCase();
+            const filtered = allDestinations.filter(d => 
+                (d.title && d.title.toLowerCase().includes(query)) ||
+                (d.category && d.category.toLowerCase().includes(query))
+            ).slice(0, 6);
+            setSuggestions(filtered);
+        }
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (searchVal.trim() !== "") {
+            navigate(`/destination?search=${encodeURIComponent(searchVal)}`);
+        }
+    };
 
     const categories = [
         { name: 'COUPLE', img: '/assets/img/couple_travel.png' },
@@ -370,6 +505,302 @@ function BannerOne() {
                     width: 30px;
                     height: 30px;
                 }
+
+                /* Premium Glassmorphic Hero Search Box */
+                .hero-search-container {
+                    width: 100%;
+                    max-width: 650px;
+                    margin: 35px auto 0;
+                    position: relative;
+                    z-index: 100;
+                }
+
+                .hero-search-wrapper {
+                    background: rgba(255, 255, 255, 0.12);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255, 255, 255, 0.25);
+                    border-radius: 50px;
+                    padding: 8px 8px 8px 25px;
+                    display: flex;
+                    align-items: center;
+                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+                    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                }
+
+                .hero-search-wrapper:focus-within {
+                    background: rgba(255, 255, 255, 0.22);
+                    border-color: rgba(255, 255, 255, 0.5);
+                    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.1);
+                    transform: translateY(-2px);
+                }
+
+                .hero-search-wrapper i.search-icon {
+                    color: #ffffff;
+                    font-size: 20px;
+                    margin-right: 15px;
+                    opacity: 0.85;
+                }
+
+                .hero-search-wrapper input {
+                    background: transparent;
+                    border: none;
+                    outline: none;
+                    width: 100%;
+                    padding: 12px 0;
+                    font-size: 17px;
+                    color: #ffffff;
+                    font-weight: 500;
+                    font-family: inherit;
+                }
+
+                .hero-search-wrapper input::placeholder {
+                    color: rgba(255, 255, 255, 0.75);
+                    font-style: italic;
+                }
+
+                .hero-search-btn {
+                    background: #0d496e;
+                    color: #ffffff;
+                    border: none;
+                    border-radius: 50px;
+                    padding: 12px 30px;
+                    font-weight: 700;
+                    font-size: 15px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                }
+
+                .hero-search-btn:hover {
+                    background: #115c8a;
+                    transform: scale(1.03);
+                    box-shadow: 0 5px 15px rgba(13, 73, 110, 0.4);
+                }
+
+                /* Autocomplete dropdown suggestions */
+                .search-suggestions-dropdown {
+                    position: absolute;
+                    top: calc(100% + 10px);
+                    left: 0;
+                    right: 0;
+                    background: #ffffff;
+                    border-radius: 16px;
+                    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+                    border: 1px solid rgba(0,0,0,0.08);
+                    overflow: hidden;
+                    z-index: 1000;
+                    padding: 8px 0;
+                    animation: dropdownFadeIn 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+                    text-align: left;
+                }
+
+                @keyframes dropdownFadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                .suggestion-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    transition: background 0.2s ease;
+                    gap: 15px;
+                    text-decoration: none !important;
+                }
+
+                .suggestion-item:hover {
+                    background: #f4f8fa;
+                }
+
+                .suggestion-img {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 8px;
+                    object-fit: cover;
+                    background-color: #eee;
+                }
+
+                .suggestion-info {
+                    flex: 1;
+                }
+
+                .suggestion-title {
+                    font-size: 15px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin: 0;
+                }
+
+                .suggestion-meta {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 2px;
+                }
+
+                .suggestion-category {
+                    font-size: 11px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    background: #e2e8f0;
+                    color: #475569;
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                }
+
+                .suggestion-price {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #0d496e;
+                }
+
+                .suggestion-no-results {
+                    padding: 15px 20px;
+                    color: #64748b;
+                    font-size: 14px;
+                    font-style: italic;
+                }
+
+                /* Scroll Sticky Search Bar */
+                .sticky-search-bar-container {
+                    position: fixed;
+                    left: 0;
+                    right: 0;
+                    background-color: #AED4E0;
+                    padding: 6px 20px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                    z-index: 9998;
+                    animation: stickySearchSlideDown 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+                    transition: top 0.3s ease;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                @keyframes stickySearchSlideDown {
+                    from { transform: translateY(-100%); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+
+                .sticky-search-inner {
+                    width: 100%;
+                    max-width: 600px;
+                    position: relative;
+                }
+
+                .sticky-search-form {
+                    display: flex;
+                    align-items: center;
+                    background: #ffffff;
+                    border-radius: 50px;
+                    padding: 4px 4px 4px 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                    width: 100%;
+                }
+
+                .sticky-search-form i.sticky-search-icon {
+                    color: #64748b;
+                    font-size: 16px;
+                    margin-right: 10px;
+                }
+
+                .sticky-search-form input {
+                    border: none;
+                    outline: none;
+                    background: transparent;
+                    width: 100%;
+                    padding: 5px 0;
+                    font-size: 14px;
+                    color: #1e293b;
+                    font-weight: 500;
+                }
+
+                .sticky-search-form input::placeholder {
+                    color: #94a3b8;
+                    font-style: italic;
+                }
+
+                .sticky-search-submit-btn {
+                    background: #0d496e;
+                    color: #ffffff;
+                    border: none;
+                    border-radius: 50px;
+                    padding: 7px 20px;
+                    font-weight: 700;
+                    font-size: 13px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    text-transform: uppercase;
+                }
+
+                .sticky-search-submit-btn:hover {
+                    background: #115c8a;
+                }
+
+                @media (max-width: 768px) {
+                    .hero-search-container {
+                        margin-top: 25px;
+                        padding: 0 10px;
+                    }
+                    .hero-search-wrapper {
+                        padding: 6px 6px 6px 15px;
+                    }
+                    .hero-search-wrapper i.search-icon {
+                        font-size: 16px;
+                        margin-right: 8px;
+                    }
+                    .hero-search-wrapper input {
+                        font-size: 14px;
+                        padding: 8px 0;
+                    }
+                    .hero-search-btn {
+                        padding: 8px 18px;
+                        font-size: 13px;
+                    }
+                    .search-suggestions-dropdown {
+                        padding: 4px 0;
+                        border-radius: 12px;
+                    }
+                    .suggestion-item {
+                        padding: 8px 15px;
+                        gap: 10px;
+                    }
+                    .suggestion-img {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 6px;
+                    }
+                    .suggestion-title {
+                        font-size: 13px;
+                    }
+                    .suggestion-price {
+                        font-size: 11px;
+                    }
+                    .sticky-search-bar-container {
+                        padding: 4px 10px;
+                    }
+                    .sticky-search-form {
+                        padding: 3px 3px 3px 12px;
+                    }
+                    .sticky-search-form i.sticky-search-icon {
+                        font-size: 14px;
+                        margin-right: 8px;
+                    }
+                    .sticky-search-form input {
+                        font-size: 12px;
+                        padding: 4px 0;
+                    }
+                    .sticky-search-submit-btn {
+                        padding: 5px 12px;
+                        font-size: 11px;
+                    }
+                }
             `}} />
 
             {/* Video Background */}
@@ -390,8 +821,66 @@ function BannerOne() {
                     <h1 className="hero-main-title">
                         Plan Your Sooper <br/>Hit Holiday — Your Way
                     </h1>
+
+                    {/* Hero Search Box with Autocomplete suggestions */}
+                    <div className="hero-search-container" ref={heroSearchRef}>
+                        <form onSubmit={handleSearchSubmit}>
+                            <div className="hero-search-wrapper">
+                                <i className="fa-light fa-magnifying-glass search-icon" />
+                                <input
+                                    type="text"
+                                    value={searchVal}
+                                    onChange={handleInputChange}
+                                    onFocus={() => setShowSuggestions(true)}
+                                    placeholder={`Search '${placeholderText}'...`}
+                                />
+                                <button type="submit" className="hero-search-btn">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* Suggestions Dropdown */}
+                        {showSuggestions && searchVal.trim() !== "" && (
+                            <div className="search-suggestions-dropdown">
+                                {suggestions.length > 0 ? (
+                                    suggestions.map((sug) => (
+                                        <Link 
+                                            key={sug.id} 
+                                            to={`/destination/${sug.id}`} 
+                                            className="suggestion-item"
+                                            onClick={() => setShowSuggestions(false)}
+                                        >
+                                            <img 
+                                                src={getImageSrc(sug.image)} 
+                                                alt={sug.title} 
+                                                className="suggestion-img" 
+                                            />
+                                            <div className="suggestion-info">
+                                                <div className="suggestion-title">{sug.title}</div>
+                                                <div className="suggestion-meta">
+                                                    {sug.category && (
+                                                        <span className="suggestion-category">{sug.category}</span>
+                                                    )}
+                                                    {sug.price && (
+                                                        <span className="suggestion-price">₹{sug.price.toLocaleString()}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <div className="suggestion-no-results">
+                                        No destinations found for "{searchVal}"
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
+
+
 
             {/* Overlapping Section */}
             {/*<div className="overlap-wrapper">
