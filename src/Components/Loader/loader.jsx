@@ -72,38 +72,9 @@ const FremorLoader = ({ show, isPlain = false }) => {
   }, [progress]);
 
   const getAirplaneStyle = () => {
-    let translateY = 0;
-    let rotate = 0;
-    let scale = 1;
-    
-    if (progress < 40) {
-      // Rolling flat
-      translateY = 0;
-      rotate = 0;
-      scale = 1;
-    } else if (progress < 55) {
-      // Pitch up (preparing for takeoff)
-      const ratio = (progress - 40) / 15; // 0 to 1
-      rotate = ratio * -15; // 0 to -15deg
-      translateY = ratio * -6; // 0 to -6px
-      scale = 1;
-    } else if (progress < 85) {
-      // Climbing
-      const ratio = (progress - 55) / 30; // 0 to 1
-      rotate = -15;
-      translateY = -6 + (ratio * -54); // -6px to -60px
-      scale = 1 - (ratio * 0.1); // 1 to 0.9 (starts shrinking)
-    } else {
-      // Fly away / disappearing into distance
-      const ratio = (progress - 85) / 15; // 0 to 1
-      rotate = -15 - (ratio * 15); // -15deg to -30deg
-      translateY = -60 + (ratio * -200); // -60px to -260px (climbs high off page)
-      scale = 0.9 - (ratio * 0.45); // 0.9 to 0.45 (recedes in distance)
-    }
-
     return {
       left: `calc(var(--track-margin) + var(--track-width) * ${progress / 100})`,
-      transform: `translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+      transform: 'translateY(0px) rotate(0deg) scale(1)',
       transition: 'left 0.08s linear, transform 0.08s linear'
     };
   };

@@ -94,7 +94,7 @@ function RouterContent() {
 
   return (
     <>
-      <FremorLoader show={showLoader} isPlain={true} />
+      <FremorLoader show={showLoader} isPlain={location.pathname.startsWith('/admin') || location.pathname.startsWith('/team')} />
       <div style={{ opacity: showLoader ? 0 : 1, transition: 'opacity 0.3s ease' }}>
         <LoadTop />
         <FloatingEnquireWidget />

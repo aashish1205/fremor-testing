@@ -112,7 +112,7 @@ const CategoryOne = () => {
                   <Link to="/destination">{category.title}</Link>
                 </h3>
                 <Link className="line-btn" to="/destination">
-                  See more
+                  See more 
                 </Link>
               </div>
             </SwiperSlide>

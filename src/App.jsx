@@ -32,7 +32,12 @@ function App() {
   return (
     <div className="App">
       <RouterPage />
-      {showLoader && <FremorLoader show={showLoader} />}
+      {showLoader && (
+        <FremorLoader 
+          show={showLoader} 
+          isPlain={window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/team')} 
+        />
+      )}
     </div>
   );
 }

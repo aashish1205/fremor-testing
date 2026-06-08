@@ -1,6 +1,7 @@
 import React from 'react'
 import HeaderOne from '../Components/Header/HeaderOne'
 import BannerOne from '../Components/Banner/BannerOne'
+import RecentlyBookedItineraries from '../Components/Destination/RecentlyBookedItineraries'
 import Booking from '../Components/Booking/Booking'
 import CategoryOne from '../Components/Category/CategoryOne'
 import DestinationOne from '../Components/Destination/DestinationOne'
@@ -24,6 +25,7 @@ function HomeOne() {
         <div>
             <HeaderOne />
             <BannerOne />
+            <RecentlyBookedItineraries />
             {/* <BookingSection/> */}
             <CategoryOne />
             <DestinationOne />

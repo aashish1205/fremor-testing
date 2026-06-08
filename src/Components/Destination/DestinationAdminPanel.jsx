@@ -13,6 +13,7 @@ import {
 import { useDataTable } from '../../hooks/useDataTable';
 import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
+import { supabase } from '../../supabaseClient';
 import './AdminStyles.css';
 
 function DestinationAdminPanel() {
@@ -20,6 +21,14 @@ function DestinationAdminPanel() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Recently Booked Section Settings states
+    const [activeTab, setActiveTab] = useState('packages'); // 'packages' or 'recentlyBooked'
+    const [sectionHeading, setSectionHeading] = useState('Recently Booked Itineraries');
+    const [sectionBadge, setSectionBadge] = useState('143+ trips booked last week');
+    const [isSavingSettings, setIsSavingSettings] = useState(false);
+    const [togglePackages, setTogglePackages] = useState([]);
+    const [isSavingToggles, setIsSavingToggles] = useState(false);
     
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +70,10 @@ function DestinationAdminPanel() {
         package_type: 'Standard',
         accommodation_type: '3 Star',
         nights: 0,
-        days: 0
+        days: 0,
+        show_recently_booked: false,
+        recent_booking_text: '',
+        recent_booking_tag: ''
     });
 
     
@@ -95,7 +107,24 @@ function DestinationAdminPanel() {
 
     useEffect(() => {
         loadDestinations();
+        loadSectionSettings();
     }, []);
+
+    const loadSectionSettings = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('recently_booked_settings')
+                .select('*')
+                .eq('id', 1)
+                .maybeSingle();
+            if (data && !error) {
+                setSectionHeading(data.heading || 'Recently Booked Itineraries');
+                setSectionBadge(data.badge_text || '143+ trips booked last week');
+            }
+        } catch (err) {
+            console.warn('Could not load recently booked settings', err);
+        }
+    };
 
     const showToast = (message, type = 'success') => {
         setToast({ show: true, message, type });
@@ -107,11 +136,89 @@ function DestinationAdminPanel() {
             setLoading(true);
             const data = await fetchDestinations();
             setDestinations(data);
+
+            // Populate toggles array
+            setTogglePackages(data.map(d => ({
+                id: d.id,
+                title: d.title,
+                image: d.image,
+                show_recently_booked: !!d.show_recently_booked,
+                recent_booking_text: d.recent_booking_text || '',
+                recent_booking_tag: d.recent_booking_tag || ''
+            })));
         } catch (err) {
             console.error('Failed to load destinations', err);
             setError('Failed to load destinations');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSaveSectionSettings = async (e) => {
+        e.preventDefault();
+        try {
+            setIsSavingSettings(true);
+            const { error } = await supabase
+                .from('recently_booked_settings')
+                .upsert({
+                    id: 1,
+                    heading: sectionHeading,
+                    badge_text: sectionBadge
+                });
+            if (error) throw error;
+            showToast('Homepage section settings saved successfully!');
+        } catch (err) {
+            console.error('Failed to save settings', err);
+            showToast('Failed to save settings: ' + (err.message || err.details), 'error');
+        } finally {
+            setIsSavingSettings(false);
+        }
+    };
+
+    const handleSaveToggles = async () => {
+        try {
+            setIsSavingToggles(true);
+
+            // Find which packages have different values compared to the destinations state
+            const updates = [];
+            for (let toggle of togglePackages) {
+                const original = destinations.find(d => d.id === toggle.id);
+                if (original) {
+                    const isChanged = 
+                        !!original.show_recently_booked !== !!toggle.show_recently_booked ||
+                        (original.recent_booking_text || '') !== toggle.recent_booking_text ||
+                        (original.recent_booking_tag || '') !== toggle.recent_booking_tag;
+                    
+                    if (isChanged) {
+                        updates.push(supabase
+                            .from('destinations')
+                            .update({
+                                show_recently_booked: toggle.show_recently_booked,
+                                recent_booking_text: toggle.recent_booking_text,
+                                recent_booking_tag: toggle.recent_booking_tag
+                            })
+                            .eq('id', toggle.id)
+                        );
+                    }
+                }
+            }
+
+            if (updates.length > 0) {
+                const results = await Promise.all(updates);
+                const errors = results.filter(r => r.error).map(r => r.error);
+                if (errors.length > 0) {
+                    throw new Error(errors[0].message || 'Some updates failed');
+                }
+                showToast(`Successfully updated ${updates.length} packages!`);
+                await loadDestinations(); // Reload destinations to sync original state
+            } else {
+                showToast('No package settings were changed.');
+            }
+        } catch (err) {
+            console.error('Failed to save package toggles', err);
+            showToast('Failed to save changes: ' + err.message, 'error');
+        } finally {
+            setIsSavingToggles(false);
         }
     };
 
@@ -158,7 +265,10 @@ function DestinationAdminPanel() {
                 package_type: dest.package_type || 'Standard',
                 accommodation_type: dest.accommodation_type || '3 Star',
                 nights: dest.nights || 0,
-                days: dest.days || 0
+                days: dest.days || 0,
+                show_recently_booked: dest.show_recently_booked || false,
+                recent_booking_text: dest.recent_booking_text || '',
+                recent_booking_tag: dest.recent_booking_tag || ''
             });
         } else {
             setFormData({
@@ -196,7 +306,10 @@ function DestinationAdminPanel() {
                 package_type: 'Standard',
                 accommodation_type: '3 Star',
                 nights: 0,
-                days: 0
+                days: 0,
+                show_recently_booked: false,
+                recent_booking_text: '',
+                recent_booking_tag: ''
             });
         }
         setPrimaryImageFile(null);
@@ -372,7 +485,10 @@ function DestinationAdminPanel() {
                 package_type: formData.package_type,
                 accommodation_type: formData.accommodation_type || '3 Star',
                 nights: parseInt(formData.nights) || 0,
-                days: parseInt(formData.days) || 0
+                days: parseInt(formData.days) || 0,
+                show_recently_booked: !!formData.show_recently_booked,
+                recent_booking_text: formData.recent_booking_text || '',
+                recent_booking_tag: formData.recent_booking_tag || ''
             };
 
             // Dynamic brochure PDF is now generated automatically on client side, no upload needed
@@ -441,114 +557,287 @@ function DestinationAdminPanel() {
                 </div>
             )}
 
-            <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <h2 className="m-0">Manage Dynamic Destinations</h2>
-                <div className="d-flex gap-3 align-items-center">
-                    <div className="position-relative">
-                        <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
-                        <input 
-                            type="text" 
-                            placeholder="Search destinations..." 
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className="form-control ps-5"
-                            style={{ width: '200px', borderRadius: '8px' }}
-                        />
-                    </div>
-                    <select
-                        value={filterAccommodation}
-                        onChange={(e) => setFilterAccommodation(e.target.value)}
-                        className="form-select border-secondary-subtle"
-                        style={{ width: '140px', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer' }}
-                    >
-                        <option value="All">All Hotels</option>
-                        <option value="2 Star">2 Star</option>
-                        <option value="3 Star">3 Star</option>
-                        <option value="4 Star">4 Star</option>
-                        <option value="5 Star">5 Star</option>
-                    </select>
-                    <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
-                        <i className="fa-solid fa-plus me-2"></i> Add Destination
-                    </button>
-                </div>
+            <div className="admin-tabs-nav mb-4" style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '0' }}>
+                <button 
+                    onClick={() => setActiveTab('packages')} 
+                    style={{ 
+                        padding: '12px 24px', 
+                        fontWeight: '600', 
+                        fontSize: '15px', 
+                        border: 'none', 
+                        borderBottom: activeTab === 'packages' ? '3px solid #10b981' : '3px solid transparent', 
+                        backgroundColor: 'transparent', 
+                        color: activeTab === 'packages' ? '#10b981' : '#64748b', 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s ease',
+                        marginBottom: '-1px'
+                    }}
+                >
+                    <i className="fa-solid fa-map-location-dot me-2"></i> Manage Tour Packages
+                </button>
+                <button 
+                    onClick={() => setActiveTab('recentlyBooked')} 
+                    style={{ 
+                        padding: '12px 24px', 
+                        fontWeight: '600', 
+                        fontSize: '15px', 
+                        border: 'none', 
+                        borderBottom: activeTab === 'recentlyBooked' ? '3px solid #10b981' : '3px solid transparent', 
+                        backgroundColor: 'transparent', 
+                        color: activeTab === 'recentlyBooked' ? '#10b981' : '#64748b', 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s ease',
+                        marginBottom: '-1px'
+                    }}
+                >
+                    <i className="fa-solid fa-gear me-2"></i> Recently Booked Section Settings
+                </button>
             </div>
 
-            {loading ? (
-                <div className="admin-loading">
-                    <div className="spinner-border text-primary" role="status"></div>
-                </div>
-            ) : error ? (
-                <div className="admin-error">{error}</div>
-            ) : (
-                <div className="admin-table-container">
-                    <table className="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Thumbnail</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Type</th>
-                                <th>Accommodation</th>
-                                <th>Location</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedData.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="text-center py-4 text-muted">
-                                        {searchTerm ? 'No destinations found matching your search.' : 'No destinations found.'}
-                                    </td>
-                                </tr>
-                            ) : (
-                                paginatedData.map(dest => (
-                                    <tr key={dest.id}>
-                                        <td>
-                                            <div className="admin-img-thumb truncate-img">
-                                                <img src={getImageSrc(dest.image)} alt={dest.title} />
-                                            </div>
-                                        </td>
-                                        <td><strong>{dest.title}</strong></td>
-                                        <td>
-                                            <span style={{ fontWeight: '600', color: dest.category === 'Outbound' ? '#0d6efd' : dest.category === 'Domestic' ? '#fd7e14' : '#198754' }}>
-                                                {dest.category === 'Outbound' ? 'Global' : (dest.category || 'Inbound')}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`badge ${dest.package_type === 'Luxury' ? 'bg-warning text-dark' : dest.package_type === 'Premium' ? 'bg-info text-dark' : 'bg-secondary'}`}>
-                                                {dest.package_type || 'Standard'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className="badge bg-dark" style={{ fontSize: '11px' }}>
-                                                {dest.accommodation_type || '3 Star'}
-                                            </span>
-                                        </td>
-                                        <td>{dest.location || '-'}</td>
-                                        <td>₹{dest.price}</td>
-                                        <td>
-                                            <div className="admin-actions">
-                                                <button className="btn-edit" onClick={() => handleOpenModal('edit', dest)}>
-                                                    <i className="fa-solid fa-pen"></i> Edit
-                                                </button>
-                                                <button className="btn-delete" onClick={() => handleDelete(dest.id, dest.image)}>
-                                                    <i className="fa-solid fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </td>
+            {activeTab === 'packages' && (
+                <>
+                    <div className="admin-panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <h2 className="m-0">Manage Dynamic Destinations</h2>
+                        <div className="d-flex gap-3 align-items-center">
+                            <div className="position-relative">
+                                <i className="fa-solid fa-search position-absolute" style={{ top: '50%', left: '12px', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Search destinations..." 
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    className="form-control ps-5"
+                                    style={{ width: '200px', borderRadius: '8px' }}
+                                />
+                            </div>
+                            <select
+                                value={filterAccommodation}
+                                onChange={(e) => setFilterAccommodation(e.target.value)}
+                                className="form-select border-secondary-subtle"
+                                style={{ width: '140px', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer' }}
+                            >
+                                <option value="All">All Hotels</option>
+                                <option value="2 Star">2 Star</option>
+                                <option value="3 Star">3 Star</option>
+                                <option value="4 Star">4 Star</option>
+                                <option value="5 Star">5 Star</option>
+                            </select>
+                            <button className="th-btn m-0" onClick={() => handleOpenModal('add')}>
+                                <i className="fa-solid fa-plus me-2"></i> Add Destination
+                            </button>
+                        </div>
+                    </div>
+
+                    {loading ? (
+                        <div className="admin-loading">
+                            <div className="spinner-border text-primary" role="status"></div>
+                        </div>
+                    ) : error ? (
+                        <div className="admin-error">{error}</div>
+                    ) : (
+                        <div className="admin-table-container">
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Thumbnail</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Type</th>
+                                        <th>Accommodation</th>
+                                        <th>Location</th>
+                                        <th>Price</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                    
-                    <AdminPagination 
-                        currentPage={currentPage} 
-                        totalPages={totalPages} 
-                        onPageChange={setCurrentPage} 
-                        totalItems={totalItems}
-                    />
+                                </thead>
+                                <tbody>
+                                    {paginatedData.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="7" className="text-center py-4 text-muted">
+                                                {searchTerm ? 'No destinations found matching your search.' : 'No destinations found.'}
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        paginatedData.map(dest => (
+                                            <tr key={dest.id}>
+                                                <td>
+                                                    <div className="admin-img-thumb truncate-img">
+                                                        <img src={getImageSrc(dest.image)} alt={dest.title} />
+                                                    </div>
+                                                </td>
+                                                <td><strong>{dest.title}</strong></td>
+                                                <td>
+                                                    <span style={{ fontWeight: '600', color: dest.category === 'Outbound' ? '#0d6efd' : dest.category === 'Domestic' ? '#fd7e14' : '#198754' }}>
+                                                        {dest.category === 'Outbound' ? 'Global' : (dest.category || 'Inbound')}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge ${dest.package_type === 'Luxury' ? 'bg-warning text-dark' : dest.package_type === 'Premium' ? 'bg-info text-dark' : 'bg-secondary'}`}>
+                                                        {dest.package_type || 'Standard'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="badge bg-dark" style={{ fontSize: '11px' }}>
+                                                        {dest.accommodation_type || '3 Star'}
+                                                    </span>
+                                                </td>
+                                                <td>{dest.location || '-'}</td>
+                                                <td>₹{dest.price}</td>
+                                                <td>
+                                                    <div className="admin-actions">
+                                                        <button className="btn-edit" onClick={() => handleOpenModal('edit', dest)}>
+                                                            <i className="fa-solid fa-pen"></i> Edit
+                                                        </button>
+                                                        <button className="btn-delete" onClick={() => handleDelete(dest.id, dest.image)}>
+                                                            <i className="fa-solid fa-trash"></i> Delete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                            
+                            <AdminPagination 
+                                currentPage={currentPage} 
+                                totalPages={totalPages} 
+                                onPageChange={setCurrentPage} 
+                                totalItems={totalItems}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Tab 2: Recently Booked Config Panel */}
+            {activeTab === 'recentlyBooked' && (
+                <div className="recently-booked-settings-panel" style={{ animation: 'fadeIn 0.25s ease' }}>
+                    {/* Part 1: Heading/Badge */}
+                    <div className="card shadow-sm border-0 mb-4 p-4" style={{ borderRadius: '12px', backgroundColor: '#f8fafc' }}>
+                        <h4 className="border-bottom pb-2 text-primary" style={{ fontWeight: '700', fontSize: '18px' }}>
+                            <i className="fa-solid fa-pen-to-square me-2"></i> Homepage Header Customization
+                        </h4>
+                        <form onSubmit={handleSaveSectionSettings} className="row mt-3">
+                            <div className="col-md-6 mb-3">
+                                <label className="fw-semibold mb-1 text-dark" style={{ fontSize: '14px' }}>Section Heading Text</label>
+                                <input 
+                                    type="text" 
+                                    value={sectionHeading} 
+                                    onChange={(e) => setSectionHeading(e.target.value)} 
+                                    className="form-control" 
+                                    placeholder="e.g. Recently Booked Itineraries" 
+                                    required 
+                                />
+                                <small className="text-muted d-block mt-1">The first word will automatically receive the hand-drawn green accent circle on the homepage.</small>
+                            </div>
+                            <div className="col-md-6 mb-3">
+                                <label className="fw-semibold mb-1 text-dark" style={{ fontSize: '14px' }}>Heart Badge Text</label>
+                                <input 
+                                    type="text" 
+                                    value={sectionBadge} 
+                                    onChange={(e) => setSectionBadge(e.target.value)} 
+                                    className="form-control" 
+                                    placeholder="e.g. 143+ trips booked last week" 
+                                    required 
+                                />
+                                <small className="text-muted d-block mt-1">Will show up next to the heart (❤️) icon badge.</small>
+                            </div>
+                            <div className="col-12 mt-2">
+                                <button type="submit" className="th-btn m-0" disabled={isSavingSettings}>
+                                    <i className="fa-solid fa-floppy-disk me-2"></i>
+                                    {isSavingSettings ? 'Saving Settings...' : 'Save Header Settings'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {/* Part 2: Bulk package toggles */}
+                    <div className="card shadow-sm border-0 p-4" style={{ borderRadius: '12px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+                        <h4 className="border-bottom pb-2 text-primary" style={{ fontWeight: '700', fontSize: '18px' }}>
+                            <i className="fa-solid fa-rectangle-list me-2"></i> Tour Packages Visibility Toggles
+                        </h4>
+                        <p className="text-muted small">Toggle which packages show up in the "Recently Booked Itineraries" homepage section and edit their booking metadata directly. Remember to save changes at the bottom.</p>
+                        
+                        <div className="table-responsive mt-3" style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                            <table className="admin-table align-middle m-0" style={{ minWidth: '700px' }}>
+                                <thead className="sticky-top bg-light" style={{ zIndex: '2' }}>
+                                    <tr>
+                                        <th style={{ width: '80px' }}>Thumbnail</th>
+                                        <th style={{ width: '220px' }}>Package Title</th>
+                                        <th style={{ width: '120px', textAlign: 'center' }}>Show in Section?</th>
+                                        <th>Recent Booking Display Text</th>
+                                        <th style={{ width: '180px' }}>Tag (Badge)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {togglePackages.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-4 text-muted">No tour packages found.</td>
+                                        </tr>
+                                    ) : (
+                                        togglePackages.map((pkg, idx) => (
+                                            <tr key={pkg.id}>
+                                                <td>
+                                                    <div className="admin-img-thumb truncate-img">
+                                                        <img src={getImageSrc(pkg.image)} alt={pkg.title} />
+                                                    </div>
+                                                </td>
+                                                <td><strong>{pkg.title}</strong></td>
+                                                <td className="text-center">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={pkg.show_recently_booked} 
+                                                        onChange={(e) => {
+                                                            const val = e.target.checked;
+                                                            setTogglePackages(prev => prev.map(p => p.id === pkg.id ? { ...p, show_recently_booked: val } : p));
+                                                        }}
+                                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input 
+                                                        type="text" 
+                                                        value={pkg.recent_booking_text} 
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            setTogglePackages(prev => prev.map(p => p.id === pkg.id ? { ...p, recent_booking_text: val } : p));
+                                                        }}
+                                                        className="form-control form-control-sm"
+                                                        placeholder="e.g. Sunil from Pune • 1hr ago (Leave empty for fallback)"
+                                                        disabled={!pkg.show_recently_booked}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input 
+                                                        type="text" 
+                                                        value={pkg.recent_booking_tag} 
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            setTogglePackages(prev => prev.map(p => p.id === pkg.id ? { ...p, recent_booking_tag: val } : p));
+                                                        }}
+                                                        className="form-control form-control-sm"
+                                                        placeholder="e.g. COUPLE, SOLO, GROUP"
+                                                        disabled={!pkg.show_recently_booked}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div className="d-flex justify-content-end mt-4">
+                            <button 
+                                onClick={handleSaveToggles} 
+                                className="th-btn" 
+                                disabled={isSavingToggles || togglePackages.length === 0}
+                            >
+                                <i className="fa-solid fa-floppy-disk me-2"></i>
+                                {isSavingToggles ? 'Saving Changes...' : 'Save Packages Configuration'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -648,6 +937,27 @@ function DestinationAdminPanel() {
                                 <div className="col-md-8 mb-3">
                                     <label>Badge Text</label>
                                     <input type="text" name="badge_text" value={formData.badge_text} onChange={handleInputChange} className="form-control" disabled={!formData.is_recommended} />
+                                </div>
+                                <div className="col-md-4 mb-3 d-flex align-items-center">
+                                    <div className="form-check pt-4">
+                                        <input 
+                                            type="checkbox" 
+                                            name="show_recently_booked" 
+                                            id="show_recently_booked"
+                                            checked={formData.show_recently_booked} 
+                                            onChange={(e) => setFormData(prev => ({ ...prev, show_recently_booked: e.target.checked }))} 
+                                            className="form-check-input" 
+                                        />
+                                        <label htmlFor="show_recently_booked" className="form-check-label fw-bold ms-2">Show in Recently Booked</label>
+                                    </div>
+                                </div>
+                                <div className="col-md-4 mb-3">
+                                    <label>Recent Booking Text</label>
+                                    <input type="text" name="recent_booking_text" value={formData.recent_booking_text} onChange={handleInputChange} className="form-control" placeholder="e.g., Sandhya from Bengaluru • 1hr ago" disabled={!formData.show_recently_booked} />
+                                </div>
+                                <div className="col-md-4 mb-3">
+                                    <label>Recent Booking Tag</label>
+                                    <input type="text" name="recent_booking_tag" value={formData.recent_booking_tag} onChange={handleInputChange} className="form-control" placeholder="e.g., COUPLE, FAMILY, SOLO" disabled={!formData.show_recently_booked} />
                                 </div>
                                 <div className="col-md-12 mb-3">
                                     <label>Card Itinerary Summary (e.g. 3N Port Blair • 2N Havelock Island)</label>
