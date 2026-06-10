@@ -413,9 +413,10 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                 cruises: false,
                 activities: false,
                 visa: false,
+                insurance: false,
                 ...(destinationPost.inclusions || {})
             };
-            const keys = ['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'highlights'];
+            const keys = ['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'insurance', 'highlights'];
             const firstEnabled = keys.find(key => !!inclusionsData[key]);
             if (firstEnabled) {
                 setActiveInclusion(firstEnabled);
@@ -492,6 +493,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
             cruises: '#0ea5e9',
             activities: '#14b8a6',
             visa: '#4f46e5',
+            insurance: '#059669',
             highlights: '#b45309'
         };
         return colors[key] || '#475569';
@@ -563,6 +565,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         cruises: { label: "Cruises", icon: "fa-ship", class: "inclusion-cruises" },
         activities: { label: "Activities", icon: "fa-person-hiking", class: "inclusion-activities" },
         visa: { label: "Visa", icon: "fa-passport", class: "inclusion-visa" },
+        insurance: { label: "Insurance", icon: "fa-shield-halved", class: "inclusion-insurance" },
         highlights: { label: "Highlights", icon: "fa-star", class: "inclusion-highlights" }
     };
 
@@ -577,6 +580,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         cruises: false,
         activities: false,
         visa: false,
+        insurance: false,
         highlights: true,
         ...(destinationPost.inclusions || {})
     };
@@ -882,9 +886,28 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                                                                 className="itinerary-day-header"
                                                                 onClick={() => toggleDay(index)}
                                                             >
-                                                                <div className="itinerary-day-header-left">
-                                                                    <span className="itinerary-day-badge">{dayObj.day}</span>
-                                                                    <h4 className="itinerary-day-title">{dayTitle}</h4>
+                                                                <div className="itinerary-day-header-left" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
+                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                                        <span className="itinerary-day-badge">{dayObj.day}</span>
+                                                                        <h4 className="itinerary-day-title">{dayTitle}</h4>
+                                                                    </div>
+                                                                    {dayObj.inclusions && dayObj.inclusions.length > 0 && (
+                                                                        <div className="daily-inclusions-inline-container" style={{ paddingLeft: '75px' }}>
+                                                                            {dayObj.inclusions.map(incKey => {
+                                                                                const meta = inclusionsMap[incKey];
+                                                                                if (!meta) return null;
+                                                                                return (
+                                                                                    <div 
+                                                                                        key={incKey} 
+                                                                                        className={`daily-inclusion-mini-icon ${meta.class}`}
+                                                                                        title={meta.label}
+                                                                                    >
+                                                                                        <i className={`fa-solid ${meta.icon}`}></i>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                                 <div className="itinerary-day-toggle-icon">
                                                                     <i className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`}></i>
@@ -898,8 +921,29 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                                                                             <img src={getImageSrc(dayObj.image)} alt={dayObj.day} />
                                                                         </div>
                                                                     )}
-                                                                    <div className="itinerary-day-desc" style={{ whiteSpace: 'pre-line' }}>
-                                                                        {dayDescription}
+                                                                    <div className="itinerary-day-desc" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                                        {dayObj.inclusions && dayObj.inclusions.length > 0 && (
+                                                                            <div className="daily-inclusions-wrapper">
+                                                                                <span className="daily-inclusions-title">Included Today:</span>
+                                                                                <div className="daily-inclusions-list">
+                                                                                    {dayObj.inclusions.map(incKey => {
+                                                                                        const meta = inclusionsMap[incKey];
+                                                                                        if (!meta) return null;
+                                                                                        return (
+                                                                                            <div key={incKey} className="daily-inclusion-badge">
+                                                                                                <span className={`daily-inclusion-badge-circle ${meta.class}`}>
+                                                                                                    <i className={`fa-solid ${meta.icon}`}></i>
+                                                                                                </span>
+                                                                                                <span>{meta.label}</span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    })}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                        <div style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>
+                                                                            {dayDescription}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             )}

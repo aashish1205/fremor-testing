@@ -5,6 +5,7 @@ import { fetchDestinations, getImageSrc } from "../../services/destinationServic
 
 import MobileMenu from "./MobileMenu";
 import LoginForm from "./LoginForm";
+import NavbarMenu from "./NavbarMenu";
 
 function HeaderOne() {
 
@@ -116,7 +117,10 @@ function HeaderOne() {
             const query = val.toLowerCase();
             const filtered = allDestinations.filter(d => 
                 (d.title && d.title.toLowerCase().includes(query)) ||
-                (d.category && d.category.toLowerCase().includes(query))
+                (d.category && d.category.toLowerCase().includes(query)) ||
+                (d.location && d.location.toLowerCase().includes(query)) ||
+                (d.continent && d.continent.toLowerCase().includes(query)) ||
+                (d.package_type && d.package_type.toLowerCase().includes(query))
             ).slice(0, 6);
             setSuggestions(filtered);
         }
@@ -516,117 +520,7 @@ function HeaderOne() {
                                 {/* Main Menu */}
                                 <div className="col-auto ms-auto me-xl-5">
                                     <nav className="main-menu d-none d-xl-inline-block">
-                                        <ul>
-
-                                            <li>
-                                                <Link className={isActive("/") ? "active" : ""} to="/">
-                                                    Home
-                                                </Link>
-                                            </li>
-
-                                           
-
-                                            
-
-                                            {/* Destination */}
-                                            <li className={`menu-item-has-children ${isParentActive(["/destination"]) ? "active" : ""}`}>
-                                                <Link to="/destination">
-                                                    Explore Tours
-                                                </Link>
-                                                <ul className="sub-menu">
-                                                    <li>
-                                                        <Link to="/destination/outbound">Global</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/destination/inbound">Inbound (India)</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/destination/domestic">Domestic</Link>
-                                                    </li>
-                                                </ul>
-                                            </li>
-
-                                            {/* Service */}
-                                            {/*<li className={`menu-item-has-children ${isParentActive(["/service"]) ? "active" : ""}`}>
-                                                <Link to="#">Service</Link>
-                                                <ul className="sub-menu">
-                                                    <li>
-                                                        <Link to="/service">Services</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/service/1">Service Details</Link>
-                                                    </li>
-                                                </ul>
-                                            </li>*/}
-
-                                            {/* Activities */}
-                                            {/*<li className={`menu-item-has-children ${isParentActive(["/activities"]) ? "active" : ""}`}>
-                                                <Link to="#">Activities</Link>
-                                                <ul className="sub-menu">
-                                                    <li>
-                                                        <Link to="/activities">Activities</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/activities-details">Activities Details</Link>
-                                                    </li>
-                                                </ul>
-                                            </li>*/}
-
-                                            {/* Blog */}
-                                            {/*<li className={`menu-item-has-children ${isParentActive(["/blog"]) ? "active" : ""}`}>
-                                                <Link to="#">Blogs</Link>
-                                                <ul className="sub-menu">
-                                                    <li>
-                                                        <Link to="/blog">Blog</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="/blog/1">Blog Details</Link>
-                                                    </li>
-                                                </ul>
-                                            </li>*/}
-
-
-                                         
-
-                                             {/* Visa */}
-                                            <li>
-                                                <Link className={isActive("/visa") ? "active" : ""} to="/visa">
-                                                    Visa
-                                                </Link>
-                                            </li>
-
-
-
-                                            {/* Cruise */}
-                                            <li>
-                                                <Link className={isActive("/cruise") ? "active" : ""} to="/cruise">
-                                                   Cruises
-                                                </Link>
-                                            </li>
-
-                                            {/* About */}
-                                            <li>
-                                                <Link className={isActive("/about") ? "active" : ""} to="/about">
-                                                    About Us
-                                                </Link>
-                                            </li>
-
-                                            {/* Contact */}
-                                            {/*<li>
-                                                <Link className={isActive("/contact") ? "active" : ""} to="/contact">
-                                                    Contact Us
-                                                </Link>
-                                            </li>*/}
-
-                                             {/*  <li>
-                                                <Link className={isActive("/blog") ? "active" : ""} to="/blog">
-                                                    Magzine
-                                                </Link>
-                                            </li>*/}
-
-                                           
-
-                                        </ul>
+                                        <NavbarMenu />
                                     </nav>
 
                                     <div className="d-flex align-items-center gap-3">
@@ -789,8 +683,8 @@ function HeaderOne() {
                     font-style: normal;
                 }
                 .navbar-search-submit-btn {
-                    background: #FFB114;
-                    color: #0d496e;
+                    background: var(--yellow-color);
+                    color: var(--theme-color);
                     border: none;
                     border-radius: 50px;
                     padding: 4px 14px;
@@ -890,7 +784,7 @@ function HeaderOne() {
                     margin-right: 5px;
                 }
                 .mobile-search-btn:hover {
-                    color: #FFB114;
+                    color: var(--yellow-color);
                     transform: scale(1.05);
                 }
 
@@ -944,7 +838,7 @@ function HeaderOne() {
                 
                 .mobile-search-close-btn:hover {
                     transform: scale(1.1);
-                    color: #FFB114;
+                    color: var(--yellow-color);
                 }
 
                 .mobile-search-overlay-form {
@@ -969,8 +863,8 @@ function HeaderOne() {
                 }
 
                 .mobile-search-overlay-submit-btn {
-                    background: #FFB114;
-                    color: #0d496e;
+                    background: var(--yellow-color);
+                    color: var(--theme-color);
                     border: none;
                     border-radius: 50%;
                     width: 28px;

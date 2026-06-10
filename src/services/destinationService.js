@@ -55,12 +55,13 @@ export async function fetchDestinationById(id) {
     return data;
 }
 
-// ─── SEARCH DESTINATIONS BY TITLE ─────────────────────────────────────
+// ─── SEARCH DESTINATIONS BY MULTIPLE FIELDS ──────────────────────────
 export async function searchDestinations(query) {
+    const searchQuery = `%${query}%`;
     const { data, error } = await supabase
         .from('destinations')
         .select('*')
-        .ilike('title', `%${query}%`)
+        .or(`title.ilike.${searchQuery},location.ilike.${searchQuery},continent.ilike.${searchQuery},category.ilike.${searchQuery},package_type.ilike.${searchQuery}`)
         .order('created_at', { ascending: false });
 
     if (error) throw error;

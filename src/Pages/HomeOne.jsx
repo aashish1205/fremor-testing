@@ -31,7 +31,7 @@ function HomeOne() {
             <DestinationOne />
             <CategoryOne />
             <PackagesByDuration />
-             <TourOne />
+            <TourOne />
             <AboutOne />
            
             <GalleryOne />

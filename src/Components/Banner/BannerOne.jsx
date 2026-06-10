@@ -141,7 +141,10 @@ function BannerOne() {
             const query = val.toLowerCase();
             const filtered = allDestinations.filter(d => 
                 (d.title && d.title.toLowerCase().includes(query)) ||
-                (d.category && d.category.toLowerCase().includes(query))
+                (d.category && d.category.toLowerCase().includes(query)) ||
+                (d.location && d.location.toLowerCase().includes(query)) ||
+                (d.continent && d.continent.toLowerCase().includes(query)) ||
+                (d.package_type && d.package_type.toLowerCase().includes(query))
             ).slice(0, 6);
             setSuggestions(filtered);
         }

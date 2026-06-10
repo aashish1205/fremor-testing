@@ -49,8 +49,8 @@ function DestinationAdminPanel() {
         badge_text: 'Recommended',
         is_recommended: false,
         loyalty_points: 0,
-        inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
-        inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+        inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false, insurance: false },
+        inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '', insurance: '' },
         itinerary_summary: '',
         itinerary_route: '',
         tour_type: 'Group Tour',
@@ -65,7 +65,7 @@ function DestinationAdminPanel() {
         basic_info_text: '',
         included_list: [''], // Array of strings
         excluded_list: [''], // Array of strings
-        itinerary: [{ day: "Day 01", title: '', description: '', image: '' }], // Array of objects
+        itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }], // Array of objects
         brochure_url: '',
         category: 'Inbound',
         package_type: 'Standard',
@@ -74,7 +74,8 @@ function DestinationAdminPanel() {
         days: 0,
         show_recently_booked: false,
         recent_booking_text: '',
-        recent_booking_tag: ''
+        recent_booking_tag: '',
+        continent: ''
     });
 
     
@@ -239,8 +240,8 @@ function DestinationAdminPanel() {
                 badge_text: dest.badge_text || 'Recommended',
                 is_recommended: dest.is_recommended || false,
                 loyalty_points: dest.loyalty_points || 0,
-                inclusions: dest.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
-                inclusions_details: dest.inclusions_details || { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+                inclusions: dest.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false, insurance: false },
+                inclusions_details: dest.inclusions_details || { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '', insurance: '' },
                 itinerary_summary: dest.itinerary_summary || '',
                 itinerary_route: dest.itinerary_route || '',
                 tour_type: dest.tour_type || 'Group Tour',
@@ -250,17 +251,18 @@ function DestinationAdminPanel() {
                 description_1: dest.description_1 || '',
                 description_2: dest.description_2 || '',
                 highlights_text: dest.highlights_text || '',
-                highlights_list: dest.highlights_list?.length ? dest.highlights_list : [''],
-                rich_highlights: dest.rich_highlights?.length ? dest.rich_highlights.map(hl => ({ title: hl.title || '', description: hl.description || '' })) : [{ title: '', description: '' }],
+                highlights_list: dest.highlights_list || [''],
+                rich_highlights: dest.rich_highlights || [{ title: '', description: '' }],
                 basic_info_text: dest.basic_info_text || '',
-                included_list: dest.included_list?.length ? dest.included_list : [''],
-                excluded_list: dest.excluded_list?.length ? dest.excluded_list : [''],
+                included_list: dest.included_list || [''],
+                excluded_list: dest.excluded_list || [''],
                 itinerary: dest.itinerary?.length ? dest.itinerary.map(item => ({
                     day: item.day || '',
-                    title: item.title || (item.activities?.[0] || ''),
-                    description: item.description || (item.activities?.slice(1).join('\n') || item.activities?.join('\n') || ''),
-                    image: item.image || ''
-                })) : [{ day: "Day 01", title: '', description: '', image: '' }],
+                    title: item.title || '',
+                    description: item.description || '',
+                    image: item.image || '',
+                    inclusions: item.inclusions || []
+                })) : [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }],
                 brochure_url: dest.brochure_url || '',
                 category: dest.category || 'Inbound',
                 package_type: dest.package_type || 'Standard',
@@ -269,7 +271,8 @@ function DestinationAdminPanel() {
                 days: dest.days || 0,
                 show_recently_booked: dest.show_recently_booked || false,
                 recent_booking_text: dest.recent_booking_text || '',
-                recent_booking_tag: dest.recent_booking_tag || ''
+                recent_booking_tag: dest.recent_booking_tag || '',
+                continent: dest.continent || ''
             });
         } else {
             setFormData({
@@ -285,8 +288,8 @@ function DestinationAdminPanel() {
                 badge_text: 'Recommended',
                 is_recommended: false,
                 loyalty_points: 0,
-                inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
-                inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '' },
+                inclusions: { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false, insurance: false },
+                inclusions_details: { hotel: '', meals: '', sightseeing: '', transfers: '', manager: '', flights: '', highlights: '', trains: '', cruises: '', activities: '', visa: '', insurance: '' },
                 itinerary_summary: '',
                 itinerary_route: '',
                 tour_type: 'Group Tour',
@@ -301,7 +304,7 @@ function DestinationAdminPanel() {
                 basic_info_text: '',
                 included_list: [''],
                 excluded_list: [''],
-                itinerary: [{ day: "Day 01", title: '', description: '', image: '' }],
+                itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }],
                 brochure_url: '',
                 category: 'Inbound',
                 package_type: 'Standard',
@@ -310,7 +313,8 @@ function DestinationAdminPanel() {
                 days: 0,
                 show_recently_booked: false,
                 recent_booking_text: '',
-                recent_booking_tag: ''
+                recent_booking_tag: '',
+                continent: ''
             });
         }
         setPrimaryImageFile(null);
@@ -371,19 +375,33 @@ function DestinationAdminPanel() {
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
+    const toggleItineraryInclusion = (dayIndex, incKey) => {
+        const newItinerary = [...formData.itinerary];
+        const day = newItinerary[dayIndex];
+        if (!day.inclusions) {
+            day.inclusions = [];
+        }
+        if (day.inclusions.includes(incKey)) {
+            day.inclusions = day.inclusions.filter(item => item !== incKey);
+        } else {
+            day.inclusions = [...day.inclusions, incKey];
+        }
+        setFormData(prev => ({ ...prev, itinerary: newItinerary }));
+    };
+
     const addItineraryDay = () => {
         const dayCount = formData.itinerary.length + 1;
         const newDayName = `Day ${dayCount.toString().padStart(2, '0')}`;
         setFormData(prev => ({ 
             ...prev, 
-            itinerary: [...prev.itinerary, { day: newDayName, title: '', description: '', image: '' }]  
+            itinerary: [...prev.itinerary, { day: newDayName, title: '', description: '', image: '', inclusions: [] }]  
         }));
     };
 
     const removeItineraryDay = (dayIndex) => {
         const newItinerary = [...formData.itinerary];
         newItinerary.splice(dayIndex, 1);
-        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", title: '', description: '', image: '' });
+        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", title: '', description: '', image: '', inclusions: [] });
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
@@ -437,7 +455,8 @@ function DestinationAdminPanel() {
                         day: day.day,
                         title: day.title || '',
                         description: day.description || '',
-                        image: finalDayImage
+                        image: finalDayImage,
+                        inclusions: day.inclusions || []
                     });
                 }
             }
@@ -464,7 +483,7 @@ function DestinationAdminPanel() {
                 badge_text: formData.badge_text || 'Recommended',
                 is_recommended: !!formData.is_recommended,
                 loyalty_points: parseInt(formData.loyalty_points) || 0,
-                inclusions: formData.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false },
+                inclusions: formData.inclusions || { hotel: true, sightseeing: true, meals: true, manager: true, flights: false, transfers: false, trains: false, cruises: false, activities: false, visa: false, insurance: false },
                 inclusions_details: formData.inclusions_details || {},
                 itinerary_summary: formData.itinerary_summary || '',
                 itinerary_route: formData.itinerary_route || '',
@@ -489,7 +508,8 @@ function DestinationAdminPanel() {
                 days: parseInt(formData.days) || 0,
                 show_recently_booked: !!formData.show_recently_booked,
                 recent_booking_text: formData.recent_booking_text || '',
-                recent_booking_tag: formData.recent_booking_tag || ''
+                recent_booking_tag: formData.recent_booking_tag || '',
+                continent: formData.category === 'Outbound' ? (formData.continent || '') : null
             };
 
             // Dynamic brochure PDF is now generated automatically on client side, no upload needed
@@ -915,13 +935,27 @@ function DestinationAdminPanel() {
                                     <input type="number" step="0.01" name="original_price" value={formData.original_price} onChange={handleInputChange} className="form-control" />
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <label>Tour Category *</label>
-                                    <select name="category" value={formData.category} onChange={handleInputChange} className="form-control" required>
-                                        <option value="Outbound">Global</option>
-                                        <option value="Inbound">Inbound (India)</option>
-                                        <option value="Domestic">Domestic</option>
-                                    </select>
-                                </div>
+                                     <label>Tour Category *</label>
+                                     <select name="category" value={formData.category} onChange={handleInputChange} className="form-control" required>
+                                         <option value="Outbound">Global</option>
+                                         <option value="Inbound">Inbound (India)</option>
+                                         <option value="Domestic">Domestic</option>
+                                     </select>
+                                 </div>
+                                 {formData.category === 'Outbound' && (
+                                     <div className="col-md-6 mb-3">
+                                         <label>Continent *</label>
+                                         <select name="continent" value={formData.continent || ''} onChange={handleInputChange} className="form-control" required={formData.category === 'Outbound'}>
+                                             <option value="">-- Select Continent --</option>
+                                             <option value="Europe">Europe</option>
+                                             <option value="Africa">Africa</option>
+                                             <option value="North America">North America</option>
+                                             <option value="South America">South America</option>
+                                             <option value="Australia">Australia</option>
+                                             <option value="Asia">Asia</option>
+                                         </select>
+                                     </div>
+                                 )}
                                 <div className="col-md-6 mb-3">
                                     <label>Package Type *</label>
                                     <select name="package_type" value={formData.package_type} onChange={handleInputChange} className="form-control" required>
@@ -1028,7 +1062,7 @@ function DestinationAdminPanel() {
                                 <div className="col-md-12">
                                     <p className="text-muted small">Select the inclusions to show as icons when the card is hovered:</p>
                                     <div className="d-flex flex-wrap gap-4">
-                                        {['hotel', 'sightseeing', 'meals', 'manager', 'flights', 'transfers', 'trains', 'cruises', 'activities', 'visa', 'highlights'].map((inc) => (
+                                        {['hotel', 'sightseeing', 'meals', 'manager', 'flights', 'transfers', 'trains', 'cruises', 'activities', 'visa', 'insurance', 'highlights'].map((inc) => (
                                             <div key={inc} className="form-check">
                                                 <input 
                                                     type="checkbox" 
@@ -1058,10 +1092,10 @@ function DestinationAdminPanel() {
                                 </div>
                             </div>
 
-                            <h5 className="mt-4 text-primary border-bottom pb-2">Active Inclusions Details</h5>
-                            <p className="text-muted small">Provide details for the enabled inclusions. If you want to render details as a table (e.g. for hotels), use pipe separation: <code>City | Hotel Name | Stars | Nights</code> on each line.</p>
-                            <div className="row mt-3 mb-4">
-                                {['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'highlights'].map((inc) => {
+                             <h5 className="mt-4 text-primary border-bottom pb-2">Active Inclusions Details</h5>
+                             <p className="text-muted small">Provide details for the enabled inclusions. If you want to render details as a table (e.g. for hotels), use pipe separation: <code>City | Hotel Name | Stars | Nights</code> on each line.</p>
+                             <div className="row mt-3 mb-4">
+                                {['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'insurance', 'highlights'].map((inc) => {
                                     const isEnabled = !!formData.inclusions?.[inc];
                                     if (!isEnabled) return null;
                                     
@@ -1076,6 +1110,7 @@ function DestinationAdminPanel() {
                                         cruises: "e.g. Cordelia Cruise ocean view cabin stay details",
                                         activities: "e.g. Snorkeling, scuba diving session, and mountain trekking permits included",
                                         visa: "e.g. Single entry tourist visa approval fees included",
+                                        insurance: "e.g. Comprehensive travel insurance covering medical emergencies and trip cancellation included",
                                         highlights: "e.g. Welcome drinks on arrival\nFerry tickets & entry permits\nSnorkeling session complimentary"
                                     };
 
@@ -1293,6 +1328,50 @@ function DestinationAdminPanel() {
                                             />
                                         </div>
                                         
+                                        <div className="col-md-12 mb-3">
+                                            <label className="text-muted small fw-bold d-block mb-2">Daily Included Icons (Select to highlight)</label>
+                                            <div className="d-flex flex-wrap gap-2">
+                                                {[
+                                                    { key: 'hotel', label: 'Hotel', icon: 'fa-hotel', color: '#ec4899' },
+                                                    { key: 'sightseeing', label: 'Sightseeing', icon: 'fa-binoculars', color: '#8b5cf6' },
+                                                    { key: 'meals', label: 'Meals', icon: 'fa-utensils', color: '#f97316' },
+                                                    { key: 'manager', label: 'Tour Manager', icon: 'fa-user-tie', color: '#d946ef' },
+                                                    { key: 'flights', label: 'Flights', icon: 'fa-plane', color: '#06b6d4' },
+                                                    { key: 'transfers', label: 'Transfers', icon: 'fa-car', color: '#eab308' },
+                                                    { key: 'trains', label: 'Trains', icon: 'fa-train', color: '#10b981' },
+                                                    { key: 'cruises', label: 'Cruises', icon: 'fa-ship', color: '#0ea5e9' },
+                                                    { key: 'activities', label: 'Activities', icon: 'fa-person-hiking', color: '#14b8a6' },
+                                                    { key: 'visa', label: 'Visa', icon: 'fa-passport', color: '#4f46e5' },
+                                                    { key: 'insurance', label: 'Insurance', icon: 'fa-shield-halved', color: '#059669' },
+                                                    { key: 'highlights', label: 'Highlights', icon: 'fa-star', color: '#b45309' }
+                                                ].map((inc) => {
+                                                    const isSelected = dayObj.inclusions?.includes(inc.key);
+                                                    return (
+                                                        <button
+                                                            key={inc.key}
+                                                            type="button"
+                                                            onClick={() => toggleItineraryInclusion(dayIndex, inc.key)}
+                                                            className="btn btn-sm d-inline-flex align-items-center gap-2"
+                                                            style={{
+                                                                borderRadius: '20px',
+                                                                padding: '6px 14px',
+                                                                fontSize: '11.5px',
+                                                                fontWeight: '600',
+                                                                transition: 'all 0.15s ease',
+                                                                backgroundColor: isSelected ? inc.color : '#f1f5f9',
+                                                                color: isSelected ? '#ffffff' : '#64748b',
+                                                                border: isSelected ? `1.5px solid ${inc.color}` : '1.5px solid #e2e8f0',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            <i className={`fa-solid ${inc.icon}`}></i>
+                                                            <span>{inc.label}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
                                         <div className="col-md-12">
                                             <label className="text-muted small fw-bold">Day Image</label>
                                             <input 

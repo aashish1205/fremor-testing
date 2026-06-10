@@ -1068,6 +1068,7 @@
 .inclusion-activities { background-color: #14b8a6; }
 .inclusion-visa { background-color: #4f46e5; }
 .inclusion-highlights { background-color: #b45309; }
+.inclusion-insurance { background-color: #059669; }
 
 /* Disabled state */
 .details-inclusion-item.disabled-inclusion {
@@ -1221,14 +1222,14 @@
 }
 
 .itinerary-day-badge {
-  border: 1.5px solid #f97316;
-  color: #f97316;
+  border: 1.5px solid var(--theme-color);
+  color: var(--theme-color);
   font-weight: 700;
   padding: 3px 12px;
   border-radius: 20px;
   font-size: 12px;
   text-transform: uppercase;
-  background: rgba(249, 115, 22, 0.05);
+  background: rgba(13, 73, 110, 0.05);
   flex-shrink: 0;
 }
 
@@ -1310,6 +1311,83 @@
     width: 100%;
     height: 180px;
   }
+}
+
+/* Daily inclusions on itinerary page */
+.daily-inclusions-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.daily-inclusions-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.daily-inclusions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.daily-inclusion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.daily-inclusion-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.daily-inclusion-badge-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8.5px;
+}
+
+/* Inline small icons for collapsed header */
+.daily-inclusions-inline-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  flex-wrap: wrap;
+}
+
+.daily-inclusion-mini-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ffffff;
 }
 
 /* Interactive Pricing Calculator */

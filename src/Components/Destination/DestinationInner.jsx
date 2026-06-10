@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import DestinationCard from './DestinationCard';
 import DestinationCardTwo from './DestinationCardTwo';
@@ -6,17 +6,22 @@ import { fetchDestinations, searchDestinations } from '../../services/destinatio
 import { fetchBlogs, getBlogImageSrc } from '../../services/blogService';
 import CallbackCard from '../Forms/CallbackCard';
 
-function DestinationInner({ category: propCategory }) {
+function DestinationInner({ category: propCategory, continent: propContinent }) {
     const [activeTab, setActiveTab] = useState('tab-grid');
     const [currentPage, setCurrentPage] = useState(1);
     const [destinations, setDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [recentBlogs, setRecentBlogs] = useState([]);
     const category = propCategory || searchParams.get('category');
     const packageType = searchParams.get('package_type');
+    const continent = propContinent || searchParams.get('continent');
+    const lastSearchQueryRef = useRef(undefined);
+    const prevCategoryRef = useRef(category);
+    const prevPackageTypeRef = useRef(packageType);
+    const prevContinentRef = useRef(continent);
 
     // Filter states
     const [selectedMinPrice, setSelectedMinPrice] = useState(0);
@@ -79,11 +84,17 @@ function DestinationInner({ category: propCategory }) {
 
     // Fetch destinations on mount and when filters change
     useEffect(() => {
+        if (prevCategoryRef.current !== category || prevPackageTypeRef.current !== packageType || prevContinentRef.current !== continent) {
+            lastSearchQueryRef.current = undefined;
+            prevCategoryRef.current = category;
+            prevPackageTypeRef.current = packageType;
+            prevContinentRef.current = continent;
+        }
         loadDestinations();
         loadRecentBlogs();
-        // Reset to first page when category, package_type or search query changes
+        // Reset to first page when category, package_type, continent or search query changes
         setCurrentPage(1);
-    }, [category, packageType, urlSearchQuery]);
+    }, [category, packageType, continent, urlSearchQuery]);
 
     const loadRecentBlogs = async () => {
         try {
@@ -102,6 +113,11 @@ function DestinationInner({ category: propCategory }) {
             const searchParamVal = searchParams.get('search') || '';
             setSearchQuery(searchParamVal);
 
+            if (lastSearchQueryRef.current === searchParamVal) {
+                setLoading(false);
+                return;
+            }
+
             let data;
             if (searchParamVal.trim() !== '') {
                 data = await searchDestinations(searchParamVal);
@@ -115,10 +131,13 @@ function DestinationInner({ category: propCategory }) {
             } else {
                 data = await fetchDestinations(category, packageType);
             }
+            if (continent) {
+                data = data.filter(d => d.continent && d.continent.toLowerCase() === continent.toLowerCase());
+            }
             setDestinations(data);
         } catch (err) {
             console.error('Error fetching destinations:', err);
-            setError('Failed to load destinations. Please try again.');
+            setError('Failed to load destinations: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -131,23 +150,36 @@ function DestinationInner({ category: propCategory }) {
             setLoading(true);
             setError(null);
             setCurrentPage(1);
+
+            const nextParams = new URLSearchParams(searchParams);
             if (searchQuery.trim() === '') {
-                const data = await fetchDestinations(category, packageType);
-                setDestinations(data);
+                nextParams.delete('search');
             } else {
-                let data = await searchDestinations(searchQuery);
-                // Also apply category/packageType filters to search results if present
+                nextParams.set('search', searchQuery);
+            }
+            setSearchParams(nextParams);
+
+            lastSearchQueryRef.current = searchQuery;
+
+            let data;
+            if (searchQuery.trim() !== '') {
+                data = await searchDestinations(searchQuery);
                 if (category) {
                     data = data.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
                 }
                 if (packageType) {
                     data = data.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
                 }
-                setDestinations(data);
+            } else {
+                data = await fetchDestinations(category, packageType);
             }
+            if (continent) {
+                data = data.filter(d => d.continent && d.continent.toLowerCase() === continent.toLowerCase());
+            }
+            setDestinations(data);
         } catch (err) {
             console.error('Search error:', err);
-            setError('Search failed. Please try again.');
+            setError('Search failed: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -256,7 +288,7 @@ function DestinationInner({ category: propCategory }) {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
-                                    <button type="submit">
+                                    <button type="submit" onClick={handleSearch}>
                                         <i className="fa-light fa-magnifying-glass" />
                                     </button>
                                 </form>

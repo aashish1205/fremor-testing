@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAdminSearch } from './AdminSearchContext';
+import NotificationBell from './NotificationBell';
 import './AdminLayout.css';
 
 const TeamLayout = ({ children, teamMember }) => {
@@ -182,9 +183,7 @@ const TeamLayout = ({ children, teamMember }) => {
                     </div>
 
                     <div className="admin-header-right">
-                        <button className="admin-icon-btn">
-                            <i className="fa-regular fa-bell"></i>
-                        </button>
+                        <NotificationBell isAdmin={false} />
                         
                         <div className="admin-profile">
                             <button className="admin-profile-btn">

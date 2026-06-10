@@ -98,6 +98,7 @@ function DestinationCard(props) {
         cruises: false,
         activities: false,
         visa: false,
+        insurance: false,
         ...(inclusions || {})
     };
 
@@ -290,6 +291,14 @@ function DestinationCard(props) {
                                 <i className="fa-solid fa-passport"></i>
                             </div>
                             <span className="inclusion-label">Visa</span>
+                        </div>
+                    )}
+                    {defaultInclusions.insurance && (
+                        <div className="inclusion-item">
+                            <div className="inclusion-icon">
+                                <i className="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <span className="inclusion-label">Insurance</span>
                         </div>
                     )}
                 </div>

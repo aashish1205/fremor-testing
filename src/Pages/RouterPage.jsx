@@ -60,6 +60,7 @@ import FremorLoader from '../Components/Loader/loader'
 import VisaAdmin from './VisaAdmin'
 import VisaEnquiriesAdmin from './VisaEnquiriesAdmin'
 import PackageEnquiriesAdmin from './PackageEnquiriesAdmin'
+import NavbarAdmin from './NavbarAdmin'
 
 function RouterContent() {
   const location = useLocation()
@@ -108,6 +109,7 @@ function RouterContent() {
           <Route path="/destination/domestic" element={<Destination category="Domestic" />} />
           <Route path="/destination/inbound" element={<Destination category="Inbound" />} />
           <Route path="/destination/outbound" element={<Destination category="Outbound" />} />
+          <Route path="/destination/outbound/:continent" element={<Destination category="Outbound" />} />
           <Route path="/destination/:id" element={<DestinationDetails />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -154,6 +156,7 @@ function RouterContent() {
           <Route path="/admin/visas" element={<AdminProtectedRoute><VisaAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/visa-enquiries" element={<AdminProtectedRoute><VisaEnquiriesAdmin /></AdminProtectedRoute>} />
           <Route path="/admin/package-enquiries" element={<AdminProtectedRoute><PackageEnquiriesAdmin /></AdminProtectedRoute>} />
+          <Route path="/admin/navbar" element={<AdminProtectedRoute><NavbarAdmin /></AdminProtectedRoute>} />
           
           <Route path="/team/login" element={<TeamLogin />} />
           <Route path="/team/dashboard" element={<TeamProtectedRoute><TeamDashboard /></TeamProtectedRoute>} />

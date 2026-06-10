@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAdminSearch } from './AdminSearchContext';
+import NotificationBell from './NotificationBell';
 import './AdminLayout.css';
 
 const AdminLayout = ({ children, email }) => {
@@ -199,6 +200,14 @@ const AdminLayout = ({ children, email }) => {
                         <i className="fa-solid fa-video"></i>
                         Testimonal Videos
                     </NavLink>
+
+                    <NavLink 
+                        to="/admin/navbar" 
+                        className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <i className="fa-solid fa-bars"></i>
+                        Navbar Manager
+                    </NavLink>
                 </nav>
             </aside>
 
@@ -217,10 +226,7 @@ const AdminLayout = ({ children, email }) => {
                     </div>
 
                     <div className="admin-header-right">
-                        <button className="admin-icon-btn">
-                            <i className="fa-regular fa-bell"></i>
-                            <span className="badge">3</span>
-                        </button>
+                        <NotificationBell isAdmin={true} />
                         
                         <div className="admin-profile">
                             <button className="admin-profile-btn">
