@@ -38,10 +38,17 @@ function BlogAdminPanel() {
         duration: '',
         budget: '',
         visa_info: '',
-        tips: ['']
+        tips: [''],
+        highlights: [''],
+        hidden_facts: [''],
+        cities_info: [{ title: 'Example City', description: 'Description of the city.' }],
+        story_title: '',
+        story_content: '',
+        story_image: ''
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
+    const [storyImageFile, setStoryImageFile] = useState(null);
     const [galleryFiles, setGalleryFiles] = useState([]);
 
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -112,7 +119,13 @@ function BlogAdminPanel() {
                 duration: blog.duration || '',
                 budget: blog.budget || '',
                 visa_info: blog.visa_info || '',
-                tips: parseArraySafe(blog.tips, [''])
+                tips: parseArraySafe(blog.tips, ['']),
+                highlights: parseArraySafe(blog.highlights, ['']),
+                hidden_facts: parseArraySafe(blog.hidden_facts, ['']),
+                cities_info: parseArraySafe(blog.cities_info, [{ title: '', description: '' }]),
+                story_title: blog.story_title || '',
+                story_content: blog.story_content || '',
+                story_image: blog.story_image || ''
             });
         } else {
             setFormData({
@@ -130,10 +143,17 @@ function BlogAdminPanel() {
                 duration: '',
                 budget: '',
                 visa_info: '',
-                tips: ['']
+                tips: [''],
+                highlights: [''],
+                hidden_facts: [''],
+                cities_info: [{ title: '', description: '' }],
+                story_title: '',
+                story_content: '',
+                story_image: ''
             });
         }
         setPrimaryImageFile(null);
+        setStoryImageFile(null);
         setGalleryFiles([]);
         setIsModalOpen(true);
     };
@@ -158,6 +178,36 @@ function BlogAdminPanel() {
     const removeTip = (index) => {
         const newTips = formData.tips.filter((_, i) => i !== index);
         setFormData(prev => ({ ...prev, tips: newTips.length ? newTips : [''] }));
+    };
+
+    const handleHighlightChange = (index, value) => {
+        const newHighlights = [...formData.highlights];
+        newHighlights[index] = value;
+        setFormData(prev => ({ ...prev, highlights: newHighlights }));
+    };
+
+    const addHighlight = () => {
+        setFormData(prev => ({ ...prev, highlights: [...prev.highlights, ''] }));
+    };
+
+    const removeHighlight = (index) => {
+        const newHighlights = formData.highlights.filter((_, i) => i !== index);
+        setFormData(prev => ({ ...prev, highlights: newHighlights.length ? newHighlights : [''] }));
+    };
+
+    const handleHiddenFactChange = (index, value) => {
+        const newFacts = [...formData.hidden_facts];
+        newFacts[index] = value;
+        setFormData(prev => ({ ...prev, hidden_facts: newFacts }));
+    };
+
+    const addHiddenFact = () => {
+        setFormData(prev => ({ ...prev, hidden_facts: [...prev.hidden_facts, ''] }));
+    };
+
+    const removeHiddenFact = (index) => {
+        const newFacts = formData.hidden_facts.filter((_, i) => i !== index);
+        setFormData(prev => ({ ...prev, hidden_facts: newFacts.length ? newFacts : [''] }));
     };
 
     const handleStructuredArrayChange = (listName, index, field, value) => {
@@ -191,12 +241,20 @@ function BlogAdminPanel() {
         try {
             setIsSubmitting(true);
             let finalImage = formData.main_image;
+            let finalStoryImage = formData.story_image;
             let currentGallery = [...formData.image_gallery];
 
             if (primaryImageFile) {
                 finalImage = await uploadBlogImage(primaryImageFile, 'blogs');
                 if (modalMode === 'edit' && formData.main_image) {
                     await deleteBlogImage(formData.main_image);
+                }
+            }
+
+            if (storyImageFile) {
+                finalStoryImage = await uploadBlogImage(storyImageFile, 'blogs');
+                if (modalMode === 'edit' && formData.story_image) {
+                    await deleteBlogImage(formData.story_image);
                 }
             }
 
@@ -208,8 +266,7 @@ function BlogAdminPanel() {
             }
 
             const cleanArray = arr => arr.filter(item => item.title.trim() !== '' || item.description.trim() !== '');
-
-            const cleanTips = arr => arr.filter(tip => tip.trim() !== '');
+            const cleanStrings = arr => arr.filter(str => str.trim() !== '');
 
             const dataToSave = {
                 title: formData.title,
@@ -225,7 +282,13 @@ function BlogAdminPanel() {
                 duration: formData.duration,
                 budget: formData.budget,
                 visa_info: formData.visa_info,
-                tips: cleanTips(formData.tips)
+                tips: cleanStrings(formData.tips),
+                highlights: cleanStrings(formData.highlights),
+                hidden_facts: cleanStrings(formData.hidden_facts),
+                cities_info: cleanArray(formData.cities_info),
+                story_title: formData.story_title,
+                story_content: formData.story_content,
+                story_image: finalStoryImage
             };
 
             if (modalMode === 'add') {
@@ -246,11 +309,12 @@ function BlogAdminPanel() {
         }
     };
 
-    const handleDelete = async (id, imageUrl, galleryUrls) => {
+    const handleDelete = async (id, imageUrl, galleryUrls, storyImageUrl) => {
         if (!window.confirm('Are you sure you want to delete this blog?')) return;
         try {
             await deleteBlog(id);
             if (imageUrl) await deleteBlogImage(imageUrl);
+            if (storyImageUrl) await deleteBlogImage(storyImageUrl);
             
             if (Array.isArray(galleryUrls)) {
                 for (let url of galleryUrls) {
@@ -334,7 +398,7 @@ function BlogAdminPanel() {
                                                 <button className="btn-edit" onClick={() => handleOpenModal('edit', blog)}>
                                                     <i className="fa-solid fa-pen"></i> Edit
                                                 </button>
-                                                <button className="btn-delete" onClick={() => handleDelete(blog.id, blog.main_image, blog.image_gallery)}>
+                                                <button className="btn-delete" onClick={() => handleDelete(blog.id, blog.main_image, blog.image_gallery, blog.story_image)}>
                                                     <i className="fa-solid fa-trash"></i> Delete
                                                 </button>
                                             </div>
@@ -517,6 +581,94 @@ function BlogAdminPanel() {
                                     <i className="fa-solid fa-plus mt-1"></i> Add Tip
                                 </button>
                             </div>
+
+                             <h5 className="mt-4 text-primary border-bottom pb-2">Key Highlights</h5>
+                             <div className="border rounded p-3 bg-light mb-4">
+                                 {formData.highlights.map((highlight, index) => (
+                                     <div key={index} className="d-flex gap-2 mb-2 align-items-center">
+                                         <input 
+                                             type="text" 
+                                             className="form-control" 
+                                             placeholder="Enter highlight (e.g. Pristine beaches, Vibrant nightlife...)" 
+                                             value={highlight} 
+                                             onChange={e => handleHighlightChange(index, e.target.value)} 
+                                         />
+                                         <button type="button" className="btn btn-sm btn-outline-danger" style={{minWidth: '38px', height: '38px'}} onClick={() => removeHighlight(index)}>
+                                             <i className="fa-solid fa-times"></i>
+                                         </button>
+                                     </div>
+                                 ))}
+                                 <button type="button" className="btn btn-sm btn-outline-primary" onClick={addHighlight}>
+                                     <i className="fa-solid fa-plus mt-1"></i> Add Highlight
+                                 </button>
+                             </div>
+
+                             <h5 className="mt-4 text-primary border-bottom pb-2">Cities Info</h5>
+                             <div className="border rounded p-3 bg-light mb-4">
+                                 {formData.cities_info.map((row, index) => (
+                                     <div key={index} className="row g-2 mb-3 align-items-start">
+                                         <div className="col-11">
+                                             <input type="text" className="form-control mb-2 fw-bold" placeholder="City Name (e.g. Sydney)" value={row.title} onChange={e => handleStructuredArrayChange('cities_info', index, 'title', e.target.value)} />
+                                             <textarea className="form-control" rows="2" placeholder="Information/Overview of this city..." value={row.description} onChange={e => handleStructuredArrayChange('cities_info', index, 'description', e.target.value)} />
+                                         </div>
+                                         <div className="col-1 text-end">
+                                             <button type="button" className="btn btn-sm btn-outline-danger w-100" onClick={() => removeStructuredItem('cities_info', index)}>
+                                                 <i className="fa-solid fa-times"></i>
+                                             </button>
+                                         </div>
+                                     </div>
+                                 ))}
+                                 <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => addStructuredItem('cities_info')}>
+                                     <i className="fa-solid fa-plus mt-1"></i> Add City Info
+                                 </button>
+                             </div>
+
+                             <h5 className="mt-4 text-primary border-bottom pb-2">Hidden Facts</h5>
+                             <div className="border rounded p-3 bg-light mb-4">
+                                 {formData.hidden_facts.map((fact, index) => (
+                                     <div key={index} className="d-flex gap-2 mb-2 align-items-center">
+                                         <input 
+                                             type="text" 
+                                             className="form-control" 
+                                             placeholder="Enter interesting/hidden fact about this country..." 
+                                             value={fact} 
+                                             onChange={e => handleHiddenFactChange(index, e.target.value)} 
+                                         />
+                                         <button type="button" className="btn btn-sm btn-outline-danger" style={{minWidth: '38px', height: '38px'}} onClick={() => removeHiddenFact(index)}>
+                                             <i className="fa-solid fa-times"></i>
+                                         </button>
+                                     </div>
+                                 ))}
+                                 <button type="button" className="btn btn-sm btn-outline-primary" onClick={addHiddenFact}>
+                                     <i className="fa-solid fa-plus mt-1"></i> Add Hidden Fact
+                                 </button>
+                             </div>
+
+                             <h5 className="mt-4 text-primary border-bottom pb-2">Traveler's Story (Story Writing Section)</h5>
+                             <div className="border rounded p-3 bg-light mb-4">
+                                 <div className="row">
+                                     <div className="col-md-12 mb-3">
+                                         <label className="fw-semibold small">Story Title</label>
+                                         <input type="text" name="story_title" value={formData.story_title} onChange={handleInputChange} className="form-control" placeholder="e.g. My Magical Week in Switzerland" />
+                                     </div>
+                                     <div className="col-md-12 mb-3">
+                                         <label className="fw-semibold small">Story Content</label>
+                                         <textarea name="story_content" value={formData.story_content} onChange={handleInputChange} className="form-control" rows="5" placeholder="Write the personal traveler story/narrative here..."></textarea>
+                                     </div>
+                                     <div className="col-md-12 mb-3">
+                                         <label className="fw-semibold small">Story Cover/Accent Image</label>
+                                         <input type="file" accept="image/*" onChange={(e) => {
+                                             if(e.target.files && e.target.files[0]) setStoryImageFile(e.target.files[0])
+                                         }} className="form-control" />
+                                         {formData.story_image && !storyImageFile && (
+                                             <div className="mt-2 text-muted small d-flex align-items-center gap-2">
+                                                 <i className="fa-solid fa-image text-primary"></i> Current Story Image
+                                                 <img src={getBlogImageSrc(formData.story_image)} alt="story" className="d-block mt-1 object-fit-cover rounded border" style={{ width: '80px', height: '50px' }} />
+                                             </div>
+                                         )}
+                                     </div>
+                                 </div>
+                             </div>
 
                             <div className="admin-modal-footer sticky-bottom bg-white pt-3 border-top mt-4 p-3">
                                 <button type="button" className="btn btn-secondary me-2" onClick={handleCloseModal}>Cancel</button>

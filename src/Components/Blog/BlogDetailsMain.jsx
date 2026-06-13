@@ -73,6 +73,9 @@ function BlogDetailsMain() {
     const activities = parseArraySafe(blog.activities);
     const gallery = parseArraySafe(blog.image_gallery);
     const tips = parseArraySafe(blog.tips);
+    const highlights = parseArraySafe(blog.highlights);
+    const hiddenFacts = parseArraySafe(blog.hidden_facts);
+    const cities = parseArraySafe(blog.cities_info);
 
     const formattedDate = new Date(blog.created_at).toLocaleDateString('en-US', {
         day: '2-digit', month: 'short', year: 'numeric'
@@ -172,12 +175,127 @@ function BlogDetailsMain() {
                                     </div>
                                 )}
                                 
-                                {/* Main Content */}
-                                <div className="blog-text mt-5 text-justify" style={{ whiteSpace: 'pre-line', fontSize: '1.1rem', lineHeight: '1.8' }}>
-                                    {blog.content}
+                                {/* Detailed Country Info Overview */}
+                                <div className="blog-overview mt-5">
+                                    <h4 className="h4 mb-3 text-theme"><i className="fa-solid fa-circle-info me-2"></i> About the Country</h4>
+                                    <div className="blog-text text-justify" style={{ whiteSpace: 'pre-line', fontSize: '1.1rem', lineHeight: '1.8', color: '#334155' }}>
+                                        {blog.content}
+                                    </div>
                                 </div>
 
-                                {/* Places to Visit Section */}
+                                {/* Highlights Section */}
+                                {highlights && highlights.length > 0 && (
+                                    <div className="mt-5 p-4 rounded-4" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', border: '1px solid #e2e8f0' }}>
+                                        <h4 className="h4 mb-4 text-theme d-flex align-items-center gap-2">
+                                            <i className="fa-solid fa-star text-warning" style={{ fontSize: '20px' }}></i> Key Highlights
+                                        </h4>
+                                        <div className="row g-3">
+                                            {highlights.map((highlight, index) => (
+                                                <div className="col-md-6" key={index}>
+                                                    <div 
+                                                        className="d-flex align-items-start gap-3 bg-white p-3 rounded-3 shadow-sm border-start border-3 border-theme h-100" 
+                                                        style={{ transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'default' }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                                            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.05)';
+                                                        }}
+                                                    >
+                                                        <div className="flex-shrink-0 text-theme">
+                                                            <i className="fa-solid fa-circle-check" style={{ fontSize: '18px' }}></i>
+                                                        </div>
+                                                        <span style={{ fontWeight: '500', color: '#1e293b' }}>{highlight}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Traveler's Story Section */}
+                                {blog.story_content && (
+                                    <div className="mt-5 p-4 rounded-4 position-relative overflow-hidden" style={{ background: '#fdfbf7', border: '1px solid #f3ebd8' }}>
+                                        <div style={{ position: 'absolute', right: '15px', top: '-15px', fontSize: '120px', color: '#f5efe0', fontFamily: 'Georgia, serif', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>“</div>
+                                        
+                                        <h4 className="h4 mb-3" style={{ color: '#854d0e', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+                                            <i className="fa-solid fa-feather-pointed me-2"></i> Traveler's Journal
+                                        </h4>
+                                        
+                                        {blog.story_title && (
+                                            <h5 className="h5 mb-4 fw-bold" style={{ color: '#451a03', borderBottom: '1px solid #f3ebd8', paddingBottom: '12px' }}>
+                                                {blog.story_title}
+                                            </h5>
+                                        )}
+                                        
+                                        <div className="row g-4 align-items-start">
+                                            {blog.story_image && (
+                                                <div className="col-md-5">
+                                                    <img 
+                                                        src={getBlogImageSrc(blog.story_image)} 
+                                                        alt={blog.story_title || "Travel Story"} 
+                                                        className="w-100 rounded-3 shadow object-fit-cover" 
+                                                        style={{ maxHeight: '280px', border: '3px solid #fff' }}
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className={blog.story_image ? "col-md-7" : "col-12"}>
+                                                <div style={{ 
+                                                    fontFamily: 'Georgia, serif', 
+                                                    fontSize: '1.1rem', 
+                                                    lineHeight: '1.9', 
+                                                    color: '#451a03',
+                                                    textAlign: 'justify'
+                                                }}>
+                                                    <span style={{ 
+                                                        float: 'left', 
+                                                        fontSize: '3.2rem', 
+                                                        lineHeight: '0.8', 
+                                                        fontWeight: 'bold', 
+                                                        marginRight: '8px', 
+                                                        marginTop: '4px',
+                                                        color: '#b45309'
+                                                    }}>
+                                                        {blog.story_content.charAt(0)}
+                                                    </span>
+                                                    {blog.story_content.slice(1)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Cities Info Section */}
+                                {cities && cities.length > 0 && (
+                                    <div className="mt-5">
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-city me-2"></i> Top Cities to Explore</h4>
+                                        <div className="row gy-4">
+                                            {cities.map((city, index) => (
+                                                <div className="col-md-6" key={index}>
+                                                    <div 
+                                                        className="p-4 bg-white rounded-4 shadow-sm border border-light h-100 d-flex flex-column" 
+                                                        style={{ borderLeft: '4px solid #0962E8', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.transform = 'translateY(-3px)';
+                                                            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.05)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                            e.currentTarget.style.boxShadow = 'none';
+                                                        }}
+                                                    >
+                                                        <h5 className="h5 mb-2 fw-bold text-dark">{city.title}</h5>
+                                                        <p className="mb-0 text-muted" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{city.description}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Must-Visit Places Section (for backward compatibility) */}
                                 {places && places.length > 0 && (
                                     <div className="mt-5">
                                         <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-map-location-dot me-2"></i> Must-Visit Places</h4>
@@ -194,25 +312,49 @@ function BlogDetailsMain() {
                                     </div>
                                 )}
 
-                                {/* Activities to Perform Section */}
+                                {/* Popular Activities Section */}
                                 {activities && activities.length > 0 && (
                                     <div className="mt-5">
-                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-person-hiking me-2"></i> Exciting Activities</h4>
-                                        <ul className="list-group list-group-flush shadow-sm rounded">
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-person-hiking me-2"></i> Must-Try Activities</h4>
+                                        <div className="row g-3">
                                             {activities.map((activity, index) => (
-                                                <li className="list-group-item bg-light p-4 border-bottom" key={index}>
-                                                    <div className="d-flex flex-column flex-sm-row align-items-start gap-3">
+                                                <div className="col-12" key={index}>
+                                                    <div className="p-4 bg-light rounded-4 border border-light shadow-xs d-flex gap-3 align-items-start">
                                                         <div className="flex-shrink-0 text-theme mt-1">
-                                                            <i className="fa-solid fa-check-circle" style={{fontSize: '24px'}}></i>
+                                                            <div style={{ width: '36px', height: '36px', background: '#0962e812', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0962E8', fontWeight: 'bold' }}>
+                                                                {index + 1}
+                                                            </div>
                                                         </div>
                                                         <div>
-                                                            <h5 className="h6 mb-1 fw-bold">{activity.title}</h5>
-                                                            <p className="mb-0 text-muted">{activity.description}</p>
+                                                            <h5 className="h6 mb-2 fw-bold text-dark">{activity.title}</h5>
+                                                            <p className="mb-0 text-muted" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{activity.description}</p>
                                                         </div>
                                                     </div>
-                                                </li>
+                                                </div>
                                             ))}
-                                        </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Hidden Facts Section */}
+                                {hiddenFacts && hiddenFacts.length > 0 && (
+                                    <div className="mt-5">
+                                        <h4 className="h4 mb-4 text-theme"><i className="fa-solid fa-magnifying-glass-location me-2"></i> Hidden & Interesting Facts</h4>
+                                        <div className="row g-3">
+                                            {hiddenFacts.map((fact, index) => (
+                                                <div className="col-12" key={index}>
+                                                    <div className="p-4 rounded-4 d-flex align-items-start gap-3 border" style={{ background: '#f0fdf4', borderColor: '#dcfce7' }}>
+                                                        <div className="flex-shrink-0" style={{ width: '40px', height: '40px', background: '#bbf7d0', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', fontSize: '20px' }}>
+                                                            <i className="fa-solid fa-lightbulb"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h5 className="h6 mb-1 fw-bold" style={{ color: '#14532d' }}>Did You Know?</h5>
+                                                            <p className="mb-0" style={{ color: '#166534', fontSize: '1rem', lineHeight: '1.6' }}>{fact}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 
