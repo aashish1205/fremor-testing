@@ -30,12 +30,13 @@ export default function ContinentTabs() {
     }, []);
 
     const continents = [
-        { label: 'All Global', value: null, icon: 'fa-solid fa-earth-americas' },
-        { label: 'Europe', value: 'Europe', icon: 'fa-solid fa-landmark' },
-        { label: 'Africa', value: 'Africa', icon: 'fa-solid fa-paw' },
-        { label: 'North America', value: 'North America', icon: 'fa-solid fa-bridge-water' },
-        { label: 'South America', value: 'South America', icon: 'fa-solid fa-mountain' },
-        { label: 'Australia', value: 'Australia', icon: 'fa-solid fa-water' }
+        { label: 'All Global', value: null, icon: 'fa-solid fa-globe' },
+        { label: 'Asia', value: 'Asia', icon: 'fa-solid fa-earth-asia' },
+        { label: 'Europe', value: 'Europe', icon: 'fa-solid fa-earth-europe' },
+        { label: 'Africa', value: 'Africa', icon: 'fa-solid fa-earth-africa' },
+        { label: 'North America', value: 'North America', icon: 'fa-solid fa-earth-americas' },
+        { label: 'South America', value: 'South America', icon: 'fa-solid fa-earth-americas' },
+        { label: 'Australia', value: 'Australia', icon: 'fa-solid fa-earth-oceania' }
     ];
 
     const isActive = (val) => {
@@ -148,7 +149,7 @@ export default function ContinentTabs() {
                                 >
                                     <i className={c.icon} style={{ 
                                         color: isActive(c.value) ? '#FFB114' : '#0d496e',
-                                        fontSize: '12px',
+                                        fontSize: '15px',
                                         transition: 'all 0.3s'
                                     }}></i>
                                     {c.label}

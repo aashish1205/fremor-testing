@@ -20,7 +20,8 @@ function DestinationCard(props) {
         loyaltyPoints,
         inclusions,
         location,
-        itinerarySummary
+        itinerarySummary,
+        accommodationType
     } = props;
 
     const [isWishlisted, setIsWishlisted] = useState(false);
@@ -150,6 +151,11 @@ function DestinationCard(props) {
                             {destinationNights > 0 ? `${destinationNights}N` : ''}
                             {destinationNights > 0 && destinationDays > 0 ? '/' : ''}
                             {destinationDays > 0 ? `${destinationDays}D` : ''}
+                        </span>
+                    )}
+                    {accommodationType && (
+                        <span className="badge-hotel-type">
+                            <i className="fa-solid fa-hotel me-1"></i> {accommodationType}
                         </span>
                     )}
                 </div>

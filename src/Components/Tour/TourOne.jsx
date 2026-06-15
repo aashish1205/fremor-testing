@@ -91,6 +91,7 @@ function TourOne() {
                       inclusions={dest.inclusions}
                       location={dest.location}
                       itinerarySummary={dest.itinerary_summary}
+                      accommodationType={dest.accommodation_type}
                     />
                   </SwiperSlide>
 

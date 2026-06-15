@@ -407,6 +407,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                                                     inclusions={data.inclusions}
                                                     location={data.location}
                                                     itinerarySummary={data.itinerary_summary}
+                                                    accommodationType={data.accommodation_type}
                                                 />
                                             </div>
                                         ))}
@@ -426,6 +427,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                                                     destinationPriceUnit={data.price_unit}
                                                     destinationNights={data.nights}
                                                     destinationDays={data.days}
+                                                    accommodationType={data.accommodation_type}
                                                 />
                                             </div>
                                         ))}

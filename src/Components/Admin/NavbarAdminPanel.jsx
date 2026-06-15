@@ -7,6 +7,7 @@ const PREDEFINED_SCREENS = [
     { label: 'Home Page (/)', value: '/' },
     { label: 'Explore All Tours (/destination)', value: '/destination' },
     { label: 'Outbound (Global) Tours (/destination/outbound)', value: '/destination/outbound' },
+    { label: 'Asia (Outbound) (/destination/outbound/asia)', value: '/destination/outbound/asia' },
     { label: 'Europe (Outbound) (/destination/outbound/europe)', value: '/destination/outbound/europe' },
     { label: 'Africa (Outbound) (/destination/outbound/africa)', value: '/destination/outbound/africa' },
     { label: 'North America (Outbound) (/destination/outbound/north-america)', value: '/destination/outbound/north-america' },
@@ -570,7 +571,7 @@ export default function NavbarAdminPanel() {
                                         style={{ width: '100%' }}
                                     >
                                         <option value="">Standard Link / Standard Dropdown</option>
-                                        <option value="outbound_mega">Outbound (Global) Dropdown (5 Continents)</option>
+                                        <option value="outbound_mega">Outbound (Global) Dropdown (6 Continents)</option>
                                         <option value="inbound_dropdown">Inbound (India) Single Link</option>
                                         <option value="domestic_dropdown">Domestic Single Link</option>
                                     </select>

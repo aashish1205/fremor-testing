@@ -65,7 +65,7 @@ function DestinationAdminPanel() {
         basic_info_text: '',
         included_list: [''], // Array of strings
         excluded_list: [''], // Array of strings
-        itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }], // Array of objects
+        itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [], location_name: '', latitude: '', longitude: '' }], // Array of objects
         brochure_url: '',
         category: 'Inbound',
         package_type: 'Standard',
@@ -261,8 +261,11 @@ function DestinationAdminPanel() {
                     title: item.title || '',
                     description: item.description || '',
                     image: item.image || '',
-                    inclusions: item.inclusions || []
-                })) : [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }],
+                    inclusions: item.inclusions || [],
+                    location_name: item.location_name || '',
+                    latitude: item.latitude || '',
+                    longitude: item.longitude || ''
+                })) : [{ day: "Day 01", title: '', description: '', image: '', inclusions: [], location_name: '', latitude: '', longitude: '' }],
                 brochure_url: dest.brochure_url || '',
                 category: dest.category || 'Inbound',
                 package_type: dest.package_type || 'Standard',
@@ -304,7 +307,7 @@ function DestinationAdminPanel() {
                 basic_info_text: '',
                 included_list: [''],
                 excluded_list: [''],
-                itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [] }],
+                itinerary: [{ day: "Day 01", title: '', description: '', image: '', inclusions: [], location_name: '', latitude: '', longitude: '' }],
                 brochure_url: '',
                 category: 'Inbound',
                 package_type: 'Standard',
@@ -394,14 +397,14 @@ function DestinationAdminPanel() {
         const newDayName = `Day ${dayCount.toString().padStart(2, '0')}`;
         setFormData(prev => ({ 
             ...prev, 
-            itinerary: [...prev.itinerary, { day: newDayName, title: '', description: '', image: '', inclusions: [] }]  
+            itinerary: [...prev.itinerary, { day: newDayName, title: '', description: '', image: '', inclusions: [], location_name: '', latitude: '', longitude: '' }]  
         }));
     };
 
     const removeItineraryDay = (dayIndex) => {
         const newItinerary = [...formData.itinerary];
         newItinerary.splice(dayIndex, 1);
-        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", title: '', description: '', image: '', inclusions: [] });
+        if (newItinerary.length === 0) newItinerary.push({ day: "Day 01", title: '', description: '', image: '', inclusions: [], location_name: '', latitude: '', longitude: '' });
         setFormData(prev => ({ ...prev, itinerary: newItinerary }));
     };
 
@@ -456,7 +459,10 @@ function DestinationAdminPanel() {
                         title: day.title || '',
                         description: day.description || '',
                         image: finalDayImage,
-                        inclusions: day.inclusions || []
+                        inclusions: day.inclusions || [],
+                        location_name: day.location_name || '',
+                        latitude: day.latitude || '',
+                        longitude: day.longitude || ''
                     });
                 }
             }
@@ -1325,6 +1331,37 @@ function DestinationAdminPanel() {
                                                 className="form-control"
                                                 rows="3"
                                                 placeholder="Detailed description of activities, visits, and schedule for this day..."
+                                            />
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <label className="text-muted small text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Map Location Name (optional)</label>
+                                            <input 
+                                                type="text" 
+                                                value={dayObj.location_name || ''} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'location_name', e.target.value)} 
+                                                className="form-control"
+                                                placeholder="e.g. Cellular Jail"
+                                            />
+                                        </div>
+                                        <div className="col-md-3">
+                                            <label className="text-muted small text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Latitude (optional)</label>
+                                            <input 
+                                                type="text" 
+                                                value={dayObj.latitude || ''} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'latitude', e.target.value)} 
+                                                className="form-control"
+                                                placeholder="e.g. 11.6739"
+                                            />
+                                        </div>
+                                        <div className="col-md-3">
+                                            <label className="text-muted small text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Longitude (optional)</label>
+                                            <input 
+                                                type="text" 
+                                                value={dayObj.longitude || ''} 
+                                                onChange={(e) => handleItineraryDayChange(dayIndex, 'longitude', e.target.value)} 
+                                                className="form-control"
+                                                placeholder="e.g. 92.7472"
                                             />
                                         </div>
                                         

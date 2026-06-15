@@ -164,6 +164,7 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
                     url: '/destination/outbound', 
                     special_type: 'outbound_mega',
                     children: [
+                        { id: 'fb-cont-asia', label: 'Asia', url: '/destination/outbound/asia' },
                         { id: 'fb-cont-europe', label: 'Europe', url: '/destination/outbound/europe' },
                         { id: 'fb-cont-africa', label: 'Africa', url: '/destination/outbound/africa' },
                         { id: 'fb-cont-na', label: 'North America', url: '/destination/outbound/north-america' },
@@ -208,6 +209,7 @@ function MobileMenu({ isOpen, onClose, onLoginClick }) {
         if (item.special_type === 'outbound_mega') {
             const isExpanded = expandedMenus[item.id];
             const defaultContinents = [
+                { id: 'fb-cont-asia', label: 'Asia', url: '/destination/outbound/asia' },
                 { id: 'fb-cont-europe', label: 'Europe', url: '/destination/outbound/europe' },
                 { id: 'fb-cont-africa', label: 'Africa', url: '/destination/outbound/africa' },
                 { id: 'fb-cont-na', label: 'North America', url: '/destination/outbound/north-america' },

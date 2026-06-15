@@ -45,6 +45,20 @@ export async function fetchBlogById(id) {
     return data;
 }
 
+// ─── FETCH POPULAR BLOGS (BYPASS CACHE) ────────────────────────
+export async function fetchPopularBlogs() {
+    const { data, error } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('is_popular_story', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+    if (error) throw error;
+    return data;
+}
+
+
 // ─── SEARCH BLOGS BY TITLE ─────────────────────────────────────
 export async function searchBlogs(query) {
     const { data, error } = await supabase

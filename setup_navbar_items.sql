@@ -70,11 +70,12 @@ BEGIN
 
         -- Seed continents under Outbound (Global)
         INSERT INTO public.navbar_items (label, url, parent_id, order_index) VALUES
-        ('Europe', '/destination/outbound', v_outbound_id, 1),
-        ('Africa', '/destination/outbound', v_outbound_id, 2),
-        ('North America', '/destination/outbound', v_outbound_id, 3),
-        ('South America', '/destination/outbound', v_outbound_id, 4),
-        ('Australia', '/destination/outbound', v_outbound_id, 5);
+        ('Asia', '/destination/outbound/asia', v_outbound_id, 1),
+        ('Europe', '/destination/outbound', v_outbound_id, 2),
+        ('Africa', '/destination/outbound', v_outbound_id, 3),
+        ('North America', '/destination/outbound', v_outbound_id, 4),
+        ('South America', '/destination/outbound', v_outbound_id, 5),
+        ('Australia', '/destination/outbound', v_outbound_id, 6);
 
         -- 3. Simple Link: Visa
         INSERT INTO public.navbar_items (label, url, order_index)

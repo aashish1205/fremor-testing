@@ -6,6 +6,33 @@ import { supabase } from '../../supabaseClient';
 import { generatePackagePDF } from '../../utils/pdfGenerator';
 import { checkIfWishlisted, addToWishlist, removeFromWishlist } from '../../services/wishlistService';
 
+const loadLeaflet = () => {
+    return new Promise((resolve) => {
+        if (window.L) {
+            resolve(window.L);
+            return;
+        }
+
+        // Add Leaflet CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+        link.crossOrigin = '';
+        document.head.appendChild(link);
+
+        // Add Leaflet JS
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+        script.crossOrigin = '';
+        script.onload = () => {
+            resolve(window.L);
+        };
+        document.body.appendChild(script);
+    });
+};
+
 const detectBaseCity = (dayObj, prevCity) => {
     const dayText = (dayObj.day || '').toLowerCase();
     const titleText = (dayObj.title || '').toLowerCase();
@@ -455,6 +482,109 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         };
     }, [activeInclusion, destinationPost]);
 
+    // Filter map locations (safety check for null objects or missing properties)
+    const mapLocations = destinationPost && Array.isArray(destinationPost.itinerary) 
+        ? destinationPost.itinerary.filter(day => {
+            if (!day || typeof day !== 'object') return false;
+            const lat = parseFloat(day.latitude);
+            const lng = parseFloat(day.longitude);
+            return !isNaN(lat) && !isNaN(lng);
+        })
+        : [];
+
+    useEffect(() => {
+        if (mapLocations.length === 0) return;
+
+        let mapInstance = null;
+        let isMounted = true;
+
+        loadLeaflet().then((L) => {
+            if (!isMounted) return;
+
+            const container = document.getElementById('package-map');
+            if (!container) return;
+
+            // Safe guard: clear inner HTML and reset Leaflet ID if map container was already initialized
+            if (container._leaflet_id) {
+                container._leaflet_id = null;
+                container.innerHTML = '';
+            }
+
+            // Initialize map
+            mapInstance = L.map('package-map', {
+                scrollWheelZoom: false,
+                attributionControl: false
+            });
+
+            // Set up premium tiles (CARTO Voyager)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            }).addTo(mapInstance);
+
+            const markers = [];
+            const latlngs = [];
+
+            mapLocations.forEach((day, index) => {
+                const lat = parseFloat(day.latitude);
+                const lng = parseFloat(day.longitude);
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                const latlng = [lat, lng];
+                latlngs.push(latlng);
+
+                // Custom DivIcon styled as a red location pin with day number
+                const pinIcon = L.divIcon({
+                    html: `<div class="custom-map-pin">
+                             <i class="fa-solid fa-location-dot" style="color: #ef4444; font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.35);"></i>
+                             <span class="pin-day-badge">${index + 1}</span>
+                           </div>`,
+                    className: 'custom-div-icon',
+                    iconSize: [30, 42],
+                    iconAnchor: [15, 36],
+                    popupAnchor: [0, -32]
+                });
+
+                // Add marker
+                const marker = L.marker(latlng, { icon: pinIcon }).addTo(mapInstance);
+                marker.bindPopup(`
+                    <div style="font-family: inherit; font-size: 13px;">
+                        <span style="font-weight: 800; color: #3b82f6; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 2px;">${day.day || `Day ${index + 1}`}</span>
+                        <b>${day.location_name || 'Visited Location'}</b>
+                        ${day.title ? `<div style="color: #64748b; margin-top: 3px; font-size: 11.5px;">${day.title}</div>` : ''}
+                    </div>
+                `);
+
+                markers.push(marker);
+            });
+
+            // Connect markers sequentially with a path (polyline)
+            if (latlngs.length > 1) {
+                L.polyline(latlngs, {
+                    color: '#3b82f6',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '6, 8',
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(mapInstance);
+            }
+
+            // Zoom map to fit all path coordinates
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                mapInstance.fitBounds(group.getBounds().pad(0.2));
+            }
+        });
+
+        // Cleanup function to remove leaflet map when component updates or unmounts
+        return () => {
+            isMounted = false;
+            if (mapInstance) {
+                mapInstance.remove();
+            }
+        };
+    }, [destinationPost, mapLocations.length]);
+
     if (loading) return <div className="text-center py-5"><h3>Loading destination details...</h3></div>;
     if (error || !destinationPost) return <div className="text-center py-5"><h3>{error || 'Destination not found'}</h3></div>;
 
@@ -549,7 +679,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         );
     };
 
-    const itinerary = destinationPost.itinerary?.length > 0 ? destinationPost.itinerary : [];
+    const itinerary = Array.isArray(destinationPost.itinerary) ? destinationPost.itinerary : [];
     const included = destinationPost.included_list?.length > 0 ? destinationPost.included_list : ["N/A"];
     const excluded = destinationPost.excluded_list?.length > 0 ? destinationPost.excluded_list : ["N/A"];
 
@@ -1415,6 +1545,15 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                             </div>
                         </div>
 
+                        {/* Sidebar: Route Map Card */}
+                        {mapLocations.length > 0 && (
+                            <div className="details-map-card animate__animated animate__fadeIn">
+                                <h4 className="card-title">
+                                    <i className="fa-solid fa-map-location-dot"></i> Route Path
+                                </h4>
+                                <div id="package-map" className="details-map-container"></div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

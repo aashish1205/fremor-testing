@@ -634,6 +634,19 @@
   font-weight: 600;
 }
 
+.modern-package-card .badge-hotel-type {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .modern-package-card .card-title {
   font-size: 19px;
   font-weight: 700;
@@ -2520,5 +2533,109 @@
   .itinerary-row-img-wrapper {
     width: 200px;
     height: 120px;
+  }
+}
+
+/* ==========================================
+   ROUTE PATH MAP CARD STYLES
+   ========================================== */
+.details-map-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.details-map-card .card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.details-map-card .card-title i {
+  color: #3b82f6;
+}
+
+.details-map-container {
+  height: 280px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom Pin Styling for Map */
+.custom-map-pin {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pin-day-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Leaflet Popup styling overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  font-family: inherit !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e2e8f0;
+}
+
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.leaflet-popup-content b {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* Hide Leaflet Attribution Watermark */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Sticky Sidebar for Blog Detail and List Views */
+@media (min-width: 992px) {
+  .blog-details .sidebar-area,
+  .th-blog-wrapper .sidebar-area {
+    position: sticky;
+    top: 110px; /* Offset to clear the sticky main header */
+    align-self: start;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+  }
+  .blog-details .sidebar-area::-webkit-scrollbar,
+  .th-blog-wrapper .sidebar-area::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome/Safari/Edge */
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchBlogById, getBlogImageSrc } from '../../services/blogService';
+import { fetchBlogById, fetchPopularBlogs, getBlogImageSrc } from '../../services/blogService';
 import { fetchDestinations, getImageSrc } from '../../services/destinationService';
 
 function BlogDetailsMain() {
@@ -10,6 +10,9 @@ function BlogDetailsMain() {
 
     const [destinations, setDestinations] = useState([]);
     const [destinationsLoading, setDestinationsLoading] = useState(true);
+
+    const [popularBlogs, setPopularBlogs] = useState([]);
+    const [popularLoading, setPopularLoading] = useState(true);
 
     useEffect(() => {
         const loadBlog = async () => {
@@ -39,6 +42,20 @@ function BlogDetailsMain() {
         };
         loadDestinations();
     }, []);
+
+    useEffect(() => {
+        const loadPopularBlogs = async () => {
+            try {
+                const data = await fetchPopularBlogs();
+                setPopularBlogs(data);
+            } catch (error) {
+                console.error("Error loading popular blogs:", error);
+            } finally {
+                setPopularLoading(false);
+            }
+        };
+        loadPopularBlogs();
+    }, [id]);
 
     if (loading) {
         return (
@@ -92,10 +109,12 @@ function BlogDetailsMain() {
                             </div>
                             <div className="blog-content pt-4">
                                 <div className="blog-meta">
-                                    <span className="author">
-                                        <i className="fa-light fa-user" />
-                                        by {blog.author || 'David Smith'}
-                                    </span>
+                                    {blog.author && (
+                                        <span className="author">
+                                            <i className="fa-light fa-user" />
+                                            by {blog.author}
+                                        </span>
+                                    )}
                                     <span>
                                         <i className="fa-regular fa-calendar" />
                                         {formattedDate}
@@ -420,6 +439,46 @@ function BlogDetailsMain() {
                                 </form>
                             </div>
                             <div className="widget">
+                                <h3 className="widget_title">Popular Fremor Stories</h3>
+                                <div className="recent-post-wrap">
+                                    {popularLoading ? (
+                                        <div className="text-center py-3">
+                                            <div className="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
+                                    ) : popularBlogs.length === 0 ? (
+                                        <p className="text-muted small">No popular stories marked yet.</p>
+                                    ) : (
+                                        popularBlogs.map((b) => (
+                                            <div className="recent-post" key={b.id}>
+                                                <div className="media-img">
+                                                    <Link to={`/blog/${b.id}`}>
+                                                        <img
+                                                            src={getBlogImageSrc(b.main_image)}
+                                                            alt={b.title}
+                                                        />
+                                                    </Link>
+                                                </div>
+                                                <div className="media-body">
+                                                    <h4 className="post-title">
+                                                        <Link className="text-inherit" to={`/blog/${b.id}`}>
+                                                            {b.title}
+                                                        </Link>
+                                                    </h4>
+                                                    <div className="recent-post-meta">
+                                                        <Link to={`/blog/${b.id}`}>
+                                                            <i className="fa-regular fa-calendar" />
+                                                            {new Date(b.created_at).toLocaleDateString('en-US', {
+                                                                day: '2-digit', month: 'short', year: 'numeric'
+                                                            })}
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                           {/* <div className="widget">
                                 <h3 className="widget_title">Most Visited Destinations</h3>
                                 <div className="recent-post-wrap">
                                     {destinationsLoading ? (
@@ -456,7 +515,7 @@ function BlogDetailsMain() {
                                         ))
                                     )}
                                 </div>
-                            </div>
+                            </div>*/}
                             {/*<div className="widget widget_tag_cloud">
                                 <h3 className="widget_title">Popular Tags</h3>
                                 <div className="tagcloud">

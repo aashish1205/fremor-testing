@@ -5,7 +5,7 @@ import EnquirePopupForm from '../Forms/EnquirePopupForm';
 
 function DestinationCardTwo(props) {
     const [isEnquireOpen, setIsEnquireOpen] = useState(false);
-    const { destinationID, destinationImage, destinationTitle, destinationPrice, destinationDuration, destinationPriceUnit, destinationNights, destinationDays } = props;
+    const { destinationID, destinationImage, destinationTitle, destinationPrice, destinationDuration, destinationPriceUnit, destinationNights, destinationDays, accommodationType } = props;
     return (
         <div className="tour-box style-flex th-ani">
             <div className="tour-box_img global-img">
@@ -56,6 +56,11 @@ function DestinationCardTwo(props) {
                     ) : (
                         <span>
                             <i className="fa-light fa-clock" />{destinationDuration ? destinationDuration : '7 Days'}
+                        </span>
+                    )}
+                    {accommodationType && (
+                        <span className="tour-hotel-type" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f0fdf4', border: '1px solid #dcfce7', color: '#16a34a', fontWeight: '700', fontSize: '13px' }}>
+                            <i className="fa-solid fa-hotel" style={{ fontSize: '12px' }}></i> {accommodationType}
                         </span>
                     )}
                     <button onClick={() => setIsEnquireOpen(true)} className="th-btn style4 th-icon border-0">

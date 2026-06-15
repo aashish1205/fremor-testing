@@ -28,7 +28,7 @@ function BlogAdminPanel() {
         title: '',
         short_description: '',
         content: '',
-        author: 'David Smith',
+        author: '',
         category: 'Travel',
         main_image: '',
         image_gallery: [],
@@ -44,7 +44,8 @@ function BlogAdminPanel() {
         cities_info: [{ title: 'Example City', description: 'Description of the city.' }],
         story_title: '',
         story_content: '',
-        story_image: ''
+        story_image: '',
+        is_popular_story: false
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
@@ -109,7 +110,7 @@ function BlogAdminPanel() {
                 title: blog.title || '',
                 short_description: blog.short_description || '',
                 content: blog.content || '',
-                author: blog.author || 'David Smith',
+                author: blog.author || '',
                 category: blog.category || 'Travel',
                 main_image: blog.main_image || '',
                 image_gallery: parseArraySafe(blog.image_gallery, []),
@@ -125,7 +126,8 @@ function BlogAdminPanel() {
                 cities_info: parseArraySafe(blog.cities_info, [{ title: '', description: '' }]),
                 story_title: blog.story_title || '',
                 story_content: blog.story_content || '',
-                story_image: blog.story_image || ''
+                story_image: blog.story_image || '',
+                is_popular_story: blog.is_popular_story || false
             });
         } else {
             setFormData({
@@ -133,7 +135,7 @@ function BlogAdminPanel() {
                 title: '',
                 short_description: '',
                 content: '',
-                author: 'David Smith',
+                author: '',
                 category: 'Travel',
                 main_image: '',
                 image_gallery: [],
@@ -149,7 +151,8 @@ function BlogAdminPanel() {
                 cities_info: [{ title: '', description: '' }],
                 story_title: '',
                 story_content: '',
-                story_image: ''
+                story_image: '',
+                is_popular_story: false
             });
         }
         setPrimaryImageFile(null);
@@ -288,7 +291,8 @@ function BlogAdminPanel() {
                 cities_info: cleanArray(formData.cities_info),
                 story_title: formData.story_title,
                 story_content: formData.story_content,
-                story_image: finalStoryImage
+                story_image: finalStoryImage,
+                is_popular_story: formData.is_popular_story || false
             };
 
             if (modalMode === 'add') {
@@ -372,13 +376,14 @@ function BlogAdminPanel() {
                                 <th>Title</th>
                                 <th>Category</th>
                                 <th>Author</th>
+                                <th>Popular?</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-4 text-muted">
+                                    <td colSpan="6" className="text-center py-4 text-muted">
                                         {searchTerm ? 'No blogs found matching your search.' : 'No blogs found.'}
                                     </td>
                                 </tr>
@@ -392,7 +397,14 @@ function BlogAdminPanel() {
                                         </td>
                                         <td><strong>{blog.title}</strong></td>
                                         <td>{blog.category || '-'}</td>
-                                        <td>{blog.author}</td>
+                                        <td>{blog.author || '-'}</td>
+                                        <td>
+                                            {blog.is_popular_story ? (
+                                                <span className="badge bg-success" style={{ fontSize: '12px', padding: '5px 10px' }}>Popular</span>
+                                            ) : (
+                                                <span className="badge bg-secondary" style={{ fontSize: '12px', padding: '5px 10px' }}>No</span>
+                                            )}
+                                        </td>
                                         <td>
                                             <div className="admin-actions">
                                                 <button className="btn-edit" onClick={() => handleOpenModal('edit', blog)}>
@@ -438,8 +450,8 @@ function BlogAdminPanel() {
                                     <input type="text" name="category" value={formData.category} onChange={handleInputChange} className="form-control" required placeholder="e.g. Travel, City Tour" />
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <label>Author *</label>
-                                    <input type="text" name="author" value={formData.author} onChange={handleInputChange} className="form-control" required />
+                                    <label>Author</label>
+                                    <input type="text" name="author" value={formData.author} onChange={handleInputChange} className="form-control" placeholder="Optional (e.g. David Smith)" />
                                 </div>
                                 <div className="col-md-12 mb-3">
                                     <label>Short Description (For list view) *</label>
@@ -448,6 +460,22 @@ function BlogAdminPanel() {
                                 <div className="col-md-12 mb-3">
                                     <label>Detailed Content (Main body) *</label>
                                     <textarea name="content" value={formData.content} onChange={handleInputChange} className="form-control" rows="8" required placeholder="Write the main blog content here..."></textarea>
+                                </div>
+                                <div className="col-md-12 mb-3">
+                                    <div className="form-check form-switch mt-2 d-flex align-items-center gap-2">
+                                        <input 
+                                            type="checkbox" 
+                                            className="form-check-input" 
+                                            id="is_popular_story" 
+                                            name="is_popular_story" 
+                                            checked={formData.is_popular_story || false} 
+                                            onChange={(e) => setFormData(prev => ({ ...prev, is_popular_story: e.target.checked }))} 
+                                            style={{ cursor: 'pointer', width: '40px', height: '20px' }}
+                                        />
+                                        <label className="form-check-label fw-semibold text-dark" htmlFor="is_popular_story" style={{ cursor: 'pointer', fontSize: '14px' }}>
+                                            Mark as Popular Fremor Story (Featured in Blog Details Sidebar)
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import BlogPost from './BlogPost';
-import { fetchBlogs } from '../../services/blogService';
+import { fetchBlogs, fetchPopularBlogs, getBlogImageSrc } from '../../services/blogService';
 import { fetchDestinations, getImageSrc } from '../../services/destinationService';
 
-function BlogInner() {
+function  BlogInner() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -12,6 +12,9 @@ function BlogInner() {
 
     const [destinations, setDestinations] = useState([]);
     const [destinationsLoading, setDestinationsLoading] = useState(true);
+
+    const [popularBlogs, setPopularBlogs] = useState([]);
+    const [popularLoading, setPopularLoading] = useState(true);
 
     useEffect(() => {
         const loadBlogs = async () => {
@@ -40,6 +43,20 @@ function BlogInner() {
             }
         };
         loadDestinations();
+    }, []);
+
+    useEffect(() => {
+        const loadPopularBlogs = async () => {
+            try {
+                const data = await fetchPopularBlogs();
+                setPopularBlogs(data);
+            } catch (error) {
+                console.error("Error loading popular blogs:", error);
+            } finally {
+                setPopularLoading(false);
+            }
+        };
+        loadPopularBlogs();
     }, []);
 
     const totalPages = Math.ceil(blogs.length / postsPerPage);
@@ -115,6 +132,46 @@ function BlogInner() {
                                 </form>
                             </div>
                             <div className="widget">
+                                <h3 className="widget_title">Popular Fremor Stories</h3>
+                                <div className="recent-post-wrap">
+                                    {popularLoading ? (
+                                        <div className="text-center py-3">
+                                            <div className="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
+                                    ) : popularBlogs.length === 0 ? (
+                                        <p className="text-muted small">No popular stories marked yet.</p>
+                                    ) : (
+                                        popularBlogs.map((b) => (
+                                            <div className="recent-post" key={b.id}>
+                                                <div className="media-img">
+                                                    <Link to={`/blog/${b.id}`}>
+                                                        <img
+                                                            src={getBlogImageSrc(b.main_image)}
+                                                            alt={b.title}
+                                                        />
+                                                    </Link>
+                                                </div>
+                                                <div className="media-body">
+                                                    <h4 className="post-title">
+                                                        <Link className="text-inherit" to={`/blog/${b.id}`}>
+                                                            {b.title}
+                                                        </Link>
+                                                    </h4>
+                                                    <div className="recent-post-meta">
+                                                        <Link to={`/blog/${b.id}`}>
+                                                            <i className="fa-regular fa-calendar" />
+                                                            {new Date(b.created_at).toLocaleDateString('en-US', {
+                                                                day: '2-digit', month: 'short', year: 'numeric'
+                                                            })}
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                            {/*<div className="widget">
                                 <h3 className="widget_title">Most Visited Destinations</h3>
                                 <div className="recent-post-wrap">
                                     {destinationsLoading ? (
@@ -151,7 +208,7 @@ function BlogInner() {
                                         ))
                                     )}
                                 </div>
-                            </div>
+                            </div>*/}
                             {/*<div className="widget widget_tag_cloud">
                                 <h3 className="widget_title">Popular Tags</h3>
                                 <div className="tagcloud">

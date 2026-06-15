@@ -19,10 +19,12 @@ function BlogPost({ blog }) {
             </div>
             <div className="blog-content">
                 <div className="blog-meta">
-                    <Link className="author" to={`/blog/${blog.id}`}>
-                        <i className="fa-light fa-user" />
-                        by {blog.author || 'David Smith'}
-                    </Link>
+                    {blog.author && (
+                        <Link className="author" to={`/blog/${blog.id}`}>
+                            <i className="fa-light fa-user" />
+                            by {blog.author}
+                        </Link>
+                    )}
                     <Link to={`/blog/${blog.id}`}>
                         <i className="fa-solid fa-calendar-days" />
                         {formattedDate}

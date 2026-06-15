@@ -669,6 +669,24 @@ function RecentlyBookedItineraries() {
                                                     {tag}
                                                 </span>
 
+                                                {item.accommodation_type && (
+                                                     <span className="rb-hotel-badge" style={{
+                                                         display: 'inline-block',
+                                                         backgroundColor: '#f0fdf4',
+                                                         color: '#16a34a',
+                                                         fontSize: '11px',
+                                                         fontWeight: '700',
+                                                         padding: '3px 8px',
+                                                         borderRadius: '4px',
+                                                         marginLeft: '8px',
+                                                         border: '1px solid #dcfce7',
+                                                         textTransform: 'uppercase',
+                                                         letterSpacing: '0.5px'
+                                                     }}>
+                                                         <i className="fa-solid fa-hotel me-1"></i> {item.accommodation_type}
+                                                     </span>
+                                                 )}
+
                                                 <div className="rb-card-divider"></div>
 
                                                 {/* Card Footer price & CTA */}

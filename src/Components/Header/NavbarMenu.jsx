@@ -109,6 +109,7 @@ export default function NavbarMenu({ split }) {
                     url: '/destination/outbound', 
                     special_type: 'outbound_mega',
                     children: [
+                        { id: 'fb-cont-asia', label: 'Asia', url: '/destination/outbound/asia' },
                         { id: 'fb-cont-europe', label: 'Europe', url: '/destination/outbound/europe' },
                         { id: 'fb-cont-africa', label: 'Africa', url: '/destination/outbound/africa' },
                         { id: 'fb-cont-na', label: 'North America', url: '/destination/outbound/north-america' },
@@ -160,6 +161,7 @@ export default function NavbarMenu({ split }) {
         // Special Type Case 1: Outbound Mega Menu (Continents Dropdown)
         if (item.special_type === 'outbound_mega') {
             const defaultContinents = [
+                { id: 'fb-cont-asia', label: 'Asia', url: '/destination/outbound/asia' },
                 { id: 'fb-cont-europe', label: 'Europe', url: '/destination/outbound/europe' },
                 { id: 'fb-cont-africa', label: 'Africa', url: '/destination/outbound/africa' },
                 { id: 'fb-cont-na', label: 'North America', url: '/destination/outbound/north-america' },
