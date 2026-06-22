@@ -149,6 +149,13 @@ function RecentlyBookedItineraries() {
             });
         }
 
+        // 3. Sort by price in ascending order
+        results.sort((a, b) => {
+            const priceA = parseFloat(a.price) || 0;
+            const priceB = parseFloat(b.price) || 0;
+            return priceA - priceB;
+        });
+
         setFilteredItineraries(results);
     }, [selectedLocation, selectedPrice, itineraries]);
 

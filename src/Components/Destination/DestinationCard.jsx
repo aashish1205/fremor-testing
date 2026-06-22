@@ -131,13 +131,22 @@ function DestinationCard(props) {
                         <span className="rating-count">({formatRatingCount(ratingCount)})</span>
                     )}
                 </div>
-                <button 
-                    className="wishlist-btn" 
-                    onClick={toggleWishlist}
-                    title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-                >
-                    <i className={isWishlisted ? "fa-solid fa-heart active" : "fa-regular fa-heart"}></i>
-                </button>
+                <div className="top-bar-right">
+                    {(destinationNights > 0 || destinationDays > 0) && (
+                        <span className="badge-duration">
+                            {destinationNights > 0 ? `${destinationNights}N` : ''}
+                            {destinationNights > 0 && destinationDays > 0 ? '/' : ''}
+                            {destinationDays > 0 ? `${destinationDays}D` : ''}
+                        </span>
+                    )}
+                    <button 
+                        className="wishlist-btn" 
+                        onClick={toggleWishlist}
+                        title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                    >
+                        <i className={isWishlisted ? "fa-solid fa-heart active" : "fa-regular fa-heart"}></i>
+                    </button>
+                </div>
             </div>
 
             {/* Bottom info container (normal state) */}
@@ -145,13 +154,6 @@ function DestinationCard(props) {
                 <div className="badge-row">
                     {isRecommended && (
                         <span className="badge-recommended">{badgeText || 'Recommended'}</span>
-                    )}
-                    {(destinationNights > 0 || destinationDays > 0) && (
-                        <span className="badge-duration">
-                            {destinationNights > 0 ? `${destinationNights}N` : ''}
-                            {destinationNights > 0 && destinationDays > 0 ? '/' : ''}
-                            {destinationDays > 0 ? `${destinationDays}D` : ''}
-                        </span>
                     )}
                     {accommodationType && (
                         <span className="badge-hotel-type">

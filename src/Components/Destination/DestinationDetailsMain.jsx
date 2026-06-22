@@ -202,6 +202,7 @@ function DestinationDetailsMain() {
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [showShareTooltip, setShowShareTooltip] = useState(false);
     const [generatingPDF, setGeneratingPDF] = useState(false);
+    const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -584,6 +585,106 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
             }
         };
     }, [destinationPost, mapLocations.length]);
+
+    useEffect(() => {
+        if (!isMapPopupOpen || mapLocations.length === 0) return;
+
+        let mapInstance = null;
+        let isMounted = true;
+
+        loadLeaflet().then((L) => {
+            if (!isMounted) return;
+
+            const container = document.getElementById('popup-package-map');
+            if (!container) return;
+
+            // Safe guard: clear inner HTML and reset Leaflet ID if map container was already initialized
+            if (container._leaflet_id) {
+                container._leaflet_id = null;
+                container.innerHTML = '';
+            }
+
+            // Initialize map
+            mapInstance = L.map('popup-package-map', {
+                scrollWheelZoom: true,
+                attributionControl: false
+            });
+
+            // Set up premium tiles (CARTO Voyager)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            }).addTo(mapInstance);
+
+            const markers = [];
+            const latlngs = [];
+
+            mapLocations.forEach((day, index) => {
+                const lat = parseFloat(day.latitude);
+                const lng = parseFloat(day.longitude);
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                const latlng = [lat, lng];
+                latlngs.push(latlng);
+
+                // Custom DivIcon styled as a red location pin with day number
+                const pinIcon = L.divIcon({
+                    html: `<div class="custom-map-pin">
+                             <i class="fa-solid fa-location-dot" style="color: #ef4444; font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.35);"></i>
+                             <span class="pin-day-badge">${index + 1}</span>
+                           </div>`,
+                    className: 'custom-div-icon',
+                    iconSize: [30, 42],
+                    iconAnchor: [15, 36],
+                    popupAnchor: [0, -32]
+                });
+
+                // Add marker
+                const marker = L.marker(latlng, { icon: pinIcon }).addTo(mapInstance);
+                marker.bindPopup(`
+                    <div style="font-family: inherit; font-size: 13px;">
+                        <span style="font-weight: 800; color: #3b82f6; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 2px;">${day.day || `Day ${index + 1}`}</span>
+                        <b>${day.location_name || 'Visited Location'}</b>
+                        ${day.title ? `<div style="color: #64748b; margin-top: 3px; font-size: 11.5px;">${day.title}</div>` : ''}
+                    </div>
+                `);
+
+                markers.push(marker);
+            });
+
+            // Connect markers sequentially with a path (polyline)
+            if (latlngs.length > 1) {
+                L.polyline(latlngs, {
+                    color: '#3b82f6',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '6, 8',
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(mapInstance);
+            }
+
+            // Zoom map to fit all path coordinates
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                mapInstance.fitBounds(group.getBounds().pad(0.2));
+            }
+
+            // Force Leaflet to recalculate container bounds after modal displays/renders
+            setTimeout(() => {
+                if (mapInstance && isMounted) {
+                    mapInstance.invalidateSize();
+                }
+            }, 300);
+        });
+
+        // Cleanup
+        return () => {
+            isMounted = false;
+            if (mapInstance) {
+                mapInstance.remove();
+            }
+        };
+    }, [isMapPopupOpen, mapLocations]);
 
     if (loading) return <div className="text-center py-5"><h3>Loading destination details...</h3></div>;
     if (error || !destinationPost) return <div className="text-center py-5"><h3>{error || 'Destination not found'}</h3></div>;
@@ -1493,67 +1594,79 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                     </div>
                     
                     <div className="col-xxl-3 col-lg-4">
-                        {/* Sidebar: Booking Card */}
-                        <div className={`details-booking-card ${hasStickyNav ? 'has-sticky-nav' : ''}`}>
-                            <div className="price-section">
-                                {origPriceVal > priceVal && (
-                                    <span className="orig-price">₹ {origPriceVal.toLocaleString('en-IN')}</span>
-                                )}
-                                <span className="sell-price">₹ {priceVal.toLocaleString('en-IN')}</span>
-                                <span className="price-label">Starting price per adult</span>
-                            </div>
-                            
-                            <div className="divider-line"></div>
-                            
-                            <button 
-                                className="btn-book-now"
-                                onClick={() => setIsEnquireOpen(true)}
-                            >
-                                Enquire Now
-                            </button>
-                            
-                            <button 
-                                className="btn-wishlist"
-                                onClick={toggleWishlist}
-                            >
-                                <i className={isWishlisted ? "fa-solid fa-heart active" : "fa-regular fa-heart"}></i>
-                                {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
-                            </button>
-                            
-                            <div className="divider-line"></div>
-                            
-                            <div className="actions-footer" style={{ position: 'relative' }}>
+                        <div className="destination-sidebar-sticky">
+                            {/* Sidebar: Booking Card */}
+                            <div className={`details-booking-card ${hasStickyNav ? 'has-sticky-nav' : ''}`}>
+                                <div className="price-section">
+                                    {origPriceVal > priceVal && (
+                                        <span className="orig-price">₹ {origPriceVal.toLocaleString('en-IN')}</span>
+                                    )}
+                                    <span className="sell-price">₹ {priceVal.toLocaleString('en-IN')}</span>
+                                    <span className="price-label">Starting price per adult</span>
+                                </div>
+                                
+                                <div className="divider-line"></div>
+                                
                                 <button 
-                                    onClick={handleDownloadPDF}
-                                    disabled={generatingPDF}
-                                    className="action-link border-0 bg-transparent"
-                                    style={{ cursor: generatingPDF ? 'wait' : 'pointer' }}
+                                    className="btn-book-now"
+                                    onClick={() => setIsEnquireOpen(true)}
                                 >
-                                    <i className="fa-solid fa-file-pdf"></i> {generatingPDF ? "Generating PDF..." : "Download PDF"}
+                                    Enquire Now
                                 </button>
                                 
                                 <button 
-                                    className="action-link"
-                                    onClick={handleShare}
+                                    className="btn-wishlist"
+                                    onClick={toggleWishlist}
                                 >
-                                    <i className="fa-solid fa-share-nodes"></i> Share
+                                    <i className={isWishlisted ? "fa-solid fa-heart active" : "fa-regular fa-heart"}></i>
+                                    {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
                                 </button>
+                                
+                                <div className="divider-line"></div>
+                                
+                                <div className="actions-footer" style={{ position: 'relative' }}>
+                                    <button 
+                                        onClick={handleDownloadPDF}
+                                        disabled={generatingPDF}
+                                        className="action-link border-0 bg-transparent"
+                                        style={{ cursor: generatingPDF ? 'wait' : 'pointer' }}
+                                    >
+                                        <i className="fa-solid fa-file-pdf"></i> {generatingPDF ? "Generating PDF..." : "Download PDF"}
+                                    </button>
+                                    
+                                    <button 
+                                        className="action-link"
+                                        onClick={handleShare}
+                                    >
+                                        <i className="fa-solid fa-share-nodes"></i> Share
+                                    </button>
 
-                                {showShareTooltip && (
-                                    <div className="share-tooltip">Link copied!</div>
-                                )}
+                                    {showShareTooltip && (
+                                        <div className="share-tooltip">Link copied!</div>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Sidebar: Route Map Card */}
+                            {mapLocations.length > 0 && (
+                                <div className="details-map-card animate__animated animate__fadeIn">
+                                    <div className="map-card-header">
+                                        <h4 className="card-title" style={{ marginBottom: 0 }}>
+                                            <i className="fa-solid fa-map-location-dot"></i> Route Path
+                                        </h4>
+                                        <button 
+                                            type="button"
+                                            className="btn-view-full-map"
+                                            onClick={() => setIsMapPopupOpen(true)}
+                                            title="View full map in bigger screen"
+                                        >
+                                            <i className="fa-solid fa-expand"></i> Full Map
+                                        </button>
+                                    </div>
+                                    <div id="package-map" className="details-map-container"></div>
+                                </div>
+                            )}
                         </div>
-
-                        {/* Sidebar: Route Map Card */}
-                        {mapLocations.length > 0 && (
-                            <div className="details-map-card animate__animated animate__fadeIn">
-                                <h4 className="card-title">
-                                    <i className="fa-solid fa-map-location-dot"></i> Route Path
-                                </h4>
-                                <div id="package-map" className="details-map-container"></div>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -1595,6 +1708,23 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
             initialChildren={calcChildren.toString()}
             packageTier={calcCategory}
         />
+
+        {/* FULL MAP POPUP MODAL */}
+        {isMapPopupOpen && (
+            <div className="map-modal-overlay" onClick={() => setIsMapPopupOpen(false)}>
+                <div className="map-modal-content animate__animated animate__zoomIn" onClick={(e) => e.stopPropagation()}>
+                    <div className="map-modal-header">
+                        <h4 className="modal-title">
+                            <i className="fa-solid fa-map-location-dot" style={{ color: '#3b82f6' }}></i> Route Path Map
+                        </h4>
+                        <button className="map-modal-close" onClick={() => setIsMapPopupOpen(false)}>
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="popup-package-map" className="popup-map-container"></div>
+                </div>
+            </div>
+        )}
         </>
     );
 }
