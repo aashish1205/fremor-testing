@@ -52,16 +52,18 @@ export async function createVisa(visaData) {
     const { data, error } = await supabase
         .from('visas')
         .insert([visaData])
-        .select()
-        .single();
+        .select();
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+        throw new Error("No data returned. This might be due to Row Level Security (RLS) blocking the operation.");
+    }
     try {
         sessionStorage.removeItem(CACHE_KEY);
     } catch (e) {
         console.warn('Error clearing sessionStorage cache:', e);
     }
-    return data;
+    return data[0];
 }
 
 export async function updateVisa(id, visaData) {
@@ -69,16 +71,18 @@ export async function updateVisa(id, visaData) {
         .from('visas')
         .update(visaData)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+        throw new Error("No data returned. The record may not exist, or Row Level Security (RLS) blocked the update.");
+    }
     try {
         sessionStorage.removeItem(CACHE_KEY);
     } catch (e) {
         console.warn('Error clearing sessionStorage cache:', e);
     }
-    return data;
+    return data[0];
 }
 
 export async function deleteVisa(id) {
