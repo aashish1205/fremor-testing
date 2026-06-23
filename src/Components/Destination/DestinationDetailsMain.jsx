@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { fetchDestinationById, getImageSrc } from '../../services/destinationService';
 import EnquirePopupForm from '../Forms/EnquirePopupForm';
 import { supabase } from '../../supabaseClient';
@@ -299,6 +299,10 @@ function DestinationDetailsMain() {
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
 
+    const [searchParams] = useSearchParams();
+    const queryTier = searchParams.get('tier') || searchParams.get('package_type');
+    const [selectedTier, setSelectedTier] = useState('Standard');
+
     // Interactive Pricing Calculator States
     const [calcCategory, setCalcCategory] = useState("standard"); // 'standard', 'premium', 'luxury'
     const [calcAdults, setCalcAdults] = useState(2);
@@ -412,9 +416,12 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                 const data = await fetchDestinationById(id);
                 setDestinationPost(data);
                 
-                // Initialize pricing calculator category from package type
+                // Initialize pricing calculator category and selected tier
                 if (data && data.package_type) {
-                    setCalcCategory(data.package_type.toLowerCase());
+                    const defaultTier = queryTier || data.package_type || 'Standard';
+                    const normalizedTier = defaultTier.charAt(0).toUpperCase() + defaultTier.slice(1).toLowerCase();
+                    setSelectedTier(normalizedTier);
+                    setCalcCategory(normalizedTier.toLowerCase());
                 }
             } catch (err) {
                 console.error('Error fetching destination:', err);
@@ -425,10 +432,13 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         };
 
         if (id) loadDestination();
-    }, [id]);
+    }, [id, queryTier]);
 
     useEffect(() => {
         if (destinationPost) {
+            const activeTierData = (selectedTier && destinationPost.tier_pricing?.[selectedTier]) 
+                ? destinationPost.tier_pricing[selectedTier] 
+                : null;
             const inclusionsData = {
                 hotel: true,
                 meals: true,
@@ -442,7 +452,8 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                 activities: false,
                 visa: false,
                 insurance: false,
-                ...(destinationPost.inclusions || {})
+                ...(destinationPost.inclusions || {}),
+                ...(activeTierData?.inclusions || {})
             };
             const keys = ['hotel', 'meals', 'sightseeing', 'transfers', 'manager', 'flights', 'trains', 'cruises', 'activities', 'visa', 'insurance', 'highlights'];
             const firstEnabled = keys.find(key => !!inclusionsData[key]);
@@ -450,7 +461,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                 setActiveInclusion(firstEnabled);
             }
         }
-    }, [destinationPost]);
+    }, [destinationPost, selectedTier]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -848,24 +859,31 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         return parseFloat(cleaned) || 0;
     };
 
-    const priceVal = getNumericPrice(destinationPost.price);
-    const origPriceVal = getNumericPrice(destinationPost.original_price);
+    // Active tier details
+    const activeTierData = (selectedTier && destinationPost?.tier_pricing?.[selectedTier]) 
+        ? destinationPost.tier_pricing[selectedTier] 
+        : null;
 
-    const getBasePrice = () => {
-        if (!destinationPost.price) return 980;
-        const cleaned = destinationPost.price.toString().replace(/[^0-9.]/g, '');
-        return parseFloat(cleaned) || 980;
+    const hasActiveTierPricing = activeTierData && parseFloat(activeTierData.price) > 0;
+
+    const priceVal = hasActiveTierPricing 
+        ? parseFloat(activeTierData.price) 
+        : getNumericPrice(destinationPost.price);
+
+    const origPriceVal = hasActiveTierPricing 
+        ? (parseFloat(activeTierData.original_price) || 0) 
+        : getNumericPrice(destinationPost.original_price);
+
+    const activeAccommodationType = hasActiveTierPricing 
+        ? activeTierData.accommodation_type 
+        : destinationPost.accommodation_type;
+
+    const activeInclusionsDetails = {
+        ...(destinationPost.inclusions_details || {}),
+        ...(activeTierData?.inclusions_details || {})
     };
 
-    const basePriceNum = getBasePrice();
-    const getMultiplier = () => {
-        if (calcCategory === "premium") return 1.25;
-        if (calcCategory === "luxury") return 1.5;
-        return 1.0; // standard
-    };
-
-    const multiplier = getMultiplier();
-    const singleAdultPrice = Math.round(basePriceNum * multiplier);
+    const singleAdultPrice = Math.round(priceVal || 980);
     const singleChildPrice = Math.round(singleAdultPrice * 0.7);
 
     const totalAdultsCost = calcAdults * singleAdultPrice;
@@ -966,10 +984,10 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                                 <span>{destinationPost.itinerary_route}</span>
                             </div>
                         )}
-                        {destinationPost.accommodation_type && (
+                        {activeAccommodationType && (
                             <div className="d-flex align-items-center gap-2">
                                 <i className="fa-solid fa-hotel text-warning" style={{ fontSize: '15px' }}></i>
-                                <span>{destinationPost.accommodation_type} Accommodation</span>
+                                <span>{activeAccommodationType} Accommodation</span>
                             </div>
                         )}
                     </div>
@@ -1040,7 +1058,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                             <span className="text-capitalize">{inclusionsMap[activeInclusion].label} Details</span>
                         </div>
                         <div className="inclusion-detail-body">
-                            {renderInclusionDetails(destinationPost.inclusions_details?.[activeInclusion])}
+                            {renderInclusionDetails(activeInclusionsDetails?.[activeInclusion])}
                         </div>
                     </div>
                 )}
@@ -1392,11 +1410,30 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                                                             <select 
                                                                 className="form-select"
                                                                 value={calcCategory} 
-                                                                onChange={(e) => setCalcCategory(e.target.value)}
+                                                                onChange={(e) => {
+                                                                    const val = e.target.value;
+                                                                    setCalcCategory(val);
+                                                                    const normalized = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+                                                                    setSelectedTier(normalized);
+                                                                }}
                                                             >
-                                                                <option value="standard">Standard Package</option>
-                                                                <option value="premium">Premium Package (+25%)</option>
-                                                                <option value="luxury">Luxury Package (+50%)</option>
+                                                                {['Standard', 'Premium', 'Luxury'].map(tier => {
+                                                                    const isMainType = destinationPost.package_type === tier;
+                                                                    const tierData = destinationPost.tier_pricing?.[tier];
+                                                                    const isTierAvailable = tierData && parseFloat(tierData.price) > 0;
+                                                                    
+                                                                    if (!isMainType && !isTierAvailable) return null;
+                                                                    
+                                                                    const price = isTierAvailable 
+                                                                        ? parseFloat(tierData.price) 
+                                                                        : getNumericPrice(destinationPost.price);
+                                                                    
+                                                                    return (
+                                                                        <option key={tier} value={tier.toLowerCase()}>
+                                                                            {tier} Package (₹{price.toLocaleString('en-IN')})
+                                                                        </option>
+                                                                    );
+                                                                })}
                                                             </select>
                                                         </div>
                                                         
@@ -1597,12 +1634,42 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
                         <div className="destination-sidebar-sticky">
                             {/* Sidebar: Booking Card */}
                             <div className={`details-booking-card ${hasStickyNav ? 'has-sticky-nav' : ''}`}>
+                                {(() => {
+                                    const availableTiers = ['Standard', 'Premium', 'Luxury'].filter(tier => {
+                                        const isMainType = destinationPost.package_type === tier;
+                                        const tierData = destinationPost.tier_pricing?.[tier];
+                                        return isMainType || (tierData && parseFloat(tierData.price) > 0);
+                                    });
+
+                                    if (availableTiers.length <= 1) return null;
+
+                                    return (
+                                        <div className="tier-selector-container">
+                                            <span className="tier-label">Choose Package Class:</span>
+                                            <div className="tier-buttons">
+                                                {availableTiers.map(tier => (
+                                                    <button
+                                                        key={tier}
+                                                        type="button"
+                                                        className={`tier-btn ${selectedTier === tier ? 'active' : ''}`}
+                                                        onClick={() => {
+                                                            setSelectedTier(tier);
+                                                            setCalcCategory(tier.toLowerCase());
+                                                        }}
+                                                    >
+                                                        {tier}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                                 <div className="price-section">
                                     {origPriceVal > priceVal && (
                                         <span className="orig-price">₹ {origPriceVal.toLocaleString('en-IN')}</span>
                                     )}
                                     <span className="sell-price">₹ {priceVal.toLocaleString('en-IN')}</span>
-                                    <span className="price-label">Starting price per adult</span>
+                                    <span className="price-label">Starting price per adult ({selectedTier})</span>
                                 </div>
                                 
                                 <div className="divider-line"></div>

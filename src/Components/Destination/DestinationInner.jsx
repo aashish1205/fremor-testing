@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import DestinationCard from './DestinationCard';
 import DestinationCardTwo from './DestinationCardTwo';
-import { fetchDestinations, searchDestinations } from '../../services/destinationService';
+import { fetchDestinations, searchDestinations, processDestinationsWithTiers } from '../../services/destinationService';
 import { fetchBlogs, getBlogImageSrc } from '../../services/blogService';
 import CallbackCard from '../Forms/CallbackCard';
 
@@ -126,7 +126,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                     data = data.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
                 }
                 if (packageType) {
-                    data = data.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
+                    data = processDestinationsWithTiers(data, packageType);
                 }
             } else {
                 data = await fetchDestinations(category, packageType);
@@ -168,7 +168,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                     data = data.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
                 }
                 if (packageType) {
-                    data = data.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
+                    data = processDestinationsWithTiers(data, packageType);
                 }
             } else {
                 data = await fetchDestinations(category, packageType);
@@ -260,9 +260,11 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
     };
 
     const getPackageTypeCount = (typeVal) => {
+        const typeValLower = typeVal.toLowerCase();
         return destinations.filter(dest => {
-            const type = dest.package_type || 'Standard';
-            return type.toLowerCase() === typeVal.toLowerCase();
+            if ((dest.package_type || 'Standard').toLowerCase() === typeValLower) return true;
+            if (dest.tier_pricing && dest.tier_pricing[typeVal] && parseFloat(dest.tier_pricing[typeVal].price) > 0) return true;
+            return false;
         }).length;
     };
 
@@ -408,6 +410,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                                                     location={data.location}
                                                     itinerarySummary={data.itinerary_summary}
                                                     accommodationType={data.accommodation_type}
+                                                    selectedTier={data.selected_tier}
                                                 />
                                             </div>
                                         ))}
@@ -428,6 +431,7 @@ function DestinationInner({ category: propCategory, continent: propContinent }) 
                                                     destinationNights={data.nights}
                                                     destinationDays={data.days}
                                                     accommodationType={data.accommodation_type}
+                                                    selectedTier={data.selected_tier}
                                                 />
                                             </div>
                                         ))}

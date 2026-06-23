@@ -9,13 +9,13 @@ function DestinationCardTwo(props) {
     return (
         <div className="tour-box style-flex th-ani">
             <div className="tour-box_img global-img">
-                <Link to={`/destination/${destinationID}`}>
+                <Link to={`/destination/${destinationID}${props.selectedTier ? `?tier=${props.selectedTier}` : ''}`}>
                     <img src={getImageSrc(destinationImage)} alt={destinationTitle || 'Destination'} />
                 </Link>
             </div>
             <div className="tour-content">
                 <h3 className="box-title">
-                    <Link to={`/destination/${destinationID}`}>{destinationTitle ? destinationTitle : 'Dubai'}</Link>
+                    <Link to={`/destination/${destinationID}${props.selectedTier ? `?tier=${props.selectedTier}` : ''}`}>{destinationTitle ? destinationTitle : 'Dubai'}</Link>
                 </h3>
                 <div className="tour-rating">
                     <div
@@ -31,7 +31,7 @@ function DestinationCardTwo(props) {
                         </span>
                     </div>
                     <Link
-                        to={`/destination/${destinationID}`}
+                        to={`/destination/${destinationID}${props.selectedTier ? `?tier=${props.selectedTier}` : ''}`}
                         className="woocommerce-review-link"
                     >
                         (<span className="count">4.8</span>

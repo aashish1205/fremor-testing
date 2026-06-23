@@ -75,7 +75,12 @@ function DestinationAdminPanel() {
         show_recently_booked: false,
         recent_booking_text: '',
         recent_booking_tag: '',
-        continent: ''
+        continent: '',
+        tier_pricing: {
+            Standard: { price: '', original_price: '', accommodation_type: '3 Star', inclusions_details: { hotel: '' } },
+            Premium: { price: '', original_price: '', accommodation_type: '4 Star', inclusions_details: { hotel: '' } },
+            Luxury: { price: '', original_price: '', accommodation_type: '5 Star', inclusions_details: { hotel: '' } }
+        }
     });
 
     
@@ -275,7 +280,33 @@ function DestinationAdminPanel() {
                 show_recently_booked: dest.show_recently_booked || false,
                 recent_booking_text: dest.recent_booking_text || '',
                 recent_booking_tag: dest.recent_booking_tag || '',
-                continent: dest.continent || ''
+                continent: dest.continent || '',
+                tier_pricing: {
+                    Standard: {
+                        price: dest.tier_pricing?.Standard?.price || '',
+                        original_price: dest.tier_pricing?.Standard?.original_price || '',
+                        accommodation_type: dest.tier_pricing?.Standard?.accommodation_type || '3 Star',
+                        inclusions_details: {
+                            hotel: dest.tier_pricing?.Standard?.inclusions_details?.hotel || ''
+                        }
+                    },
+                    Premium: {
+                        price: dest.tier_pricing?.Premium?.price || '',
+                        original_price: dest.tier_pricing?.Premium?.original_price || '',
+                        accommodation_type: dest.tier_pricing?.Premium?.accommodation_type || '4 Star',
+                        inclusions_details: {
+                            hotel: dest.tier_pricing?.Premium?.inclusions_details?.hotel || ''
+                        }
+                    },
+                    Luxury: {
+                        price: dest.tier_pricing?.Luxury?.price || '',
+                        original_price: dest.tier_pricing?.Luxury?.original_price || '',
+                        accommodation_type: dest.tier_pricing?.Luxury?.accommodation_type || '5 Star',
+                        inclusions_details: {
+                            hotel: dest.tier_pricing?.Luxury?.inclusions_details?.hotel || ''
+                        }
+                    }
+                }
             });
         } else {
             setFormData({
@@ -317,7 +348,12 @@ function DestinationAdminPanel() {
                 show_recently_booked: false,
                 recent_booking_text: '',
                 recent_booking_tag: '',
-                continent: ''
+                continent: '',
+                tier_pricing: {
+                    Standard: { price: '', original_price: '', accommodation_type: '3 Star', inclusions_details: { hotel: '' } },
+                    Premium: { price: '', original_price: '', accommodation_type: '4 Star', inclusions_details: { hotel: '' } },
+                    Luxury: { price: '', original_price: '', accommodation_type: '5 Star', inclusions_details: { hotel: '' } }
+                }
             });
         }
         setPrimaryImageFile(null);
@@ -330,6 +366,34 @@ function DestinationAdminPanel() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleTierPricingChange = (tier, field, value) => {
+        setFormData(prev => {
+            const currentTier = prev.tier_pricing?.[tier] || { price: '', original_price: '', accommodation_type: '', inclusions_details: { hotel: '' } };
+            let updatedTier;
+            if (field === 'hotel') {
+                updatedTier = {
+                    ...currentTier,
+                    inclusions_details: {
+                        ...(currentTier.inclusions_details || {}),
+                        hotel: value
+                    }
+                };
+            } else {
+                updatedTier = {
+                    ...currentTier,
+                    [field]: value
+                };
+            }
+            return {
+                ...prev,
+                tier_pricing: {
+                    ...(prev.tier_pricing || {}),
+                    [tier]: updatedTier
+                }
+            };
+        });
     };
 
     // Generic Array Handlers
@@ -515,7 +579,8 @@ function DestinationAdminPanel() {
                 show_recently_booked: !!formData.show_recently_booked,
                 recent_booking_text: formData.recent_booking_text || '',
                 recent_booking_tag: formData.recent_booking_tag || '',
-                continent: formData.category === 'Outbound' ? (formData.continent || '') : null
+                continent: formData.category === 'Outbound' ? (formData.continent || '') : null,
+                tier_pricing: formData.tier_pricing || {}
             };
 
             // Dynamic brochure PDF is now generated automatically on client side, no upload needed
@@ -1061,6 +1126,67 @@ function DestinationAdminPanel() {
                                     <label>Terms & Conditions (HTML supported)</label>
                                     <textarea name="terms_conditions" value={formData.terms_conditions} onChange={handleInputChange} className="form-control" rows="5" placeholder="Custom cancellation, booking policies..."></textarea>
                                 </div>
+                            </div>
+
+                            <h5 className="mt-4 text-primary border-bottom pb-2">Multi-Tier Pricing & Hotels</h5>
+                            <p className="text-muted small">Configure tier-specific prices, hotel classifications, and hotel names. These custom pricing tiers will be displayed dynamically in catalog filtering and search pages, as well as on the details page selector.</p>
+                            <div className="row mt-3 mb-4">
+                                {['Standard', 'Premium', 'Luxury'].map((tier) => {
+                                    const tierData = formData.tier_pricing?.[tier] || { price: '', original_price: '', accommodation_type: '', inclusions_details: { hotel: '' } };
+                                    return (
+                                        <div key={tier} className="col-md-12 mb-3 p-3 border rounded bg-light">
+                                            <h6 className="text-primary fw-semibold mb-2">{tier} Tier Settings</h6>
+                                            <div className="row">
+                                                <div className="col-md-3 mb-2">
+                                                    <label className="small fw-semibold">Selling Price</label>
+                                                    <input 
+                                                        type="number" 
+                                                        step="0.01" 
+                                                        value={tierData.price || ''} 
+                                                        onChange={(e) => handleTierPricingChange(tier, 'price', e.target.value)} 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="e.g. 85000" 
+                                                    />
+                                                </div>
+                                                <div className="col-md-3 mb-2">
+                                                    <label className="small fw-semibold">Original Price</label>
+                                                    <input 
+                                                        type="number" 
+                                                        step="0.01" 
+                                                        value={tierData.original_price || ''} 
+                                                        onChange={(e) => handleTierPricingChange(tier, 'original_price', e.target.value)} 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="e.g. 100000" 
+                                                    />
+                                                </div>
+                                                <div className="col-md-3 mb-2">
+                                                    <label className="small fw-semibold">Accommodation Rating</label>
+                                                    <select 
+                                                        value={tierData.accommodation_type || ''} 
+                                                        onChange={(e) => handleTierPricingChange(tier, 'accommodation_type', e.target.value)} 
+                                                        className="form-control form-control-sm"
+                                                    >
+                                                        <option value="">-- Use Default --</option>
+                                                        <option value="2 Star">2 Star Hotel</option>
+                                                        <option value="3 Star">3 Star Hotel</option>
+                                                        <option value="4 Star">4 Star Hotel</option>
+                                                        <option value="5 Star">5 Star Hotel</option>
+                                                    </select>
+                                                </div>
+                                                <div className="col-md-3 mb-2">
+                                                    <label className="small fw-semibold">Hotel Name(s)</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={tierData.inclusions_details?.hotel || ''} 
+                                                        onChange={(e) => handleTierPricingChange(tier, 'hotel', e.target.value)} 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="e.g. Radisson Blu" 
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             <h5 className="mt-4 text-primary border-bottom pb-2">Hover Card Inclusions</h5>

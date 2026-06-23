@@ -4,6 +4,37 @@ const BUCKET_NAME = 'destination-images';
 
 const CACHE_KEY = 'fremor_destinations_cache';
 
+export function processDestinationsWithTiers(destinationsList, packageType) {
+    if (!packageType) return destinationsList;
+    const ptLower = packageType.toLowerCase();
+    
+    const results = [];
+    for (const d of destinationsList) {
+        const matchingTierKey = d.tier_pricing ? Object.keys(d.tier_pricing).find(k => k.toLowerCase() === ptLower) : null;
+        
+        if (matchingTierKey) {
+            const tierInfo = d.tier_pricing[matchingTierKey];
+            if (tierInfo && parseFloat(tierInfo.price) > 0) {
+                results.push({
+                    ...d,
+                    price: parseFloat(tierInfo.price),
+                    original_price: parseFloat(tierInfo.original_price) || 0,
+                    package_type: matchingTierKey,
+                    accommodation_type: tierInfo.accommodation_type || d.accommodation_type,
+                    inclusions_details: {
+                        ...(d.inclusions_details || {}),
+                        ...(tierInfo.inclusions_details || {})
+                    },
+                    selected_tier: matchingTierKey
+                });
+            }
+        } else if (d.package_type && d.package_type.toLowerCase() === ptLower) {
+            results.push(d);
+        }
+    }
+    return results;
+}
+
 // ─── FETCH ALL DESTINATIONS ───────────────────────────────────────────
 export async function fetchDestinations(category = null, packageType = null, bypassCache = true) {
     let allDestinations = null;
@@ -38,7 +69,7 @@ export async function fetchDestinations(category = null, packageType = null, byp
         filtered = filtered.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
     }
     if (packageType) {
-        filtered = filtered.filter(d => d.package_type && d.package_type.toLowerCase() === packageType.toLowerCase());
+        filtered = processDestinationsWithTiers(filtered, packageType);
     }
     return filtered;
 }

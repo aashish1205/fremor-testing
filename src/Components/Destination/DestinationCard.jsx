@@ -163,7 +163,7 @@ function DestinationCard(props) {
                 </div>
                 
                 <h3 className="card-title">
-                    <Link to={`/destination/${destinationID}`}>{destinationTitle || 'Andaman Package'}</Link>
+                    <Link to={`/destination/${destinationID}${props.selectedTier ? `?tier=${props.selectedTier}` : ''}`}>{destinationTitle || 'Andaman Package'}</Link>
                 </h3>
                 
                 <div className="price-row">
@@ -321,7 +321,7 @@ function DestinationCard(props) {
 
                 {/* Action CTA */}
                 <div className="hover-actions">
-                    <Link to={`/destination/${destinationID}`} className="btn-view-details">
+                    <Link to={`/destination/${destinationID}${props.selectedTier ? `?tier=${props.selectedTier}` : ''}`} className="btn-view-details">
                         View Details
                     </Link>
                 </div>
