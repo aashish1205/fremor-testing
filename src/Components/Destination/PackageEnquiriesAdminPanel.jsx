@@ -7,6 +7,7 @@ import {
 import { useDataTable } from '../../hooks/useDataTable';
 import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
+import ConfirmModal from '../Admin/ConfirmModal';
 
 export default function PackageEnquiriesAdminPanel() {
     const [enquiries, setEnquiries] = useState([]);
@@ -75,8 +76,15 @@ export default function PackageEnquiriesAdminPanel() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this enquiry? This action cannot be undone.')) return;
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
+
+    const handleDeleteClick = (id) => {
+        setDeleteConfirm({ isOpen: true, id });
+    };
+
+    const executeDelete = async () => {
+        const id = deleteConfirm.id;
+        setDeleteConfirm({ isOpen: false, id: null });
         try {
             await deletePackageEnquiry(id);
             showToast('Enquiry deleted successfully!');
@@ -336,7 +344,7 @@ export default function PackageEnquiriesAdminPanel() {
                                                         <i className="fa-solid fa-eye me-1"></i>View
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleDelete(e.id)}
+                                                        onClick={() => handleDeleteClick(e.id)}
                                                         style={{ background: '#fdf2f2', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', color: '#dc3545', fontWeight: '600', fontSize: '0.85rem' }}
                                                     >
                                                         <i className="fa-solid fa-trash-can"></i>
@@ -538,7 +546,7 @@ export default function PackageEnquiriesAdminPanel() {
                         {/* Footer */}
                         <div style={{ background: '#f8fafc', padding: '1rem 1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
                             <button 
-                                onClick={() => handleDelete(selectedEnquiry.id)}
+                                onClick={() => handleDeleteClick(selectedEnquiry.id)}
                                 style={{ background: '#fdf2f2', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', color: '#dc3545', fontWeight: '600', fontSize: '0.85rem' }}
                             >
                                 <i className="fa-solid fa-trash-can me-2"></i>Delete Enquiry
@@ -563,6 +571,15 @@ export default function PackageEnquiriesAdminPanel() {
                     `}</style>
                 </div>
             )}
+            <ConfirmModal 
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Enquiry"
+                message="Are you sure you want to delete this enquiry? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={executeDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, id: null })}
+            />
         </div>
     );
 }

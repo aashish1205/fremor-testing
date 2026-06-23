@@ -12,6 +12,7 @@ import { useDataTable } from '../../hooks/useDataTable';
 import { useAdminSearch } from '../AdminSearchContext';
 import AdminPagination from '../Admin/AdminPagination';
 import '../Destination/AdminStyles.css';
+import ConfirmModal from '../Admin/ConfirmModal';
 
 function VisaAdminPanel() {
     const [visas, setVisas] = useState([]);
@@ -216,8 +217,15 @@ function VisaAdminPanel() {
         }
     };
 
-    const handleDelete = async (id, imageUrl) => {
-        if (!window.confirm('Are you sure you want to delete this visa country record?')) return;
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null, imageUrl: null });
+
+    const handleDeleteClick = (id, imageUrl) => {
+        setDeleteConfirm({ isOpen: true, id, imageUrl });
+    };
+
+    const executeDelete = async () => {
+        const { id, imageUrl } = deleteConfirm;
+        setDeleteConfirm({ isOpen: false, id: null, imageUrl: null });
         try {
             await deleteVisa(id);
             if (imageUrl) await deleteImage(imageUrl);
@@ -314,9 +322,9 @@ function VisaAdminPanel() {
                                                 <button className="btn-edit" onClick={() => handleOpenModal('edit', v)}>
                                                     <i className="fa-solid fa-pen"></i> Edit
                                                 </button>
-                                                <button className="btn-delete" onClick={() => handleDelete(v.id, v.landmark_image)}>
-                                                    <i className="fa-solid fa-trash"></i> Delete
-                                                </button>
+                                                <button className="btn-delete" onClick={() => handleDeleteClick(v.id, v.landmark_image)}>
+                                                     <i className="fa-solid fa-trash"></i> Delete
+                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -417,6 +425,15 @@ function VisaAdminPanel() {
                     </div>
                 </div>
             )}
+            <ConfirmModal 
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Visa Record"
+                message="Are you sure you want to delete this visa country record? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={executeDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, id: null, imageUrl: null })}
+            />
         </div>
     );
 }

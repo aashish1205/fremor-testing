@@ -9,28 +9,6 @@ CREATE TABLE IF NOT EXISTS public.instagram_gallery (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable Row Level Security
-ALTER TABLE public.instagram_gallery ENABLE ROW LEVEL SECURITY;
+-- RLS disabled for instagram_gallery table to allow team members (who login via custom RPC and run as 'anon' role) to manage the gallery.
+-- ALTER TABLE public.instagram_gallery ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access (so anyone can view the active images on the frontend)
-CREATE POLICY "Enable read access for all users" 
-ON public.instagram_gallery FOR SELECT 
-USING (true);
-
--- Allow authenticated users (like your admin) to insert new images
-CREATE POLICY "Enable insert for authenticated users only" 
-ON public.instagram_gallery FOR INSERT 
-TO authenticated 
-WITH CHECK (true);
-
--- Allow authenticated users to update images
-CREATE POLICY "Enable update for authenticated users only" 
-ON public.instagram_gallery FOR UPDATE 
-TO authenticated 
-USING (true);
-
--- Allow authenticated users to delete images
-CREATE POLICY "Enable delete for authenticated users only" 
-ON public.instagram_gallery FOR DELETE 
-TO authenticated 
-USING (true);

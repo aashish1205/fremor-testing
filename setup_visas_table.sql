@@ -19,19 +19,6 @@ CREATE TABLE IF NOT EXISTS public.visas (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Set up Row Level Security (RLS)
-ALTER TABLE public.visas ENABLE ROW LEVEL SECURITY;
+-- RLS disabled for visas table to allow team members (who login via custom RPC and run as 'anon' role) to manage visas.
+-- ALTER TABLE public.visas ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow public read access
-CREATE POLICY "Allow public read access" ON public.visas
-    FOR SELECT USING (true);
-
--- Create policy to allow authenticated users to write (insert/update/delete)
-CREATE POLICY "Allow authenticated insert" ON public.visas
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated update" ON public.visas
-    FOR UPDATE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated delete" ON public.visas
-    FOR DELETE USING (auth.role() = 'authenticated');

@@ -13,29 +13,9 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable RLS
-ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+-- RLS disabled for testimonials table to allow team members (who login via custom RPC and run as 'anon' role) to manage testimonials.
+-- ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access
-CREATE POLICY "Enable read access for all users" 
-ON public.testimonials FOR SELECT 
-USING (true);
-
--- Allow authenticated users to insert, update, delete
-CREATE POLICY "Enable insert for authenticated users only" 
-ON public.testimonials FOR INSERT 
-TO authenticated 
-WITH CHECK (true);
-
-CREATE POLICY "Enable update for authenticated users only" 
-ON public.testimonials FOR UPDATE 
-TO authenticated 
-USING (true);
-
-CREATE POLICY "Enable delete for authenticated users only" 
-ON public.testimonials FOR DELETE 
-TO authenticated 
-USING (true);
 
 -- ==========================================
 -- 2. Create testimonials storage bucket
