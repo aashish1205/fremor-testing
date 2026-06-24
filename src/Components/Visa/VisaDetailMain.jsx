@@ -625,14 +625,14 @@ export default function VisaDetailMain() {
           </div>
 
           {/* NEED HELP */}
-          <div className="vd-sidebar-help">
+          {/*<div className="vd-sidebar-help">
             <div className="vd-help-icon">🎧</div>
             <div>
               <h4>Need Help?</h4>
               <p>Our visa experts are available 24/7</p>
               <a href="tel:+911234567890" className="vd-help-phone">📞 +91 1234 567 890</a>
             </div>
-          </div>
+          </div>*/}
 
         </aside>
       </div>
