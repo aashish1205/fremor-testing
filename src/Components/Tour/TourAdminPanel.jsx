@@ -42,6 +42,7 @@ function TourAdminPanel() {
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
+    const [originalImage, setOriginalImage] = useState('');
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -84,6 +85,7 @@ function TourAdminPanel() {
     const handleOpenModal = (mode = 'add', tour = null) => {
         setModalMode(mode);
         if (mode === 'edit' && tour) {
+            setOriginalImage(tour.primary_image || '');
             setFormData({
                 id: tour.id,
                 title: tour.title || '',
@@ -101,6 +103,7 @@ function TourAdminPanel() {
                 itinerary: tour.itinerary?.length ? tour.itinerary : [{ day: "Day 01", activities: [''] }]
             });
         } else {
+            setOriginalImage('');
             setFormData({
                 id: null,
                 title: '',
@@ -200,9 +203,6 @@ function TourAdminPanel() {
 
             if (primaryImageFile) {
                 finalImage = await uploadTourImage(primaryImageFile, 'tours');
-                if (modalMode === 'edit' && formData.primary_image) {
-                    await deleteTourImage(formData.primary_image);
-                }
             }
 
             let numericPrice = parseFloat(formData.price.toString().replace(/[^0-9.]/g, ''));
@@ -237,6 +237,9 @@ function TourAdminPanel() {
                 showToast('Tour created successfully!');
             } else {
                 await updateTour(formData.id, dataToSave);
+                if (originalImage && originalImage !== finalImage) {
+                    await deleteTourImage(originalImage);
+                }
                 showToast('Tour updated successfully!');
             }
 
@@ -250,12 +253,19 @@ function TourAdminPanel() {
         }
     };
 
-    const handleDelete = async (id, imageUrl) => {
+    const handleDelete = async (id, imageUrl, galleryImages) => {
         if (!window.confirm('Are you sure you want to delete this tour?')) return;
         
         try {
             await deleteTour(id);
             if (imageUrl) await deleteTourImage(imageUrl);
+            
+            const parsedGallery = typeof galleryImages === 'string' ? JSON.parse(galleryImages) : galleryImages;
+            if (Array.isArray(parsedGallery)) {
+                for (let url of parsedGallery) {
+                    await deleteTourImage(url);
+                }
+            }
             showToast('Tour deleted successfully!');
             loadTours();
         } catch (err) {
@@ -357,7 +367,7 @@ function TourAdminPanel() {
                                                 <button className="btn-edit" onClick={() => handleOpenModal('edit', tour)}>
                                                     <i className="fa-solid fa-pen"></i> Edit
                                                 </button>
-                                                <button className="btn-delete" onClick={() => handleDelete(tour.id, tour.primary_image)}>
+                                                <button className="btn-delete" onClick={() => handleDelete(tour.id, tour.primary_image, tour.gallery_images)}>
                                                     <i className="fa-solid fa-trash"></i> Delete
                                                 </button>
                                             </div>

@@ -186,10 +186,10 @@ const getSegmentsForDay = (dayObj) => {
     return segments;
 };
 
-function DestinationDetailsMain() {
+function DestinationDetailsMain({ initialDestination }) {
     const { id } = useParams();
-    const [destinationPost, setDestinationPost] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [destinationPost, setDestinationPost] = useState(initialDestination || null);
+    const [loading, setLoading] = useState(!initialDestination);
     const [error, setError] = useState(null);
     const [isEnquireOpen, setIsEnquireOpen] = useState(false);
     
@@ -409,6 +409,18 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
     };
 
     useEffect(() => {
+        if (initialDestination) {
+            setDestinationPost(initialDestination);
+            setLoading(false);
+            if (initialDestination.package_type) {
+                const defaultTier = queryTier || initialDestination.package_type || 'Standard';
+                const normalizedTier = defaultTier.charAt(0).toUpperCase() + defaultTier.slice(1).toLowerCase();
+                setSelectedTier(normalizedTier);
+                setCalcCategory(normalizedTier.toLowerCase());
+            }
+            return;
+        }
+
         const loadDestination = async () => {
             try {
                 setLoading(true);
@@ -432,7 +444,7 @@ Adults: ${calcAdults}, Children: ${calcChildren} (Ages: ${enquiryData.childrenAg
         };
 
         if (id) loadDestination();
-    }, [id, queryTier]);
+    }, [id, queryTier, initialDestination]);
 
     useEffect(() => {
         if (destinationPost) {

@@ -36,7 +36,7 @@ export function processDestinationsWithTiers(destinationsList, packageType) {
 }
 
 // ─── FETCH ALL DESTINATIONS ───────────────────────────────────────────
-export async function fetchDestinations(category = null, packageType = null, bypassCache = true) {
+export async function fetchDestinations(category = null, packageType = null, bypassCache = false) {
     let allDestinations = null;
     if (!bypassCache) {
         try {

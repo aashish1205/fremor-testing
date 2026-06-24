@@ -8,7 +8,8 @@ import {
     deleteImage, 
     uploadBrochure,
     deleteBrochure,
-    getImageSrc 
+    getImageSrc,
+    getBannerSrc
 } from '../../services/destinationService';
 import { useDataTable } from '../../hooks/useDataTable';
 import { useAdminSearch } from '../AdminSearchContext';
@@ -56,6 +57,7 @@ function DestinationAdminPanel() {
         tour_type: 'Group Tour',
         terms_conditions: '',
         image: '',
+        banner_image: '',
         gallery_images: [],
         description_1: '',
         description_2: '',
@@ -85,7 +87,9 @@ function DestinationAdminPanel() {
 
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
+    const [bannerImageFile, setBannerImageFile] = useState(null);
     const [galleryImageFiles, setGalleryImageFiles] = useState([]);
+    const [originalImages, setOriginalImages] = useState({ image: '', banner_image: '', gallery_images: [], itinerary_images: [] });
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -232,6 +236,15 @@ function DestinationAdminPanel() {
     const handleOpenModal = (mode = 'add', dest = null) => {
         setModalMode(mode);
         if (mode === 'edit' && dest) {
+            const gallery = dest.gallery_images || [];
+            const itin = dest.itinerary || [];
+            const itinImages = itin.map(item => item.image).filter(Boolean);
+            setOriginalImages({
+                image: dest.image || '',
+                banner_image: dest.banner_image || '',
+                gallery_images: [...gallery],
+                itinerary_images: [...itinImages]
+            });
             setFormData({
                 id: dest.id,
                 title: dest.title || '',
@@ -252,6 +265,7 @@ function DestinationAdminPanel() {
                 tour_type: dest.tour_type || 'Group Tour',
                 terms_conditions: dest.terms_conditions || '',
                 image: dest.image || '',
+                banner_image: dest.banner_image || '',
                 gallery_images: dest.gallery_images || [],
                 description_1: dest.description_1 || '',
                 description_2: dest.description_2 || '',
@@ -309,6 +323,12 @@ function DestinationAdminPanel() {
                 }
             });
         } else {
+            setOriginalImages({
+                image: '',
+                banner_image: '',
+                gallery_images: [],
+                itinerary_images: []
+            });
             setFormData({
                 id: null,
                 title: '',
@@ -329,6 +349,7 @@ function DestinationAdminPanel() {
                 tour_type: 'Group Tour',
                 terms_conditions: '',
                 image: '',
+                banner_image: '',
                 gallery_images: [],
                 description_1: '',
                 description_2: '',
@@ -357,6 +378,7 @@ function DestinationAdminPanel() {
             });
         }
         setPrimaryImageFile(null);
+        setBannerImageFile(null);
         setGalleryImageFiles([]);
         setIsModalOpen(true);
     };
@@ -491,13 +513,15 @@ function DestinationAdminPanel() {
             setIsSubmitting(true);
             const cleanArray = arr => arr ? arr.filter(item => typeof item === 'string' && item.trim() !== '') : [];
             let finalImage = formData.image;
+            let finalBannerImage = formData.banner_image;
             let currentGallery = formData.gallery_images || [];
 
             if (primaryImageFile) {
                 finalImage = await uploadImage(primaryImageFile, 'destination');
-                if (modalMode === 'edit' && formData.image) {
-                    await deleteImage(formData.image);
-                }
+            }
+
+            if (bannerImageFile) {
+                finalBannerImage = await uploadImage(bannerImageFile, 'destination');
             }
 
             // Handle gallery images upload
@@ -560,6 +584,7 @@ function DestinationAdminPanel() {
                 tour_type: formData.tour_type || 'Group Tour',
                 terms_conditions: formData.terms_conditions || '',
                 image: finalImage,
+                banner_image: finalBannerImage,
                 gallery_images: finalGallery,
                 description_1: formData.description_1,
                 description_2: formData.description_2,
@@ -590,6 +615,29 @@ function DestinationAdminPanel() {
                 showToast('Rich Destination created successfully!');
             } else {
                 await updateDestination(formData.id, dataToSave);
+                
+                // Clean up orphaned images only after database save succeeds
+                // 1. Primary image replacement
+                if (originalImages.image && originalImages.image !== finalImage) {
+                    await deleteImage(originalImages.image);
+                }
+                // 1.2. Banner image replacement
+                if (originalImages.banner_image && originalImages.banner_image !== finalBannerImage) {
+                    await deleteImage(originalImages.banner_image);
+                }
+                // 2. Removed gallery images
+                for (let origUrl of originalImages.gallery_images) {
+                    if (!finalGallery.includes(origUrl)) {
+                        await deleteImage(origUrl);
+                    }
+                }
+                // 3. Removed itinerary day images
+                const newItinImages = cleanItinerary.map(day => day.image).filter(Boolean);
+                for (let origUrl of originalImages.itinerary_images) {
+                    if (!newItinImages.includes(origUrl)) {
+                        await deleteImage(origUrl);
+                    }
+                }
                 showToast('Rich Destination updated successfully!');
             }
 
@@ -604,11 +652,36 @@ function DestinationAdminPanel() {
         }
     };
 
-    const handleDelete = async (id, imageUrl) => {
-        if (!window.confirm('Are you sure you want to delete this destination?')) return;
+    const handleDelete = async (dest) => {
+        if (!dest) return;
+        if (!window.confirm(`Are you sure you want to delete this destination: "${dest.title}"?`)) return;
         try {
-            await deleteDestination(id);
-            if (imageUrl) await deleteImage(imageUrl);
+            await deleteDestination(dest.id);
+            
+            // Delete main image
+            if (dest.image) await deleteImage(dest.image);
+            
+            // Delete banner image
+            if (dest.banner_image) await deleteImage(dest.banner_image);
+            
+            // Delete gallery images
+            const gallery = dest.gallery_images;
+            const parsedGallery = typeof gallery === 'string' ? JSON.parse(gallery) : gallery;
+            if (Array.isArray(parsedGallery)) {
+                for (let url of parsedGallery) {
+                    await deleteImage(url);
+                }
+            }
+            
+            // Delete itinerary day images
+            const itinerary = dest.itinerary;
+            const parsedItinerary = typeof itinerary === 'string' ? JSON.parse(itinerary) : itinerary;
+            if (Array.isArray(parsedItinerary)) {
+                for (let day of parsedItinerary) {
+                    if (day.image) await deleteImage(day.image);
+                }
+            }
+            
             showToast('Destination deleted successfully!');
             loadDestinations();
         } catch (err) {
@@ -783,7 +856,7 @@ function DestinationAdminPanel() {
                                                         <button className="btn-edit" onClick={() => handleOpenModal('edit', dest)}>
                                                             <i className="fa-solid fa-pen"></i> Edit
                                                         </button>
-                                                        <button className="btn-delete" onClick={() => handleDelete(dest.id, dest.image)}>
+                                                        <button className="btn-delete" onClick={() => handleDelete(dest)}>
                                                             <i className="fa-solid fa-trash"></i> Delete
                                                         </button>
                                                     </div>
@@ -1292,6 +1365,26 @@ function DestinationAdminPanel() {
                                     <div className="mb-2">
                                         <small className="text-muted d-block mb-1">Current Cover Image:</small>
                                         <img src={getImageSrc(formData.image)} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} alt="Current Cover" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="form-group mb-4">
+                                <label className="fw-bold text-dark">Banner Image</label>
+                                <small className="text-muted d-block mb-2">Recommended dimensions: <strong>2000 x 500 px</strong> (Aspect Ratio 4:1)</small>
+                                <input type="file" accept="image/*" onChange={(e) => {
+                                    if(e.target.files && e.target.files[0]) setBannerImageFile(e.target.files[0])
+                                }} className="form-control mb-2" />
+                                {bannerImageFile && (
+                                    <div className="mb-2">
+                                        <small className="text-primary d-block mb-1">New Banner Image Preview (4:1):</small>
+                                        <img src={URL.createObjectURL(bannerImageFile)} style={{ width: '100%', maxWidth: '400px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} alt="New Banner Preview" />
+                                    </div>
+                                )}
+                                {formData.banner_image && !bannerImageFile && (
+                                    <div className="mb-2">
+                                        <small className="text-muted d-block mb-1">Current Banner Image Preview (4:1):</small>
+                                        <img src={getBannerSrc(formData.banner_image)} style={{ width: '100%', maxWidth: '400px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} alt="Current Banner" />
                                     </div>
                                 )}
                             </div>

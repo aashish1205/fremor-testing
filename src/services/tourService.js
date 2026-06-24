@@ -35,8 +35,14 @@ export async function fetchTours() {
 
 // ─── FETCH SINGLE TOUR BY ID ──────────────────────────────────────────
 export async function fetchTourById(id) {
-    const tours = await fetchTours();
-    return tours.find(t => String(t.id) === String(id)) || null;
+    const { data, error } = await supabase
+        .from('tours')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) throw error;
+    return data;
 }
 
 // ─── SEARCH TOURS BY TITLE ────────────────────────────────────────────

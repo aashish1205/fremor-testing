@@ -45,6 +45,7 @@ export async function fetchBlogById(id) {
     return data;
 }
 
+
 // ─── FETCH POPULAR BLOGS (BYPASS CACHE) ────────────────────────
 export async function fetchPopularBlogs() {
     const { data, error } = await supabase

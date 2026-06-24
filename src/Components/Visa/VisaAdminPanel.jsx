@@ -45,6 +45,7 @@ function VisaAdminPanel() {
     });
     
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
+    const [originalImage, setOriginalImage] = useState('');
 
     // Toast state
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -87,6 +88,7 @@ function VisaAdminPanel() {
     const handleOpenModal = (mode = 'add', visa = null) => {
         setModalMode(mode);
         if (mode === 'edit' && visa) {
+            setOriginalImage(visa.landmark_image || '');
             // Normalize FAQs to array of objects with category
             let formattedFaqs = [];
             if (Array.isArray(visa.faqs)) {
@@ -128,6 +130,7 @@ function VisaAdminPanel() {
                 is_featured: visa.is_featured || false
             });
         } else {
+            setOriginalImage('');
             setFormData({
                 id: null,
                 country_name: '',
@@ -169,9 +172,6 @@ function VisaAdminPanel() {
 
             if (primaryImageFile) {
                 finalImage = await uploadImage(primaryImageFile, 'visa');
-                if (modalMode === 'edit' && formData.landmark_image) {
-                    await deleteImage(formData.landmark_image);
-                }
             }
 
             let numericPrice = parseFloat(formData.price.toString().replace(/[^0-9.]/g, ''));
@@ -204,6 +204,9 @@ function VisaAdminPanel() {
                 showToast('Visa country record created successfully!');
             } else {
                 await updateVisa(formData.id, dataToSave);
+                if (originalImage && originalImage !== finalImage) {
+                    await deleteImage(originalImage);
+                }
                 showToast('Visa country record updated successfully!');
             }
 

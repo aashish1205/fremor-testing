@@ -51,6 +51,7 @@ function BlogAdminPanel() {
     const [primaryImageFile, setPrimaryImageFile] = useState(null);
     const [storyImageFile, setStoryImageFile] = useState(null);
     const [galleryFiles, setGalleryFiles] = useState([]);
+    const [originalImages, setOriginalImages] = useState({ main_image: '', story_image: '', image_gallery: [] });
 
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
@@ -105,6 +106,12 @@ function BlogAdminPanel() {
         };
 
         if (mode === 'edit' && blog) {
+            const gallery = parseArraySafe(blog.image_gallery, []);
+            setOriginalImages({
+                main_image: blog.main_image || '',
+                story_image: blog.story_image || '',
+                image_gallery: [...gallery]
+            });
             setFormData({
                 id: blog.id,
                 title: blog.title || '',
@@ -113,7 +120,7 @@ function BlogAdminPanel() {
                 author: blog.author || '',
                 category: blog.category || 'Travel',
                 main_image: blog.main_image || '',
-                image_gallery: parseArraySafe(blog.image_gallery, []),
+                image_gallery: gallery,
                 places_to_visit: parseArraySafe(blog.places_to_visit, [{ title: "Place 1", description: "Desc..." }]),
                 activities: parseArraySafe(blog.activities, [{ title: "Activity 1", description: "Desc..." }]),
                 best_time: blog.best_time || '',
@@ -130,6 +137,11 @@ function BlogAdminPanel() {
                 is_popular_story: blog.is_popular_story || false
             });
         } else {
+            setOriginalImages({
+                main_image: '',
+                story_image: '',
+                image_gallery: []
+            });
             setFormData({
                 id: null,
                 title: '',
@@ -249,16 +261,10 @@ function BlogAdminPanel() {
 
             if (primaryImageFile) {
                 finalImage = await uploadBlogImage(primaryImageFile, 'blogs');
-                if (modalMode === 'edit' && formData.main_image) {
-                    await deleteBlogImage(formData.main_image);
-                }
             }
 
             if (storyImageFile) {
                 finalStoryImage = await uploadBlogImage(storyImageFile, 'blogs');
-                if (modalMode === 'edit' && formData.story_image) {
-                    await deleteBlogImage(formData.story_image);
-                }
             }
 
             if (galleryFiles.length > 0) {
@@ -300,6 +306,19 @@ function BlogAdminPanel() {
                 showToast('Blog created successfully!');
             } else {
                 await updateBlog(formData.id, dataToSave);
+                
+                // Clean up orphaned images only after database save succeeds
+                if (originalImages.main_image && originalImages.main_image !== finalImage) {
+                    await deleteBlogImage(originalImages.main_image);
+                }
+                if (originalImages.story_image && originalImages.story_image !== finalStoryImage) {
+                    await deleteBlogImage(originalImages.story_image);
+                }
+                for (let origUrl of originalImages.image_gallery) {
+                    if (!currentGallery.includes(origUrl)) {
+                        await deleteBlogImage(origUrl);
+                    }
+                }
                 showToast('Blog updated successfully!');
             }
 
@@ -320,8 +339,9 @@ function BlogAdminPanel() {
             if (imageUrl) await deleteBlogImage(imageUrl);
             if (storyImageUrl) await deleteBlogImage(storyImageUrl);
             
-            if (Array.isArray(galleryUrls)) {
-                for (let url of galleryUrls) {
+            const parsedGallery = typeof galleryUrls === 'string' ? JSON.parse(galleryUrls) : galleryUrls;
+            if (Array.isArray(parsedGallery)) {
+                for (let url of parsedGallery) {
                     await deleteBlogImage(url);
                 }
             }

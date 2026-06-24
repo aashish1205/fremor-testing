@@ -39,13 +39,25 @@ export async function fetchFeaturedVisas() {
 
 export async function fetchVisaByCountryName(countryName) {
     if (!countryName) return null;
-    const visas = await fetchVisas();
-    return visas.find(v => v.country_name.toLowerCase() === countryName.toLowerCase()) || null;
+    const { data, error } = await supabase
+        .from('visas')
+        .select('*')
+        .eq('country_name', countryName)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data;
 }
 
 export async function fetchVisaById(id) {
-    const visas = await fetchVisas();
-    return visas.find(v => String(v.id) === String(id)) || null;
+    const { data, error } = await supabase
+        .from('visas')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) throw error;
+    return data;
 }
 
 export async function createVisa(visaData) {

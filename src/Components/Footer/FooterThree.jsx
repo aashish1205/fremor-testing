@@ -137,6 +137,11 @@ function FooterThree() {
                                                     +91 8657004943
                                                 </Link>
                                             </p>
+                                             <p>
+                                                <Link to="tel:+918657004940" className="info-box_link">
+                                                    +91 8657004940
+                                                </Link>
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="info-box_text">

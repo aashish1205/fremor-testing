@@ -1,11 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-function Breadcrumb({ title, description, bgImage }) {
+function Breadcrumb({ title, description, bgImage, className = "" }) {
     return (
         <>
             <div
-                className="breadcumb-wrapper "
+                className={`breadcumb-wrapper ${className}`}
                 style={{ backgroundImage: `url(${bgImage || '/assets/img/banners/7137.jpg'})`, backgroundRepeat: "no-repeat", backgroundSize: "cover" }}
             >
                 <div className="container">
@@ -26,3 +26,4 @@ function Breadcrumb({ title, description, bgImage }) {
 }
 
 export default Breadcrumb
+
