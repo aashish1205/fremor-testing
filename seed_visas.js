@@ -28,14 +28,34 @@ const defaultImportantInfo = [
   {
     title: "Financial Proof",
     desc: "You may need to provide bank statements for the last 3-6 months showing sufficient funds to cover your trip expenses."
+  },
+  {
+    title: "Is my visa approval guaranteed?",
+    desc: "No. Visa approval is solely at the discretion of the respective embassy or immigration authorities."
+  },
+  {
+    title: "Can visa requirements change?",
+    desc: "Yes. Visa rules, fees, documentation, and processing times may change without prior notice."
   }
 ];
 
 const defaultFaqs = [
-  { category: "Important Information", q: "What documents do I need for a visa?", a: "You typically need a valid passport, photographs, flight bookings, hotel reservations, bank statements, and travel insurance." },
-  { category: "Important Information", q: "How long does processing take?", a: "Standard processing varies by country. Please check the processing time for your specific destination on the detail page." },
-  { category: "Processing Time", q: "What is the standard processing time?", a: "The processing time is calculated in working days or calendar days from the date of documents submission." },
+  { category: "Important Information", q: "What documents are required for a visa application?", a: "Required documents vary by country but usually include a passport, photographs, application form, financial proof, and travel itinerary." },
+  { category: "Important Information", q: "How long does visa processing take?", a: "Processing times depend on the destination country, visa type, and embassy workload." },
+  { category: "Important Information", q: "Can I extend my visa after arriving in the destination country?", a: "Visa extension policies vary by country and visa type." },
+  { category: "Important Information", q: "Do children require a separate visa?", a: "Yes, most countries require individual visa applications for minors." },
+  { category: "Important Information", q: "What is the difference between a tourist visa and a business visa?", a: "A tourist visa is for leisure travel, while a business visa is for meetings, conferences, and business-related activities." },
+  { category: "Important Information", q: "Do I need travel insurance for my visa?", a: "Many countries require valid travel insurance as part of the visa application." },
+  { category: "Important Information", q: "What happens if my visa is rejected?", a: "If your visa is refused, you may reapply after addressing the reason for refusal. Visa fees are generally non-refundable." },
+  { category: "Processing Time", q: "What is the standard processing time?", a: "Standard processing takes 5-7 working days from the date all documents are submitted." },
+  { category: "Processing Time", q: "When does visa processing begin?", a: "Processing starts only after the embassy receives a complete application with all required documents." },
+  { category: "Processing Time", q: "What causes processing delays?", a: "Incomplete documentation, embassy holidays, peak travel seasons, additional verification, or interviews may delay processing." },
   { category: "Re-application", q: "What if my visa is rejected?", a: "You can re-apply after addressing the reasons for rejection. A fresh application fee will apply." },
+  { category: "Re-application", q: "Can I reapply immediately after a visa refusal?", a: "Yes, but it is recommended to resolve the issues that caused the rejection before reapplying." },
+  { category: "Re-application", q: "Will a previous visa rejection affect future applications?", a: "Not necessarily, provided you meet all requirements and provide accurate documentation." },
+  { category: "Re-application", q: "Do I need to pay the visa fee again?", a: "Yes. A new application usually requires payment of the applicable visa fee again." },
+  { category: "Re-application", q: "Can I use the same documents for reapplication?", a: "You should submit updated and complete documents, especially those addressing the reason for the earlier refusal." },
+  { category: "Re-application", q: "Will my previous visa refusal affect future applications?", a: "Previous refusals may be considered, but a well-prepared application with complete documentation can improve your chances." },
   { category: "Visa Extension", q: "Can I extend my visa?", a: "Extension policies vary by country. Contact our support team for specific information." }
 ];
 

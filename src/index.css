@@ -2884,3 +2884,24 @@
     aspect-ratio: 4 / 3 !important; /* Taller ratio for mobile devices to prevent text overflow */
   }
 }
+
+/* Mobile Header Logo Optimization */
+@media (max-width: 991px) {
+  .header-logo img {
+    max-width: 145px !important;
+    height: auto !important;
+  }
+  .sticky-wrapper.sticky .header-logo img {
+    max-width: 120px !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .header-logo img {
+    max-width: 125px !important;
+    height: auto !important;
+  }
+  .sticky-wrapper.sticky .header-logo img {
+    max-width: 110px !important;
+  }
+}
