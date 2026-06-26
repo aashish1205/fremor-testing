@@ -2847,7 +2847,7 @@
 .destination-breadcrumb {
   width: 100% !important;
   max-width: 100% !important;
-  height: 700px !important;
+  height: 600px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2859,25 +2859,25 @@
 
 @media (max-width: 1199px) {
   .destination-breadcrumb {
-    height: 600px !important;
+    height: 500px !important;
   }
 }
 
 @media (max-width: 991px) {
   .destination-breadcrumb {
-    height: 500px !important;
+    height: 400px !important;
   }
 }
 
 @media (max-width: 767px) {
   .destination-breadcrumb {
-    height: 400px !important;
+    height: 300px !important;
   }
 }
 
 @media (max-width: 575px) {
   .destination-breadcrumb {
-    height: 300px !important;
+    height: 250px !important;
   }
 }
 
