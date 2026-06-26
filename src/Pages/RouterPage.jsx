@@ -1,104 +1,82 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import AdminLogin from './AdminLogin'
 import AdminProtectedRoute from '../Components/AdminProtectedRoute'
-import HomeOne from './HomeOne'
-import HomeTwo from './HomeTwo'
-import HomeThree from './HomeThree'
-import HomeFour from './HomeFour'
-import About from './About'
 import LoadTop from '../Components/LoadTop'
-import Destination from './Destination'
-import DestinationDetails from './DestinationDetails'
-import DestinationAdmin from './DestinationAdmin'
-import TourAdmin from './TourAdmin'
-import Service from './Service'
-import ServiceDetails from './ServiceDetails';
-import Activities from './Activities'
-import ActivitiesDetails from './ActivitiesDetails'
-import Shop from './Shop'
-import ShopDetails from './ShopDetails'
-import Cart from './Cart'
-import Checkout from './Checkout'
-import Wishlist from './Wishlist'
-import Gallery from './Gallery'
-import Tour from './Tour'
-import TourDetails from './TourDetails'
-import Resort from './Resort'
-import ResortDetails from './ResortDetails'
-import TourGuide from './TourGuide'
-import TourGuiderDetails from './TourGuiderDetails'
-import Faq from './Faq'
-import Pricing from './Pricing'
-import Error from './Error'
-import Blog from './Blog'
-import BlogDetails from './BlogDetails'
-import Contact from './Contact'
-import Visa from './Visa'
-import VisaDetail from './VisaDetail'
-import Cruise from './Cruise'
-import CruiseDetails from './CruiseDetails'
-import CruiseAdmin from './CruiseAdmin'
-import BlogAdmin from './BlogAdmin'
-import GalleryAdmin from './GalleryAdmin'
-import CustomerReviewsAdmin from './CustomerReviewsAdmin'
-import DashboardAdmin from './DashboardAdmin'
-import MyAccount from './MyAccount'
-import CoTravellers from './CoTravellers'
-import LoggedInDevices from './LoggedInDevices'
 import ProtectedRoute from '../Components/ProtectedRoute'
-import Terms from './Terms'
-import TestimonialAdmin from './TestimonialAdmin'
-import TravellersAdmin from './TravellersAdmin'
-import TravellerDetailsAdmin from './TravellerDetailsAdmin'
-import TeamAdmin from './TeamAdmin'
-import TeamLogin from './TeamLogin'
-import TeamDashboard from './TeamDashboard'
 import TeamProtectedRoute from '../Components/TeamProtectedRoute'
 import FloatingEnquireWidget from '../Components/Forms/FloatingEnquireWidget'
 import FremorLoader from '../Components/Loader/loader'
-import VisaAdmin from './VisaAdmin'
-import VisaEnquiriesAdmin from './VisaEnquiriesAdmin'
-import PackageEnquiriesAdmin from './PackageEnquiriesAdmin'
-import NavbarAdmin from './NavbarAdmin'
+
+// Lazy loaded page components
+const AdminLogin = React.lazy(() => import('./AdminLogin'))
+const HomeOne = React.lazy(() => import('./HomeOne'))
+const HomeTwo = React.lazy(() => import('./HomeTwo'))
+const HomeThree = React.lazy(() => import('./HomeThree'))
+const HomeFour = React.lazy(() => import('./HomeFour'))
+const About = React.lazy(() => import('./About'))
+const Destination = React.lazy(() => import('./Destination'))
+const DestinationDetails = React.lazy(() => import('./DestinationDetails'))
+const DestinationAdmin = React.lazy(() => import('./DestinationAdmin'))
+const TourAdmin = React.lazy(() => import('./TourAdmin'))
+const Service = React.lazy(() => import('./Service'))
+const ServiceDetails = React.lazy(() => import('./ServiceDetails'))
+const Activities = React.lazy(() => import('./Activities'))
+const ActivitiesDetails = React.lazy(() => import('./ActivitiesDetails'))
+const Shop = React.lazy(() => import('./Shop'))
+const ShopDetails = React.lazy(() => import('./ShopDetails'))
+const Cart = React.lazy(() => import('./Cart'))
+const Checkout = React.lazy(() => import('./Checkout'))
+const Wishlist = React.lazy(() => import('./Wishlist'))
+const Gallery = React.lazy(() => import('./Gallery'))
+const Tour = React.lazy(() => import('./Tour'))
+const TourDetails = React.lazy(() => import('./TourDetails'))
+const Resort = React.lazy(() => import('./Resort'))
+const ResortDetails = React.lazy(() => import('./ResortDetails'))
+const TourGuide = React.lazy(() => import('./TourGuide'))
+const TourGuiderDetails = React.lazy(() => import('./TourGuiderDetails'))
+const Faq = React.lazy(() => import('./Faq'))
+const Pricing = React.lazy(() => import('./Pricing'))
+const Error = React.lazy(() => import('./Error'))
+const Blog = React.lazy(() => import('./Blog'))
+const BlogDetails = React.lazy(() => import('./BlogDetails'))
+const Contact = React.lazy(() => import('./Contact'))
+const Visa = React.lazy(() => import('./Visa'))
+const VisaDetail = React.lazy(() => import('./VisaDetail'))
+const Cruise = React.lazy(() => import('./Cruise'))
+const CruiseDetails = React.lazy(() => import('./CruiseDetails'))
+const CruiseAdmin = React.lazy(() => import('./CruiseAdmin'))
+const BlogAdmin = React.lazy(() => import('./BlogAdmin'))
+const GalleryAdmin = React.lazy(() => import('./GalleryAdmin'))
+const CustomerReviewsAdmin = React.lazy(() => import('./CustomerReviewsAdmin'))
+const DashboardAdmin = React.lazy(() => import('./DashboardAdmin'))
+const MyAccount = React.lazy(() => import('./MyAccount'))
+const CoTravellers = React.lazy(() => import('./CoTravellers'))
+const LoggedInDevices = React.lazy(() => import('./LoggedInDevices'))
+const Terms = React.lazy(() => import('./Terms'))
+const TestimonialAdmin = React.lazy(() => import('./TestimonialAdmin'))
+const TravellersAdmin = React.lazy(() => import('./TravellersAdmin'))
+const TravellerDetailsAdmin = React.lazy(() => import('./TravellerDetailsAdmin'))
+const TeamAdmin = React.lazy(() => import('./TeamAdmin'))
+const TeamLogin = React.lazy(() => import('./TeamLogin'))
+const TeamDashboard = React.lazy(() => import('./TeamDashboard'))
+const VisaAdmin = React.lazy(() => import('./VisaAdmin'))
+const VisaEnquiriesAdmin = React.lazy(() => import('./VisaEnquiriesAdmin'))
+const PackageEnquiriesAdmin = React.lazy(() => import('./PackageEnquiriesAdmin'))
+const NavbarAdmin = React.lazy(() => import('./NavbarAdmin'))
 
 function RouterContent() {
   const location = useLocation()
-  const [showLoader, setShowLoader] = useState(false)
-  const isFirstMount = useRef(true)
-  const prevPathname = useRef(location.pathname)
-
-  useEffect(() => {
-    const prevPath = prevPathname.current
-    const currentPath = location.pathname
-    prevPathname.current = currentPath
-
-    if (isFirstMount.current) {
-      isFirstMount.current = false
-      return
-    }
-
-    // Skip loader transitions if navigating within the same dashboard section
-    const isAdminTransition = prevPath.startsWith('/admin') && currentPath.startsWith('/admin')
-    const isTeamTransition = prevPath.startsWith('/team') && currentPath.startsWith('/team')
-
-    if (isAdminTransition || isTeamTransition) {
-      return
-    }
-
-    setShowLoader(true)
-    const timer = setTimeout(() => {
-      setShowLoader(false)
-    }, 1500)
-    return () => clearTimeout(timer)
-  }, [location.pathname])
 
   return (
     <>
-      <FremorLoader show={showLoader} isPlain={location.pathname.startsWith('/admin') || location.pathname.startsWith('/team')} />
-      <div style={{ opacity: showLoader ? 0 : 1, transition: 'opacity 0.3s ease' }}>
-        <LoadTop />
-        <FloatingEnquireWidget />
+      <LoadTop />
+      <FloatingEnquireWidget />
+      <Suspense fallback={
+        <FremorLoader 
+          show={true} 
+          isPlain={location.pathname.startsWith('/admin') || location.pathname.startsWith('/team')} 
+        />
+      }>
         <Routes>
           <Route path="/" element={<HomeOne />}></Route>
           <Route path="/home-tour" element={<HomeTwo />}></Route>
@@ -133,12 +111,12 @@ function RouterContent() {
           <Route path="/resort" element={<Resort />}></Route>
           <Route path="/resort/:id" element={<ResortDetails />}></Route>
           <Route path="/tour-guide" element={<TourGuide />}></Route>
-          <Route path="/tour-guide/:id" element={<TourGuiderDetails />}></Route>
+          <Route path="/tour-guide/:id" element={<TourGuiderDetails />} />
           <Route path="/faq" element={<Faq />}></Route>
           <Route path="/price" element={<Pricing />}></Route>
           <Route path="/error" element={<Error />}></Route>
           <Route path="/blog" element={<Blog />}></Route>
-          <Route path="/blog/:id" element={<BlogDetails />}></Route>
+          <Route path="/blog/:id" element={<BlogDetails />} />
           <Route path="/contact" element={<Contact />}></Route>
           <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
           <Route path="/co-travellers" element={<ProtectedRoute><CoTravellers /></ProtectedRoute>} />
@@ -174,7 +152,7 @@ function RouterContent() {
           
           <Route path="/terms" element={<Terms />} />
         </Routes>
-      </div>
+      </Suspense>
     </>
   )
 }

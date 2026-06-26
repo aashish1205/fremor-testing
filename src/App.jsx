@@ -14,19 +14,10 @@ function App() {
       sessionStorage.setItem('brandPreloaderShown', 'true');
     };
 
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      
-      // Safety fallback timer of 6 seconds in case of slow resources
-      const fallback = setTimeout(handleLoad, 6000);
-      
-      return () => {
-        window.removeEventListener('load', handleLoad);
-        clearTimeout(fallback);
-      };
-    }
+    // React has mounted, so DOM is interactive. Wait 800ms to show the preloader animation
+    // without blocking the user on heavy assets like videos and images.
+    const timer = setTimeout(handleLoad, 800);
+    return () => clearTimeout(timer);
   }, [hasShownBrand]);
 
   return (
