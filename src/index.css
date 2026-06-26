@@ -2847,41 +2847,37 @@
 .destination-breadcrumb {
   width: 100% !important;
   max-width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 2000 / 500 !important;
-  min-height: 400px !important;
+  height: 700px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   background-position: center center !important;
   background-size: cover !important;
-  padding: 40px 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
 }
 
 @media (max-width: 1199px) {
   .destination-breadcrumb {
-    min-height: 350px !important;
+    height: 600px !important;
   }
 }
 
 @media (max-width: 991px) {
   .destination-breadcrumb {
-    min-height: 300px !important;
+    height: 500px !important;
   }
 }
 
 @media (max-width: 767px) {
   .destination-breadcrumb {
-    min-height: 250px !important;
-    aspect-ratio: 16 / 9 !important; /* Taller ratio for tablet/mobile screen size */
+    height: 400px !important;
   }
 }
 
 @media (max-width: 575px) {
   .destination-breadcrumb {
-    min-height: 200px !important;
-    aspect-ratio: 4 / 3 !important; /* Taller ratio for mobile devices to prevent text overflow */
+    height: 300px !important;
   }
 }
 
